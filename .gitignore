@@ -1,0 +1,13 @@
+# Course material
+aima*
+exercises/
+*.pdf
+
+# Python
+.ipynb_checkpoints
+*_cache
+__pycache__
+.venv/
+
+# Workspace
+.vscode

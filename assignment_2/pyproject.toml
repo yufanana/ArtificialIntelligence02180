@@ -1,0 +1,10 @@
+[project]
+name = "ai_assignment2"
+authors = [
+  { name = "group7"},
+]
+readme = "README.md"
+requires-python = ">=3.11"
+
+[tool.ruff]
+line-length = 80
