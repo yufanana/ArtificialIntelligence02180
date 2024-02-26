@@ -1,15 +1,75 @@
-import sys
 import math
-
-from pygame.locals import *
+import sys
+import pygame
+from pygame import QUIT, MOUSEBUTTONDOWN
 from game_logic.game import Game
 from game_logic.player import Player
-from gui.literals import *
-from gui.gui_helpers import *
+from game_logic.piece import Piece
+from game_logic.helpers import ints
+from gui.constants import (
+    WIDTH,
+    HEIGHT,
+    WHITE,
+    LIGHT_GRAY,
+    PLAYER_COLORS,
+    DARK_GRAY,
+)
+from gui.gui_helpers import (
+    abs_coors,
+    brighten_color,
+    TextButton,
+    obj_to_subj_coor,
+    highlightMove,
+    drawBoard,
+)
+
 
 class HumanPlayer(Player):
     def __init__(self):
         super().__init__()
+
+    def updatePieceColour(
+        self,
+        g: Game,
+        window: pygame.Surface,
+        mousePos: tuple,
+        piece: Piece,
+    ):
+        """
+        Brightens the color of the piece if the mouse is hovering over it.
+        """
+        coor = (
+            obj_to_subj_coor(piece.getCoor(), self.playerNum)
+            if self.playerNum != 0
+            else piece.getCoor()
+        )
+        absCoor = abs_coors(g.centerCoor, coor, g.unitLength)
+        # Case 1: Mouse is hovering over piece, brighten its color
+        if (
+            math.dist(mousePos, absCoor) <= g.circleRadius
+            and piece.mouse_hovering == False
+        ):
+            # Change the piece's color
+            pygame.draw.circle(
+                window,
+                brighten_color(PLAYER_COLORS[piece.getPlayerNum() - 1], 0.75),
+                absCoor,
+                g.circleRadius - 2,
+            )
+            piece.mouse_hovering = True
+        # Case 2: Mouse is not hovering over piece, return to original color
+        elif (
+            math.dist(mousePos, absCoor) > g.circleRadius
+            and piece.mouse_hovering == True
+            and tuple(window.get_at(ints(absCoor))) != WHITE
+        ):
+            pygame.draw.circle(
+                window,
+                PLAYER_COLORS[piece.getPlayerNum() - 1],
+                absCoor,
+                g.circleRadius - 2,
+            )
+            piece.mouse_hovering = False
 
     def pickMove(
         self,
@@ -18,47 +78,40 @@ class HumanPlayer(Player):
         humanPlayerNum: int = 0,
         highlight=None,
     ):
+        """
+        Returns the start and end coordinates of the selected move.
+        """
         pieceSet: set[Piece] = g.pieces[self.playerNum]
-        validmoves = []
+        validMoves = []
         clicking = False
         selected_piece_coor = ()
         prev_selected_piece_coor = ()
-        # pygame.event.set_allowed([QUIT, MOUSEBUTTONDOWN, MOUSEBUTTONUP])
         while True:
             ev = pygame.event.wait()
+
+            # Quit the game
             if ev.type == QUIT:
                 pygame.quit()
                 sys.exit()
-            # wait for a click,
-            # if mouse hovers on a piece, highlight it
-            mouse_pos = pygame.mouse.get_pos()
-            clicking = ev.type == MOUSEBUTTONDOWN
-            
-            if highlight:
-                pygame.draw.circle(
-                    window,
-                    (117, 10, 199),
-                    abs_coors(g.centerCoor, highlight[0], g.unitLength),
-                    g.circleRadius,
-                    g.lineWidth + 2,
-                )
-                pygame.draw.circle(
-                    window,
-                    (117, 10, 199),
-                    abs_coors(g.centerCoor, highlight[1], g.unitLength),
-                    g.circleRadius,
-                    g.lineWidth + 2,
-                )
 
+            # Wait for a click. If mouse hovers on a piece, highlight it
+            mousePos = pygame.mouse.get_pos()
+            clicking = ev.type == MOUSEBUTTONDOWN
+
+            if highlight:
+                highlightMove(g, window, highlight)
+
+            # Return to main menu
             backButton = TextButton(
                 "Back to Menu",
                 width=int(HEIGHT * 0.25),
                 height=int(HEIGHT * 0.0833),
                 font_size=int(WIDTH * 0.04),
             )
-            if backButton.isClicked(mouse_pos, clicking):
+            if backButton.isClicked(mousePos, clicking):
                 return (False, False)
-            backButton.draw(window, mouse_pos)
+
+            backButton.draw(window, mousePos)
 
             for piece in pieceSet:
                 coor = (
@@ -67,37 +120,15 @@ class HumanPlayer(Player):
                     else piece.getCoor()
                 )
                 absCoor = abs_coors(g.centerCoor, coor, g.unitLength)
-                if (
-                    math.dist(mouse_pos, absCoor) <= g.circleRadius
-                    and piece.mouse_hovering == False
-                ):
-                    # change the piece's color
-                    pygame.draw.circle(
-                        window,
-                        brighten_color(
-                            PLAYER_COLORS[piece.getPlayerNum() - 1], 0.75
-                        ),
-                        absCoor,
-                        g.circleRadius - 2,
-                    )
-                    piece.mouse_hovering = True
-                elif (
-                    math.dist(mouse_pos, absCoor) > g.circleRadius
-                    and piece.mouse_hovering == True
-                    and tuple(window.get_at(ints(absCoor))) != WHITE
-                ):
-                    # draw a circle of the original color
-                    pygame.draw.circle(
-                        window,
-                        PLAYER_COLORS[piece.getPlayerNum() - 1],
-                        absCoor,
-                        g.circleRadius - 2,
-                    )
-                    piece.mouse_hovering = False
-                # when a piece is selected, and you click any of the valid destinations,
-                # you will move that piece to the destination
-                if selected_piece_coor == piece.getCoor() and validmoves != []:
-                    for d in validmoves:
+
+                # Update the color of the piece based on mouse hover position
+                self.updatePieceColour(g, window, mousePos, piece)
+
+                # If the selected piece is the current piece,
+                # and there are valid moves,
+                # draw a gray circle around the possible destinations.
+                if selected_piece_coor == piece.getCoor() and validMoves != []:
+                    for d in validMoves:
                         destCoor = (
                             abs_coors(
                                 g.centerCoor,
@@ -107,10 +138,11 @@ class HumanPlayer(Player):
                             if humanPlayerNum != 0
                             else abs_coors(g.centerCoor, d, g.unitLength)
                         )
-                        if math.dist(mouse_pos, destCoor) <= g.circleRadius:
+
+                        # Gray circle if mouse is hovering over it
+                        if math.dist(mousePos, destCoor) <= g.circleRadius:
                             if clicking:
                                 return [selected_piece_coor, d]
-                            # draw a gray circle
                             else:
                                 pygame.draw.circle(
                                     window,
@@ -118,14 +150,15 @@ class HumanPlayer(Player):
                                     destCoor,
                                     g.circleRadius - 2,
                                 )
-                        elif math.dist(mouse_pos, destCoor) > g.circleRadius:
-                            # draw a white circle
+                        # White circle if mouse is not hovering over it
+                        else:
                             pygame.draw.circle(
                                 window, WHITE, destCoor, g.circleRadius - 2
                             )
-                # clicking the piece
+
+                # Check if the piece is selected
                 if (
-                    math.dist(mouse_pos, absCoor) <= g.circleRadius
+                    math.dist(mousePos, absCoor) <= g.circleRadius
                     and clicking == True
                 ):
                     selected_piece_coor = piece.getCoor()
@@ -134,23 +167,24 @@ class HumanPlayer(Player):
                         and selected_piece_coor != prev_selected_piece_coor
                     ):
                         if humanPlayerNum != 0:
-                            g.drawBoard(window, self.playerNum)
+                            drawBoard(g, window, self.playerNum)
                         else:
-                            g.drawBoard(window)
+                            drawBoard(g, window)
                     prev_selected_piece_coor = selected_piece_coor
-                    # draw a semi-transparent gray circle outside the piece
+
                     pygame.draw.circle(
                         window,
-                        (161, 166, 196, 50),
+                        DARK_GRAY + (50,),
                         absCoor,
                         g.circleRadius,
                         g.lineWidth + 1,
                     )
-                    # draw semi-transparent circles around all coordinates in getValidMoves()
-                    validmoves = g.getValidMoves(
+                    validMoves = g.getValidMoves(
                         selected_piece_coor, self.playerNum
                     )
-                for c in validmoves:
+
+                # Draw gray circles around valid moves
+                for c in validMoves:
                     c2 = (
                         obj_to_subj_coor(c, self.playerNum)
                         if humanPlayerNum != 0
@@ -158,7 +192,7 @@ class HumanPlayer(Player):
                     )
                     pygame.draw.circle(
                         window,
-                        (161, 166, 196),
+                        DARK_GRAY,
                         abs_coors(g.centerCoor, c2, g.unitLength),
                         g.circleRadius,
                         g.lineWidth + 2,

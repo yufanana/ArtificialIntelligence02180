@@ -1,11 +1,43 @@
 import pygame
-
 from colorsys import rgb_to_hls, hls_to_rgb
-from game_logic.helpers import *
-from game_logic.piece import Piece
+from game_logic.constants import DIRECTIONS
 from game_logic.game import Game
+from game_logic.helpers import add, abs_coors, h2c, mult, obj_to_subj_coor
+from game_logic.piece import Piece
+from gui.constants import (
+    BLACK,
+    GRAY,
+    ORANGE,
+    RED,
+    WHITE,
+    YELLOW,
+    GREEN,
+    PLAYER_COLORS,
+    PURPLE,
+)
 
-from gui.literals import *
+
+def highlightMove(g: Game, window: pygame.Surface, moves):
+    """
+    Highlights the start and end coordinates of a move.
+    """
+    # Highlight start coordinate
+    pygame.draw.circle(
+        window,
+        PURPLE,
+        abs_coors(g.centerCoor, moves[0], g.unitLength),
+        g.circleRadius,
+        g.lineWidth + 2,
+    )
+
+    # Highlight end coordinate
+    pygame.draw.circle(
+        window,
+        PURPLE,
+        abs_coors(g.centerCoor, moves[1], g.unitLength),
+        g.circleRadius,
+        g.lineWidth + 2,
+    )
 
 
 def adjust_color_brightness(rgbTuple: tuple, factor):
@@ -236,6 +268,9 @@ class TextButton(Button):
         self.button_color = button_color
 
     def draw(self, window: pygame.Surface, mouse_pos):
+        """
+        Fades the button if the mouse is hovering over it.
+        """
         text = pygame.font.SysFont(self.font, self.font_size).render(
             self.text, True, self.text_color
         )

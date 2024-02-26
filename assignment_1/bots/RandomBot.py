@@ -1,5 +1,4 @@
 import random
-
 from game_logic.player import Player
 from game_logic.game import Game
 from game_logic.helpers import subj_to_obj_coor

@@ -1,8 +1,11 @@
-import pygame, copy
-
-from gui.literals import *
-from .helpers import *
-from .piece import *
+"""
+Game Class to represent the game state and logic.
+"""
+import copy
+from game_logic.helpers import add, checkJump, obj_to_subj_coor
+from game_logic.constants import DIRECTIONS, END_COOR, NEUTRAL_COOR, START_COOR
+from game_logic.piece import Piece
+from gui.constants import HEIGHT, WIDTH
 
 
 class Game:
@@ -70,9 +73,7 @@ class Game:
                 if p + q < 4:
                     continue
                 else:
-                    Board[(p, q)] = (
-                        None if playerCount == 2 else Piece(3, p, q)
-                    )
+                    Board[(p, q)] = None if playerCount == 2 else Piece(3, p, q)
                     if playerCount == 3:
                         self.pieces[3].add(Board[p, q])
         # neutral zone

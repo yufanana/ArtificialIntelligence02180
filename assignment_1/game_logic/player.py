@@ -1,12 +1,8 @@
-from pygame.locals import *
+"""
+Abstract class for human players and bots in the game.
+"""
 from abc import ABC, ABCMeta, abstractmethod
-
-from gui.literals import *
-from gui.gui_helpers import *
-
-from .game import *
-from .piece import *
-from .helpers import *
+from game_logic.game import Game
 
 
 class PlayerMeta(ABCMeta):
@@ -32,4 +28,3 @@ class Player(ABC, metaclass=PlayerMeta):
     @abstractmethod
     def pickMove(self, g: Game):
         ...
-

@@ -1,23 +1,39 @@
+# usr/bin/python3
+"""
+Script to start the game of Chinese Checkers.
+"""
 import pygame
-from gui.loops import *
-from game_logic.game import *
-from game_logic.player import *
-from gui.literals import *
+from gui.loops import LoopController
+from gui.constants import WIDTH, HEIGHT
 
-from bots import *
+# from game_logic.human import HumanPlayer
+from bots.GreedyBot0 import GreedyBot0
+from bots.GreedyBot1 import GreedyBot1
+from bots.GreedyBot2 import GreedyBot2
+from bots.RandomBot import RandomBot
 
-pygame.init()
-window = pygame.display.set_mode(
-    (WIDTH, HEIGHT), pygame.SCALED | pygame.SRCALPHA
-)
-pygame.display.set_caption("Chinese Checkers")
 
-lc = LoopController()
+def main():
+    # Initialize pygame window
+    pygame.init()
+    window = pygame.display.set_mode(
+        (WIDTH, HEIGHT), pygame.SCALED | pygame.SRCALPHA
+    )
+    pygame.display.set_caption("Chinese Checkers")
 
-while True:
-    """
-    for event in pygame.event.get():
-        if event.type == QUIT:
-            pygame.quit()
-            sys.exit() """
-    lc.mainLoop(window)
+    # Initialize type of players
+    playerList = [
+        RandomBot(),
+        GreedyBot0(),
+        GreedyBot1(),
+        GreedyBot2(),
+    ]
+
+    # Enter game control loop
+    lc = LoopController(playerList)
+    while True:
+        lc.mainLoop(window)
+
+
+if __name__ == "__main__":
+    main()

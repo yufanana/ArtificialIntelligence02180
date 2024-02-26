@@ -1,3 +1,9 @@
+"""
+Class to represent a piece on the board. Each piece has a player number, 
+and a position on the board.
+"""
+
+
 class Piece:
     def __init__(self, playerNum: int, p: int, q: int):
         self.playerNum = playerNum

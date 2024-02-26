@@ -1,7 +1,8 @@
+"""
+Helper functions to determine moves in the game.
+"""
 import math
-import pygame
-
-from gui.literals import *
+from game_logic.constants import DIRECTIONS
 
 
 def add(a: tuple, b: tuple):

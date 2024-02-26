@@ -1,35 +1,14 @@
-# from tkinter import Tk
-# root = Tk()
-# screen_w = int(root.winfo_screenwidth() * 0.9)
-# screen_h = int(root.winfo_screenheight() * 0.9)
-# root.destroy()
-# del Tk
-import sys
-from PySide6 import QtWidgets
+"""
+This file contains literals used in the game logic.
 
-app = QtWidgets.QApplication(sys.argv)
-screen = app.primaryScreen()
-size = screen.size()
-
-# Dynamic window size based on user's screen
-# screen_w = size.width()
-# screen_h = size.height()
-# print(f"width: {screen_w}, height: {screen_h}")
-
-# # Enforce aspect ratio of 4:3
-# if int(screen_w * (3/4)) <= screen_h:
-#     WIDTH = screen_w
-#     HEIGHT = int(screen_w * (3/4))
-# else:
-#     HEIGHT = screen_h
-#     WIDTH = int(screen_h * (4/3))
-# del screen_w, screen_h
-
-WIDTH = 800
-HEIGHT = 600
-print(f"width: {WIDTH}, height: {HEIGHT}")
-
-
+The following literals are defined:
+- START_COOR: dict
+- END_COOR: dict
+- NEUTRAL_COOR: set
+- ALL_COOR: set
+- DIRECTIONS: set
+- POINTS: set
+"""
 # Key: playerNum, Value: set of start coordinates
 START_COOR = {
     1: {
@@ -287,17 +266,3 @@ POINTS = (
     (-4, -3),
     (-3, -4),
 )
-
-# Colors
-WHITE = (255, 255, 255)
-BLACK = (0, 0, 0)
-RED = (210, 43, 43)
-GREEN = (0, 128, 0)
-YELLOW = (255, 215, 0)
-ORANGE = (252, 147, 3)
-GRAY = (189, 189, 189)
-LIGHT_GRAY = (228, 230, 231)
-PLAYER_COLORS = (YELLOW, RED, GREEN)
-BG_RED = RED  # (235,160,160)
-BG_GREEN = GREEN  # (0,200,0)
-BG_YELLOW = YELLOW  # (255,238,144)

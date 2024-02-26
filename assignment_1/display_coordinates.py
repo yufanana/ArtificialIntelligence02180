@@ -7,7 +7,7 @@ import pygame, sys
 
 from game_logic.game import *
 from game_logic.helpers import *
-from gui.literals import *
+from gui.constants import *
 
 
 def main():

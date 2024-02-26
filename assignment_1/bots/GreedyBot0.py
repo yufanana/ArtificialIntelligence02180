@@ -1,10 +1,10 @@
 import random
-from game_logic.player import Player
 from game_logic.game import Game
 from game_logic.helpers import subj_to_obj_coor
+from game_logic.player import Player
 
 
-class GreedyRandomBot(Player):
+class GreedyBot0(Player):
     def __init__(self):
         super().__init__()
 
