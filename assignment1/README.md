@@ -4,14 +4,16 @@ Our group has chosen game Chinese Checkers as our game.
 
 The GUI is adapted from [henrychess's repository](https://github.com/henrychess/pygame-chinese-checkers/). The code has been reorganised to have 3 main packages: `bots`,`game_logic`,`gui`. Our group intends to put most of work as new scripts and bots into the `bots` package.
 
-**Table of Contents**
+## Table of Contents
 
 <!-- toc -->
 
 - [Folder Directory](#folder-directory)
 - [Cloning the Repository](#cloning-the-repository)
-- [Installing with Anaconda](#installing-with-anaconda)
-- [Installing with virtualenv](#installing-with-virtualenv)
+- [Installing Python Environment](#installing-python-environment)
+  - [With Anaconda](#with-anaconda)
+  - [With venv](#with-venv)
+  - [With virtualenv](#with-virtualenv)
 - [Running the program](#running-the-program)
 - [Development](#development)
 
@@ -58,29 +60,23 @@ assignment1
 
 ## Cloning the Repository
 
-To add SSH keys to your GitHub, follow [this tutorial](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent).
-
-```bash
-# Generate SSH key
-ssh-keygen -t ed25519 -C "your_email@example.com"
-
-# View public key
-more C:\Users\<username>\.ssh\id_ed25519.pub
-```
-
-For developers,
-
-```bash
-git clone git@github.com:yufanana/ArtificialIntelligence02180.git
-```
-
 For external viewers/examiners,
 
 ```bash
 git clone https://github.com/yufanana/ArtificialIntelligence02180.git
 ```
 
-## Installing with Anaconda
+For developers, follow [this tutorial](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent) to add SSH keys to your GitHub.
+
+Run this command to clone.
+
+```bash
+git clone git@github.com:yufanana/ArtificialIntelligence02180.git
+```
+
+## Installing Python Environment
+
+### With Anaconda
 
 To create a new environment, with Python version 3.12, run:
 
@@ -100,7 +96,16 @@ To install the Python packages, run:
 python -m pip install -r requirements.txt
 ```
 
-## Installing with virtualenv
+### With venv
+
+```bash
+cd ArtificialIntelligence02180/assignment1
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+```
+
+### With virtualenv
 
 ```bash
 cd ArtificialIntelligence02180/assignment1

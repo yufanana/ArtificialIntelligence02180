@@ -3,7 +3,7 @@ name = "ai1_group7"
 authors = [
   { name = "group7"},
 ]
-description = "Creating AI bots to play Chinese Checkers"
+description = "AI bots to play Chinese Checkers"
 readme = "README.md"
 requires-python = ">=3.11"
 license = {file = "LICENSE"}
