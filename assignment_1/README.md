@@ -4,6 +4,13 @@ Our group has chosen game Chinese Checkers as our game.
 
 The GUI is adapted from [henrychess's repository](https://github.com/henrychess/pygame-chinese-checkers/).
 
+## Cloning the Repository
+
+For developers,
+
+```bash
+git clone git@github.com:yufanana/ArtificialIntelligence02180.git
+```
 
 ## Installing with Anaconda
 
@@ -23,6 +30,28 @@ To install the Python packages, run:
 
 ```bash
 python -m pip install -r requirements.txt
+```
+
+## Installing with virtualenv
+
+```bash
+cd ArtificialIntelligence02180
+
+pip install virtualenv
+virtualenv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+```
+
+On Windows,
+
+```bash
+cd ArtificialIntelligence02180
+
+pip install virtualenv
+virtualenv .venv
+.venv/Scripts activate
+pip install -r requirements.txt
 ```
 
 ## Running the program
