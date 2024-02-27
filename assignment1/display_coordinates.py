@@ -1,6 +1,7 @@
 # usr/bin/python3
 """
-Script to display the coordinates of the Chinese Checkers board as an image.
+Script to display the coordinates of the Chinese Checkers 
+board as an image.
 """
 
 import pygame, sys

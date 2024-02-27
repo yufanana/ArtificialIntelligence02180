@@ -4,48 +4,56 @@ Our group has chosen game Chinese Checkers as our game.
 
 The GUI is adapted from [henrychess's repository](https://github.com/henrychess/pygame-chinese-checkers/). The code has been reorganised to have 3 main packages: `bots`,`game_logic`,`gui`. Our group intends to put most of work as new scripts and bots into the `bots` package.
 
-**File directory**
+**Table of Contents**
+
+<!-- toc -->
+
+- [Folder Directory](#folder-directory)
+- [Cloning the Repository](#cloning-the-repository)
+- [Installing with Anaconda](#installing-with-anaconda)
+- [Installing with virtualenv](#installing-with-virtualenv)
+- [Running the program](#running-the-program)
+- [Development](#development)
+
+<!-- tocstop -->
+
+## Folder Directory
 
 ```bash
 assignment1
-│
-│   bots_instructions.md
-│   display_coordinates.py
-│   game_selection.md
-│   LICENSE
-│   main.py
-│   pyproject.toml
-│   README.md
-│   requirements.txt
-│
-├───assets
-│
-├───bots
-│   │   __init__.py
-│   │   BotTemplate.py
-│   │   GreedyBot0.py
-│   │   GreedyBot1.py
-│   │   GreedyBot2.py
-│   │   RandomBot.py
-│
-├───game_logic
-│   │   __init__.py
-│   │   constants.py
-│   │   game.py
-│   │   helpers.py
-│   │   human.py
-│   │   piece.py
-│   │   player.py
-│
-├───gui
-│   │   __init__.py
-│   │   constants.py
-│   │   gui_helpers.py
-│   │   loops.py
-│
-└───replays
-        2player_replay.txt
-        3player_replay.txt
+├── bots
+│   ├── __init__.py
+│   ├── BotTemplate.py
+│   ├── GreedyBot0.py
+│   ├── GreedyBot1.py
+│   ├── GreedyBot2.py
+│   └── RandomBot.py
+├── game_logic
+│   ├── __init__.py
+│   ├── constants.py
+│   ├── game.py
+│   ├── helpers.py
+│   ├── human.py
+│   ├── piece.py
+│   └── player.py
+├── gui
+│   ├── __init__.py
+│   ├── constants.py
+│   ├── gui_helpers.py
+│   └── loops.py
+├── assets
+│   ├── bots_development.md
+│   └── game_selection.md
+├── replays
+│   ├── 2player_replay.txt
+│   └── 3player_replay.txt
+├── LICENSE
+├── pyproject.toml
+├── README.md
+├── main.py
+├── requirements.txt
+└── display_coordinates.py
+
 ```
 
 ## Cloning the Repository
@@ -141,4 +149,4 @@ If you want to close the window, you can quit the game by clicking the X button 
 
 ## Development
 
-To create new custom bots, refer to [bots_development](bots_development.md) for instructions on how to create your own custom bots.
+To create new custom bots, refer to [bots_development](assets/bots_development.md) for instructions on how to create your own custom bots.
