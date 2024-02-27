@@ -89,12 +89,19 @@ class Game:
         at startPos.
         """
         moves = []
+
+        # Try all 8 directions
         for direction in DIRECTIONS:
             destination = add(startPos, direction)
+            # Step is out of bounds
             if destination not in self.board:
-                continue  # out of bounds
-            elif self.board[destination] == None:
+                continue  
+            
+            # Single step into open space
+            if self.board[destination] == None:
                 moves.append(destination)  # walk
+                
+            # Single step into occupied space, check for skips
             else:  # self.board[destination] != None
                 destination = add(destination, direction)
                 if (
@@ -104,8 +111,9 @@ class Game:
                     continue  # out of bounds or can't jump
                 moves.append(destination)
                 checkJump(moves, self.board, destination, direction, playerNum)
+        
+        # You can move past other player's territory, but you can't stay there.
         for i in copy.deepcopy(moves):
-            # You can move past other player's territory, but you can't stay there.
             if (
                 (i not in START_COOR[playerNum])
                 and (i not in END_COOR[playerNum])

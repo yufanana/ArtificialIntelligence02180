@@ -27,4 +27,8 @@ class Player(ABC, metaclass=PlayerMeta):
 
     @abstractmethod
     def pickMove(self, g: Game):
+        """
+        Returns:
+            [start_coor, end_coor] : in objective coordinates
+        """
         ...

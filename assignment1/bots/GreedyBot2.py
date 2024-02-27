@@ -11,15 +11,21 @@ class GreedyBot2(Player):
         super().__init__()
 
     def pickMove(self, g: Game):
-        """returns [start_coor, end_coor] in objective coordinates"""
+        """
+        Choose a forward move with the greatest distance travelled. If there 
+        are no forward moves, choose a sideway move randomly.
+
+        Returns:
+            [start_coor, end_coor] : in objective coordinates
+        """
         moves = g.allMovesDict(self.playerNum)
         # state = g.boardState(self.playerNum)
+
         forwardMoves = dict()
         sidewaysMoves = dict()
-        start_coor = ()
-        end_coor = ()
-        max_dist = 0
-        # split moves into forward and sideways
+        (start_coor, end_coor) = ((), ())
+
+        # Split moves into forward and sideways
         for coor in moves:
             if moves[coor] != []:
                 forwardMoves[coor] = []
@@ -31,13 +37,16 @@ class GreedyBot2(Player):
                     forwardMoves[coor].append(dest)
                 if dest[1] == coor[1]:
                     sidewaysMoves[coor].append(dest)
+
+        # Remove empty keys
         for coor in list(forwardMoves):
             if forwardMoves[coor] == []:
                 del forwardMoves[coor]
         for coor in list(sidewaysMoves):
             if sidewaysMoves[coor] == []:
                 del sidewaysMoves[coor]
-        # if forward is empty, move sideways
+
+        # If forward is empty, move sideways
         if len(forwardMoves) == 0:
             start_coor = random.choice(list(sidewaysMoves))
             end_coor = random.choice(sidewaysMoves[start_coor])
@@ -45,25 +54,20 @@ class GreedyBot2(Player):
                 subj_to_obj_coor(start_coor, self.playerNum),
                 subj_to_obj_coor(end_coor, self.playerNum),
             ]
-        # forward: max distance
+        
+        # Find forward with the max distance travelled
+        max_dist = 0
         for coor in forwardMoves:
             for dest in forwardMoves[coor]:
-                if start_coor == () and end_coor == ():
-                    start_coor = coor
-                    end_coor = dest
-                    max_dist = end_coor[1] - start_coor[1]
-                else:
-                    dist = dest[1] - coor[1]
-                    if dist > max_dist:
+                dist = dest[1] - coor[1]
+                if dist > max_dist:
+                    max_dist = dist
+                    (start_coor, end_coor) = (coor, dest)
+                elif dist == max_dist:
+                    # Prefers to move the piece that is more backwards
+                    if dest[1] < end_coor[1]:
                         max_dist = dist
-                        start_coor = coor
-                        end_coor = dest
-                    elif dist == max_dist:
-                        # prefers to move the piece that is more backwards
-                        if dest[1] < end_coor[1]:
-                            max_dist = dist
-                            start_coor = coor
-                            end_coor = dest
+                        (start_coor, end_coor) = (coor, dest)
         return [
             subj_to_obj_coor(start_coor, self.playerNum),
             subj_to_obj_coor(end_coor, self.playerNum),

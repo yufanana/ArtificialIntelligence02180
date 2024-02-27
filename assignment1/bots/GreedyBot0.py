@@ -5,45 +5,56 @@ from game_logic.player import Player
 
 
 class GreedyBot0(Player):
+    """
+    Choose a forward move randomly. Else, choose a sideway move randomly.
+    """
     def __init__(self):
         super().__init__()
 
     def pickMove(self, g: Game):
-        """returns [start_coor, end_coor]"""
+        """
+        Choose a forward move randomly. Else, choose a sideway move randomly.
+
+        Returns:
+            [start_coor, end_coor] : in objective coordinates
+        """
         moves = g.allMovesDict(self.playerNum)
-        tempMoves = dict()
-        # forward
+        forwardMoves = dict()
+        sidewaysMoves = dict()
+        (start_coor, end_coor) = ((), ())
+        
+        # Split moves into forward and sideways
         for coor in moves:
+            # If there are moves
             if moves[coor] != []:
-                tempMoves[coor] = []
-            else:
-                continue
+                forwardMoves[coor] = []
+                sidewaysMoves[coor] = []
+
+            # Check y-coordinate of destination
             for dest in moves[coor]:
                 if dest[1] > coor[1]:
-                    tempMoves[coor].append(dest)
-        for coor in list(tempMoves):
-            if tempMoves[coor] == []:
-                del tempMoves[coor]
-        if len(tempMoves) > 0:
-            coor = random.choice(list(tempMoves))
-            move = random.choice(tempMoves[coor])
+                    forwardMoves[coor].append(dest)
+                if dest[1] == coor[1]:
+                    sidewaysMoves[coor].append(dest)
+        
+        # Remove empty keys
+        for coor in list(forwardMoves):
+            if forwardMoves[coor] == []:
+                del forwardMoves[coor]
+        for coor in list(sidewaysMoves):
+            if sidewaysMoves[coor] == []:
+                del sidewaysMoves[coor]
+
+        # Choose a forward move randomly
+        if len(forwardMoves) != 0:
+            start_coor = random.choice(list(forwardMoves))
+            end_coor = random.choice(forwardMoves[start_coor])
+        # Else, choose a sideway move randomly
         else:
-            # sideways
-            tempMoves.clear()
-            for coor in moves:
-                if moves[coor] != []:
-                    tempMoves[coor] = []
-                else:
-                    continue
-                for dest in moves[coor]:
-                    if dest[1] == coor[1]:
-                        tempMoves[coor].append(dest)
-            for coor in list(tempMoves):
-                if tempMoves[coor] == []:
-                    del tempMoves[coor]
-            coor = random.choice(list(tempMoves))
-            move = random.choice(tempMoves[coor])
+            start_coor = random.choice(list(sidewaysMoves))
+            end_coor = random.choice(sidewaysMoves[start_coor])
+
         return [
             subj_to_obj_coor(coor, self.playerNum),
-            subj_to_obj_coor(move, self.playerNum),
+            subj_to_obj_coor(end_coor, self.playerNum),
         ]

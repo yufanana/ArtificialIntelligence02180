@@ -11,13 +11,16 @@ class RandomBot(Player):
     def pickMove(self, g: Game):
         """returns [start_coor, end_coor]"""
         moves = g.allMovesDict(self.playerNum)
-        l = []
+
+        start_coords = []
         for coor in moves:
             if moves[coor] != []:
-                l.append(coor)
-        coor = random.choice(l)
-        move = random.choice(moves[coor])
+                start_coords.append(coor)
+
+        # Choose a start_coor
+        start_coord = random.choice(start_coords)
+        end_coord = random.choice(moves[coor])
         return [
-            subj_to_obj_coor(coor, self.playerNum),
-            subj_to_obj_coor(move, self.playerNum),
+            subj_to_obj_coor(start_coord, self.playerNum),
+            subj_to_obj_coor(end_coord, self.playerNum),
         ]
