@@ -101,12 +101,12 @@ class Game:
             destination = add(startPos, direction)
             # Step is out of bounds
             if destination not in self.board:
-                continue  
-            
+                continue
+
             # Single step into open space
             if self.board[destination] == None:
                 moves.append(destination)  # walk
-                
+
             # Single step into occupied space, check for skips
             else:  # self.board[destination] != None
                 destination = add(destination, direction)
@@ -117,7 +117,7 @@ class Game:
                     continue  # out of bounds or can't jump
                 moves.append(destination)
                 checkJump(moves, self.board, destination, direction, playerNum)
-        
+
         # You can move past other player's territory, but you can't stay there.
         for i in copy.deepcopy(moves):
             if (

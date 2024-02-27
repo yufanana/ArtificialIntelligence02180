@@ -8,6 +8,7 @@ class GreedyBot0(Player):
     """
     Choose a forward move randomly. Else, choose a sideway move randomly.
     """
+
     def __init__(self):
         super().__init__()
 
@@ -22,7 +23,7 @@ class GreedyBot0(Player):
         forwardMoves = dict()
         sidewaysMoves = dict()
         (start_coor, end_coor) = ((), ())
-        
+
         # Split moves into forward and sideways
         for coor in moves:
             # If there are moves
@@ -36,7 +37,7 @@ class GreedyBot0(Player):
                     forwardMoves[coor].append(dest)
                 if dest[1] == coor[1]:
                     sidewaysMoves[coor].append(dest)
-        
+
         # Remove empty keys
         for coor in list(forwardMoves):
             if forwardMoves[coor] == []:

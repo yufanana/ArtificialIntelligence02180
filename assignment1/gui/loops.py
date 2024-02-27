@@ -5,8 +5,6 @@ import os.path
 import pygame
 import sys
 from copy import deepcopy
-from bots.GreedyBot1 import GreedyBot1
-from bots.GreedyBot2 import GreedyBot2
 from game_logic.constants import ALL_COOR
 from game_logic.game import Game
 from game_logic.helpers import obj_to_subj_coor, setItem
@@ -22,7 +20,16 @@ from pygame import (
     K_LEFT,
     K_RIGHT,
 )
-from PySide6 import QtWidgets
+from PySide6.QtWidgets import (
+    QWidget,
+    QApplication,
+    QLabel,
+    QRadioButton,
+    QComboBox,
+    QPushButton,
+    QFileDialog,
+    QGridLayout,
+)
 from time import strftime
 
 
@@ -36,12 +43,12 @@ class LoopController:
         self.loopNum = 0
         self.winnerList = list()
         self.replayRecord = list()
-        self.playerTypes = {}
+        self.playerList = playerList
         self.filePath = ""
+        self.playerTypes = {}
         for i in PlayerMeta.playerTypes:
             # key: class name strings, value: class without ()
             self.playerTypes[i.__name__] = i
-        self.playerList = playerList
         pygame.event.set_allowed([QUIT, MOUSEBUTTONDOWN, MOUSEBUTTONUP])
 
     def mainLoop(self, window: pygame.Surface):
@@ -49,15 +56,9 @@ class LoopController:
         Controls the flow to enter mainMenuLoop (0), loadPlayerLoop (1),
         gameplayLoop (2), gameOverLoop (3), replayLoop (4), loadReplayLoop (5).
         """
-        # print(f"Loop goes on with loopNum {self.loopNum}")
 
         # First loop to display the main menu
         if self.loopNum == 0:
-            self.playerList = [
-                HumanPlayer(),
-                GreedyBot1(),
-                GreedyBot2(),
-            ]
             pygame.event.set_allowed([QUIT, MOUSEBUTTONDOWN, MOUSEBUTTONUP])
             self.filePath = False
             self.replayRecord = []
@@ -127,11 +128,9 @@ class LoopController:
             mouse_pos = pygame.mouse.get_pos()
             mouse_left_click = ev.type == MOUSEBUTTONDOWN
             if playButton.isClicked(mouse_pos, mouse_left_click):
-                # print("play")
                 self.loopNum = 1
                 break
             if loadReplayButton.isClicked(mouse_pos, mouse_left_click):
-                # print('load-replay')
                 self.loopNum = 5
                 break
 
@@ -144,48 +143,62 @@ class LoopController:
         Display a smaller window to select number of players and player types.
         """
         loaded = False
+
+        if not QApplication.instance():
+            app = QApplication(sys.argv)
+        else:
+            app = QApplication.instance()
+        app.aboutToQuit.connect(self.closing)
+
+        Form = QWidget()
         appModifier = 0.75
         appWidth = WIDTH * appModifier
         appHeight = HEIGHT * appModifier
-
-        if not QtWidgets.QApplication.instance():
-            app = QtWidgets.QApplication(sys.argv)
-        else:
-            app = QtWidgets.QApplication.instance()
-        app.aboutToQuit.connect(self.closing)
-
-        Form = QtWidgets.QWidget()
         Form.setWindowTitle("Game Settings")
         Form.resize(appWidth, appHeight)
 
-        box = QtWidgets.QWidget(Form)
+        box = QWidget(Form)
         box.setGeometry(
             appWidth * 0.0625,
             appHeight * 0.0625,
             appWidth * 0.875,
             appHeight * 0.625,
         )
-        grid = QtWidgets.QGridLayout(box)
+        grid = QGridLayout(box)
 
         # Choose number of players
-        label_pNum = QtWidgets.QLabel(Form)
-        label_pNum.setText("Number of Players")
-        rButton_2P = QtWidgets.QRadioButton(Form)
+        label_pNum = QLabel(Form)
+        label_pNum.setText("No. of Players")
+
+        # 1 player
+        rButton_1P = QRadioButton(Form)
+        rButton_1P.setText("1")
+        rButton_1P.toggled.connect(
+            lambda: label_p3Type.setStyleSheet("color: #878787;")
+        )
+        rButton_1P.toggled.connect(lambda: cBox_p2.setDisabled(True))
+        rButton_1P.toggled.connect(lambda: cBox_p3.setDisabled(True))
+        rButton_1P.toggled.connect(lambda: setItem(self.playerList, 1, None))
+        rButton_1P.toggled.connect(lambda: setItem(self.playerList, 2, None))
+
+        # 2 players
+        rButton_2P = QRadioButton(Form)
         rButton_2P.setText("2")
         rButton_2P.toggled.connect(
             lambda: label_p3Type.setStyleSheet("color: #878787;")
         )
+        rButton_2P.toggled.connect(lambda: cBox_p2.setDisabled(False))
         rButton_2P.toggled.connect(lambda: cBox_p3.setDisabled(True))
         rButton_2P.toggled.connect(lambda: setItem(self.playerList, 2, None))
-        # rButton_2P.toggled.connect(
-        #     lambda: print(self.playerList))
 
-        rButton_3P = QtWidgets.QRadioButton(Form)
+        # 3 players
+        rButton_3P = QRadioButton(Form)
         rButton_3P.setText("3")
         rButton_3P.setChecked(True)
         rButton_3P.toggled.connect(
             lambda: label_p3Type.setStyleSheet("color: #000000;")
         )
+        rButton_3P.toggled.connect(lambda: cBox_p2.setDisabled(False))
         rButton_3P.toggled.connect(lambda: cBox_p3.setDisabled(False))
         rButton_3P.toggled.connect(
             lambda: setItem(
@@ -194,63 +207,53 @@ class LoopController:
         )
 
         # Choose player types
-        label_p1Type = QtWidgets.QLabel(Form)
+        label_p1Type = QLabel(Form)
         label_p1Type.setText("Player 1:")
-        label_p2Type = QtWidgets.QLabel(Form)
+        label_p2Type = QLabel(Form)
         label_p2Type.setText("Player 2:")
-        label_p3Type = QtWidgets.QLabel(Form)
+        label_p3Type = QLabel(Form)
         label_p3Type.setText("Player 3:")
-        cBox_p1 = QtWidgets.QComboBox(Form)
-        cBox_p2 = QtWidgets.QComboBox(Form)
-        cBox_p3 = QtWidgets.QComboBox(Form)
+        cBox_p1 = QComboBox(Form)
+        cBox_p2 = QComboBox(Form)
+        cBox_p3 = QComboBox(Form)
         cBoxes = (cBox_p1, cBox_p2, cBox_p3)
 
-        # Set initial player types
+        # Set initial player types for the 3 combo boxses
         if not loaded:
-            initialPlayerList = [
-                HumanPlayer,
-                GreedyBot1,
-                GreedyBot2,
-            ]
             for i in range(3):
                 grid.addWidget(cBoxes[i], i + 1, 2, 1, 2)
                 cBoxes[i].addItems(list(self.playerTypes))
-                cBoxes[i].setCurrentIndex(
-                    list(self.playerTypes.values()).index(initialPlayerList[i])
-                )
+                cBoxes[i].setCurrentIndex(0)
             loaded = True
-            del initialPlayerList
 
+        # Modify playerList based on the combo box selection
         cBox_p1.currentIndexChanged.connect(
             lambda: setItem(
                 self.playerList, 0, self.playerTypes[cBox_p1.currentText()]()
             )
         )
-        # cBox_p1.currentIndexChanged.connect(
-        #     lambda: print(self.playerList))
         cBox_p2.currentIndexChanged.connect(
             lambda: setItem(
                 self.playerList, 1, self.playerTypes[cBox_p2.currentText()]()
             )
         )
-        # cBox_p2.currentIndexChanged.connect(
-        #     lambda: print(self.playerList))
         cBox_p3.currentIndexChanged.connect(
             lambda: setItem(
                 self.playerList, 2, self.playerTypes[cBox_p3.currentText()]()
             )
         )
-        # cBox_p3.currentIndexChanged.connect(
-        #     lambda: print(self.playerList))
-        #
-        grid.addWidget(label_pNum, 0, 0, 1, 2)
+        
+        # Add widgets to the grid
+        grid.addWidget(label_pNum, 0, 0)
+        grid.addWidget(rButton_1P, 0, 1)
         grid.addWidget(rButton_2P, 0, 2)
         grid.addWidget(rButton_3P, 0, 3)
         grid.addWidget(label_p1Type, 1, 0, 1, 2)
         grid.addWidget(label_p2Type, 2, 0, 1, 2)
         grid.addWidget(label_p3Type, 3, 0, 1, 2)
 
-        startButton = QtWidgets.QPushButton(Form)
+        # Start button
+        startButton = QPushButton(Form)
         startButton.setText("Start Game")
         startButton.setGeometry(
             appWidth * 0.625,
@@ -260,7 +263,8 @@ class LoopController:
         )
         startButton.clicked.connect(self.startGame)
 
-        cancelButton = QtWidgets.QPushButton(Form)
+        # Cancel button
+        cancelButton = QPushButton(Form)
         cancelButton.setText("Back to Menu")
         cancelButton.setGeometry(
             appWidth * 0.125,
@@ -275,13 +279,19 @@ class LoopController:
 
     # helpers for loadPlayerLoop and replayLoop
     def startGame(self):
-        # print(self.playerList)
-        self.loopNum = 2  # go to gameplay
-        QtWidgets.QApplication.closeAllWindows()
+        '''
+        Make main loop enter the gameplay loop.
+        '''
+        self.loopNum = 2
+        QApplication.closeAllWindows()
 
+    # helpers for loadPlayerLoop and replayLoop
     def backToMenu(self):
-        self.loopNum = 0  # go to main menu
-        QtWidgets.QApplication.closeAllWindows()
+        '''
+        Make main loop enter the main menu.
+        '''
+        self.loopNum = 0
+        QApplication.closeAllWindows()
 
     def gameplayLoop(
         self,
@@ -305,12 +315,11 @@ class LoopController:
         players = deepcopy(playerss)
         while None in players:
             players.remove(None)
-        if len(players) > 3:
-            players = players[:3]
-        players[0].setPlayerNum(1)
-        players[1].setPlayerNum(2)
-        if len(players) == 3:
-            players[2].setPlayerNum(3)
+        # if len(players) > 3:        # why is this needed?
+        #     players = players[:3]
+            
+        for i in range(len(players)):
+            players[i].setPlayerNum(i + 1)
 
         # 1st line in replayRecord is the number of players
         replayRecord.append(str(len(players)))
@@ -567,15 +576,15 @@ class LoopController:
         """
         Display a smaller window to select a replay file.
         """
-        if not QtWidgets.QApplication.instance():
-            app = QtWidgets.QApplication(sys.argv)
+        if not QApplication.instance():
+            app = QApplication(sys.argv)
         else:
-            app = QtWidgets.QApplication.instance()
+            app = QApplication.instance()
         if not os.path.isdir("./replays"):
             os.mkdir("./replays")
-        filePath = QtWidgets.QFileDialog.getOpenFileName(
-            dir="./replays", filter="*.txt"
-        )[0]
+        filePath = QFileDialog.getOpenFileName(dir="./replays", filter="*.txt")[
+            0
+        ]
         if filePath:
             # print(filePath)
             self.loopNum = 4
