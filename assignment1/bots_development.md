@@ -12,15 +12,15 @@ The board of Chinese Checkers is a hexagonal grid. There are three axes and six 
 
 In this project, the direction to the right is defined as the x-axis, and the direction to the top right as the y-axis. Thus, the direction to the top left is the (-x+y) axis. The spot where the axes meet is defined as `(0, 0)`. The axes are drawn on the game board like so:
 
-<img src="https://github.com/henrychess/pygame-chinese-checkers/blob/main/images/coor2.png" width=500>
+![coor2](assets/coor2.png)
 
 Here's a more concise cheat sheet for the six unit vectors:
 
-<img src="https://github.com/henrychess/pygame-chinese-checkers/blob/main/images/coor1.png" width=300>
+![coor1](assets/coor1.png)
 
 And here's an image containing all coordinates on the board:
 
-<img src="https://github.com/henrychess/pygame-chinese-checkers/blob/main/images/all_coors.jpg" width=800>
+![all_coors](assets/all_coors.jpg)
 
 The coordinates and vectors are represented internally as `tuple(int, int)`. If you want to do calculations to the coordinates, use the following functions. They all return a `tuple(int, int)`. They are imported from `game_logic.helpers` (already done that in the template).
 

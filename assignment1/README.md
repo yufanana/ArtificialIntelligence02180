@@ -138,3 +138,7 @@ python main.py
 The game will then prompt you to select players after clicking `Play`.
 
 If you want to close the window, you can quit the game by clicking the X button on the top of the window or go to the terminal and press `Ctrl + C` or `cmd + C`.
+
+## Development
+
+To create new custom bots, refer to [bots_development](bots_development.md) for instructions on how to create your own custom bots.

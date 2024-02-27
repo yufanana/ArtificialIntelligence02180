@@ -85,8 +85,14 @@ class Game:
 
     def getValidMoves(self, startPos: tuple, playerNum: int):
         """
-        Returns a list of objective end coordinates of valid moves for a piece
-        at startPos.
+        Compute all valid moves for a piece.
+
+        Args:
+            startPos (tuple): objective coordinates of the piece.
+            playerNum (int): the player number.
+
+        Returns:
+            list of tuples: objective coordinates of the dest valid moves.
         """
         moves = []
 
