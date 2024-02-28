@@ -68,7 +68,8 @@ def drawCircles(g: Game, window: pygame.Surface, playerNum: int):
         # Draw an empty cell
         coor = obj_to_subj_coor(obj_coor, playerNum)
         c = add(
-            g.centerCoor, mult(h2c(coor), g.unitLength)
+            g.centerCoor,
+            mult(h2c(coor), g.unitLength),
         )  # absolute coordinates on screen
         pygame.draw.circle(window, WHITE, c, g.circleRadius)
         pygame.draw.circle(window, BLACK, c, g.circleRadius, g.lineWidth)
@@ -197,7 +198,10 @@ class Button:
         self.button_color = button_color
         if centerx and centery:
             self.buttonRect = pygame.Rect(
-                centerx - width / 2, centery - height / 2, width, height
+                centerx - width / 2,
+                centery - height / 2,
+                width,
+                height,
             )
         else:
             self.buttonRect = pygame.Rect(x, y, width, height)
@@ -214,7 +218,11 @@ class Button:
                 )
             else:
                 pygame.draw.rect(
-                    window, self.button_color, self.buttonRect, 0, 5
+                    window,
+                    self.button_color,
+                    self.buttonRect,
+                    0,
+                    5,
                 )
             pygame.draw.rect(window, BLACK, self.buttonRect, 2, 5)
         else:
@@ -258,7 +266,10 @@ class TextButton(Button):
         self.button_color = button_color
         if centerx and centery:
             self.buttonRect = pygame.Rect(
-                centerx - width / 2, centery - height / 2, width, height
+                centerx - width / 2,
+                centery - height / 2,
+                width,
+                height,
             )
         else:
             self.buttonRect = pygame.Rect(x, y, width, height)
@@ -273,7 +284,9 @@ class TextButton(Button):
         Fades the button if the mouse is hovering over it.
         """
         text = pygame.font.SysFont(self.font, self.font_size).render(
-            self.text, True, self.text_color
+            self.text,
+            True,
+            self.text_color,
         )
         textRect = text.get_rect()
         textRect.center = self.buttonRect.center
@@ -285,7 +298,11 @@ class TextButton(Button):
         pygame.draw.rect(window, color, self.buttonRect, 0, 5)
         if self.isHovering(mouse_pos) and self.enabled:
             pygame.draw.rect(
-                window, brighten_color(color, 0.25), self.buttonRect, 0, 5
+                window,
+                brighten_color(color, 0.25),
+                self.buttonRect,
+                0,
+                5,
             )
         pygame.draw.rect(window, BLACK, self.buttonRect, 2, 5)
         window.blit(text, textRect)

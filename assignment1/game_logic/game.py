@@ -30,12 +30,6 @@ class Game:
         """
         Board = {}
 
-        emptyPlayers = 3 - playerCount
-
-        # 1, NA: 2 3
-        # 1 2, NA: 3
-        # 1 2 3 NA:
-
         # Neutral zone
         for x, y in NEUTRAL_COOR:
             Board[(x, y)] = None
@@ -82,15 +76,15 @@ class Game:
                 continue
 
             # Single step into open space
-            if self.board[destination] == None:
+            if self.board[destination] is None:
                 moves.append(destination)  # walk
 
             # Single step into occupied space, check for skips
-            else:  # self.board[destination] != None
+            else:  # self.board[destination] is not None
                 destination = add(destination, direction)
                 if (
                     destination not in self.board
-                    or self.board[destination] != None
+                    or self.board[destination] is not None
                 ):
                     continue  # out of bounds or can't jump
                 moves.append(destination)
@@ -113,7 +107,7 @@ class Game:
         """
         for i in END_COOR[playerNum]:
             # if there are no pieces
-            if self.board[i] == None:
+            if self.board[i] is None:
                 return False
             # if the piece does not belong to the player
             if (
@@ -133,7 +127,7 @@ class Game:
         for i in self.board:
             state[obj_to_subj_coor(i, playerNum)] = (
                 0
-                if self.board[i] == None
+                if self.board[i] is None
                 else int(self.board[i].getPlayerNum())
             )
         return state
@@ -147,7 +141,7 @@ class Game:
         """
         state = dict()
         for i in self.board:
-            state[obj_to_subj_coor(i, playerNum)] = self.board[i] != None
+            state[obj_to_subj_coor(i, playerNum)] = self.board[i] is not None
         return state
 
     def allMovesDict(self, playerNum: int):
@@ -173,7 +167,7 @@ class Game:
         Moves a piece from start coord to end coord.
         """
         assert (
-            self.board[start] != None and self.board[end] == None
+            self.board[start] is not None and self.board[end] is None
         ), "Start or end coord is occupied."
         # Update piece attribute
         self.board[start].setCoor(end)

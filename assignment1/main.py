@@ -17,7 +17,8 @@ def main(cfg):
     # Initialize pygame window
     pygame.init()
     window = pygame.display.set_mode(
-        (WIDTH, HEIGHT), pygame.SCALED | pygame.SRCALPHA
+        (WIDTH, HEIGHT),
+        pygame.SCALED | pygame.SRCALPHA,
     )
     pygame.display.set_caption("Chinese Checkers")
 

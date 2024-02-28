@@ -11,3 +11,4 @@ license = {file = "LICENSE"}
 [tool.ruff]
 line-length = 80
 show-fixes = true
+ignore = ["E741"]

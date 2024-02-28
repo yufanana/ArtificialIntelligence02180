@@ -4,14 +4,14 @@ LoopController class is used to control the game windows displayed.
 import os.path
 import pygame
 import sys
-from copy import deepcopy
 from bots.GreedyBot0 import GreedyBot0
 from bots.GreedyBot1 import GreedyBot1
 from bots.GreedyBot2 import GreedyBot2
 from bots.RandomBot import RandomBot
+from copy import deepcopy
 from game_logic.constants import ALL_COOR
 from game_logic.game import Game
-from game_logic.helpers import obj_to_subj_coor, setItem
+from game_logic.helpers import obj_to_subj_coor
 from game_logic.human import Human
 from game_logic.player import Player, PlayerMeta
 from gui.constants import WIDTH, HEIGHT, WHITE, GRAY, BLACK
@@ -26,6 +26,8 @@ from pygame import (
 )
 from PySide6 import QtWidgets
 from time import strftime
+
+_ = [GreedyBot0, GreedyBot1, GreedyBot2, RandomBot]
 
 
 class LoopController:
@@ -62,7 +64,7 @@ class LoopController:
                 pass
         # Allow only these events
         pygame.event.set_allowed(
-            [QUIT, MOUSEBUTTONDOWN, MOUSEBUTTONUP, KEYDOWN]
+            [QUIT, MOUSEBUTTONDOWN, MOUSEBUTTONUP, KEYDOWN],
         )
 
     def mainLoop(self, window: pygame.Surface):
@@ -88,7 +90,9 @@ class LoopController:
             # enters gameplayLoop to play the game
             waitBot = True
             self.winnerList, self.replayRecord = self.gameplayLoop(
-                window, self.playerList, waitBot
+                window,
+                self.playerList,
+                waitBot,
             )
 
         elif self.loopNum == 3:
@@ -98,7 +102,7 @@ class LoopController:
         elif self.loopNum == 4:
             # to view a replay
             pygame.event.set_allowed(
-                [QUIT, MOUSEBUTTONDOWN, MOUSEBUTTONUP, KEYDOWN]
+                [QUIT, MOUSEBUTTONDOWN, MOUSEBUTTONUP, KEYDOWN],
             )
             pygame.key.set_repeat(100)
             self.replayLoop(window, self.filePath)
@@ -113,7 +117,9 @@ class LoopController:
         """
         window.fill(WHITE)
         titleText = pygame.font.Font(size=int(WIDTH * 0.08)).render(
-            "Chinese Checkers", True, BLACK
+            "Chinese Checkers",
+            True,
+            BLACK,
         )
         titleTextRect = titleText.get_rect()
         titleTextRect.center = (WIDTH * 0.5, HEIGHT * 0.25)
@@ -413,7 +419,10 @@ class LoopController:
             if isinstance(playingPlayer, Human):
                 # Human player makes a move
                 start_coor, end_coor = playingPlayer.pickMove(
-                    g, window, humanPlayerNum, highlight
+                    g,
+                    window,
+                    humanPlayerNum,
+                    highlight,
                 )
                 if (not start_coor) and (not end_coor):
                     # Return to main menu
@@ -472,7 +481,7 @@ class LoopController:
                 text = f.read()
                 move_list = text.split("\n")
                 playerCount = move_list.pop(0)
-                if not eval(playerCount) in (2, 3):
+                if eval(playerCount) not in (2, 3):
                     self.showNotValidReplay()
                     isValidReplay = False
                 else:
@@ -602,26 +611,30 @@ class LoopController:
         """
         Display a smaller window to select a replay file.
         """
-        if not QtWidgets.QApplication.instance():
-            app = QtWidgets.QApplication(sys.argv)
-        else:
-            app = QtWidgets.QApplication.instance()
+        # if not QtWidgets.QApplication.instance():
+        #     app = QtWidgets.QApplication(sys.argv)
+        # else:
+        #     app = QtWidgets.QApplication.instance()
+
         if not os.path.isdir("./replays"):
             os.mkdir("./replays")
         filePath = QtWidgets.QFileDialog.getOpenFileName(
-            dir="./replays", filter="*.txt"
+            dir="./replays",
+            filter="*.txt",
         )[0]
         if filePath:
             # print(filePath)
             self.loopNum = 4
             return filePath
-        else:
-            # print("cancelled")
+        else:  # User cancelled
             self.loopNum = 0
             return False
 
     def gameOverLoop(
-        self, window: pygame.Surface, winnerList: list, replayRecord: list
+        self,
+        window: pygame.Surface,
+        winnerList: list,
+        replayRecord: list,
     ):
         # print(winnerList); print(replayRecord)
         # winner announcement text
@@ -744,7 +757,7 @@ def trainingLoop(g: Game, players: list[Player], recordReplay: bool = False):
             playingPlayer.has_won = True
             players.remove(playingPlayer)
             print(
-                "The first winner is Player %d" % playingPlayer.getPlayerNum()
+                "The first winner is Player %d" % playingPlayer.getPlayerNum(),
             )
         if playingPlayerIndex >= len(players) - 1:
             playingPlayerIndex = 0

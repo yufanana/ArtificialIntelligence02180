@@ -9,5 +9,8 @@ exercises/
 __pycache__
 .venv/
 
+# Hydra
+outputs/
+
 # Workspace
 .vscode

@@ -47,7 +47,7 @@ class Human(Player):
         # Case 1: Mouse is hovering over piece, brighten its color
         if (
             math.dist(mousePos, absCoor) <= g.circleRadius
-            and piece.mouse_hovering == False
+            and piece.mouse_hovering is False
         ):
             # Change the piece's color
             pygame.draw.circle(
@@ -60,7 +60,7 @@ class Human(Player):
         # Case 2: Mouse is not hovering over piece, return to original color
         elif (
             math.dist(mousePos, absCoor) > g.circleRadius
-            and piece.mouse_hovering == True
+            and piece.mouse_hovering is True
             and tuple(window.get_at(ints(absCoor))) != WHITE
         ):
             pygame.draw.circle(
@@ -153,13 +153,16 @@ class Human(Player):
                         # White circle if mouse is not hovering over it
                         else:
                             pygame.draw.circle(
-                                window, WHITE, destCoor, g.circleRadius - 2
+                                window,
+                                WHITE,
+                                destCoor,
+                                g.circleRadius - 2,
                             )
 
                 # Check if the piece is selected
                 if (
                     math.dist(mousePos, absCoor) <= g.circleRadius
-                    and clicking == True
+                    and clicking is True
                 ):
                     selected_piece_coor = piece.getCoor()
                     if (
@@ -180,7 +183,8 @@ class Human(Player):
                         g.lineWidth + 1,
                     )
                     validMoves = g.getValidMoves(
-                        selected_piece_coor, self.playerNum
+                        selected_piece_coor,
+                        self.playerNum,
                     )
 
                 # Draw gray circles around valid moves

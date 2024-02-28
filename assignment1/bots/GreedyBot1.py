@@ -81,7 +81,7 @@ class GreedyBot1(Player):
                         smallestStartY = coor[1]
                     elif startY == smallestStartY:
                         start_coor, end_coor = random.choice(
-                            [[start_coor, end_coor], [coor, dest]]
+                            [[start_coor, end_coor], [coor, dest]],
                         )
                         biggestDestY = end_coor[1]
                         smallestStartY = start_coor[1]
