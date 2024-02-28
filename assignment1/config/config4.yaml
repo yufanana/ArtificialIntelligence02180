@@ -1,0 +1,6 @@
+no_of_players: 3
+player_list:
+  - 'GreedyBot0'
+  - 'RandomBot'
+  - 'GreedyBot1'
+layout: opposite

@@ -1,0 +1,5 @@
+no_of_players: 2
+player_list:
+  - 'Human'
+  - 'RandomBot'
+layout: opposite

@@ -24,7 +24,7 @@ from gui.gui_helpers import (
 )
 
 
-class HumanPlayer(Player):
+class Human(Player):
     def __init__(self):
         super().__init__()
 

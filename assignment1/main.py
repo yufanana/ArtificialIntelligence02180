@@ -2,18 +2,18 @@
 """
 Script to start the game of Chinese Checkers.
 """
+import hydra
 import pygame
 from gui.loops import LoopController
 from gui.constants import WIDTH, HEIGHT
 
-# from game_logic.human import HumanPlayer
-from bots.GreedyBot0 import GreedyBot0
-from bots.GreedyBot1 import GreedyBot1
-from bots.GreedyBot2 import GreedyBot2
-from bots.RandomBot import RandomBot
 
+@hydra.main(version_base=None, config_path="config", config_name="config5.yaml")
+def main(cfg):
+    # Check config
+    if len(cfg.player_list) != cfg.no_of_players:
+        raise ValueError("Player count and types are not equal in config.")
 
-def main():
     # Initialize pygame window
     pygame.init()
     window = pygame.display.set_mode(
@@ -21,16 +21,8 @@ def main():
     )
     pygame.display.set_caption("Chinese Checkers")
 
-    # Initialize type of players
-    playerList = [
-        RandomBot(),
-        GreedyBot0(),
-        GreedyBot1(),
-        GreedyBot2(),
-    ]
-
     # Enter game control loop
-    lc = LoopController(playerList)
+    lc = LoopController(cfg.player_list)
     while True:
         lc.mainLoop(window)
 
