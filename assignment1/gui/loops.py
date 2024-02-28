@@ -489,6 +489,7 @@ class LoopController:
                     for i in range(len(move_list)):
                         move_list[i] = move_list[i].split("to")
                         if len(move_list[i]) != 2:
+                            print(i, move_list[i])
                             self.showNotValidReplay()
                             isValidReplay = False
                             break
@@ -611,10 +612,11 @@ class LoopController:
         """
         Display a smaller window to select a replay file.
         """
-        # if not QtWidgets.QApplication.instance():
-        #     app = QtWidgets.QApplication(sys.argv)
-        # else:
-        #     app = QtWidgets.QApplication.instance()
+        if not QtWidgets.QApplication.instance():
+            app = QtWidgets.QApplication(sys.argv)
+        else:
+            app = QtWidgets.QApplication.instance()
+        app.aboutToQuit.connect(self.closing)
 
         if not os.path.isdir("./replays"):
             os.mkdir("./replays")
