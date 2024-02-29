@@ -34,8 +34,8 @@ and other colours used.
 #     WIDTH = int(screen_h * (4/3))
 # del screen_w, screen_h
 
-WIDTH = 800
-HEIGHT = 600
+HEIGHT = 800
+WIDTH = HEIGHT * 4 // 3
 print(f"Creating GUI window of size ({WIDTH},{HEIGHT})")
 
 # Colors

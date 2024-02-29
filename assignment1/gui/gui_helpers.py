@@ -14,6 +14,7 @@ from gui.constants import (
     GREEN,
     PLAYER_COLORS,
     PURPLE,
+    WIDTH,
 )
 
 
@@ -54,6 +55,17 @@ def brighten_color(rgbTuple: tuple, factor=0.25):
     return adjust_color_brightness(rgbTuple, 1 + factor)
 
 
+def drawPath(g: Game, window: pygame.Surface, path: list):
+    """
+    Draws dots in the cells along the path of a move.
+    """
+    for i in range(len(path) - 1):
+        cell = abs_coors(g.centerCoor, path[i], g.unitLength)
+        nextCell = abs_coors(g.centerCoor, path[i + 1], g.unitLength)
+        pygame.draw.circle(window, PURPLE, cell, int(0.3 * g.circleRadius))
+        pygame.draw.circle(window, PURPLE, nextCell, int(0.3 * g.circleRadius))
+
+
 def drawBoard(g: Game, window: pygame.Surface, playerNum: int = 1):
     """
     Draws the board polygon, lines and circles.
@@ -61,6 +73,31 @@ def drawBoard(g: Game, window: pygame.Surface, playerNum: int = 1):
     drawPolygons(g, window, playerNum)
     drawLines(g, window)
     drawCircles(g, window, playerNum)
+    drawCoordinates(g, window)
+    drawPlayerTypes(g, window)
+
+
+def drawPlayerTypes(g: Game, window: pygame.Surface):
+    """
+    Adds the player types to the window.
+    """
+    coors = [(6, -7), (-7, 5), (2, 5)]  # coordinates to draw text
+
+    for p, coor in zip(g.playerList, coors):
+        c = add(
+            g.centerCoor,
+            mult(h2c(coor), g.unitLength),
+        )  # absolute coordinates on screen
+        playerStr = type(p).__name__
+        text = pygame.font.Font(size=int(WIDTH * 0.04)).render(
+            playerStr,
+            True,
+            BLACK,
+            None,
+        )
+        textRect = text.get_rect()
+        textRect.center = c
+        window.blit(text, textRect)
 
 
 def drawCircles(g: Game, window: pygame.Surface, playerNum: int):
@@ -179,6 +216,27 @@ def drawPolygons(g: Game, window: pygame.Surface, playerNum: int = 1):
             add(g.centerCoor, mult(h2c((-4, 0)), g.unitLength)),
         ),
     )
+
+
+def drawCoordinates(g: Game, window: pygame.Surface):
+    """
+    Adds the coordinates of each cell to the window.
+    """
+    for coor in g.board:
+        c = add(
+            g.centerCoor,
+            mult(h2c(coor), g.unitLength),
+        )  # absolute coordinates on screen
+        coor_str = f"{coor[0]}, {coor[1]}"
+        text = pygame.font.Font(size=int(WIDTH * 0.0175)).render(
+            coor_str,
+            True,
+            BLACK,
+            None,
+        )
+        textRect = text.get_rect()
+        textRect.center = c
+        window.blit(text, textRect)
 
 
 class Button:

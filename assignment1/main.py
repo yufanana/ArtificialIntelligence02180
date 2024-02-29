@@ -8,7 +8,7 @@ from gui.loops import LoopController
 from gui.constants import WIDTH, HEIGHT
 
 
-@hydra.main(version_base=None, config_path="config", config_name="config5.yaml")
+@hydra.main(version_base=None, config_path="config", config_name="config4.yaml")
 def main(cfg):
     # Check config
     if len(cfg.player_list) != cfg.no_of_players:
