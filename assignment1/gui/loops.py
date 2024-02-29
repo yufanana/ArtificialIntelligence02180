@@ -15,7 +15,7 @@ from game_logic.helpers import obj_to_subj_coor
 from game_logic.human import Human
 from game_logic.player import Player, PlayerMeta
 from gui.constants import WIDTH, HEIGHT, WHITE, GRAY, BLACK
-from gui.gui_helpers import TextButton, drawBoard, highlightMove
+from gui.gui_helpers import TextButton, drawBoard, drawPath, highlightMove
 from pygame import (
     QUIT,
     MOUSEBUTTONDOWN,
@@ -38,6 +38,7 @@ class LoopController:
 
     def __init__(self, playerList) -> None:
         self.loopNum = 0
+        self.playerNum = 1
         self.winnerList = list()
         self.replayRecord = list()
         self.playerTypes = {}
@@ -367,18 +368,17 @@ class LoopController:
             for player in players:
                 if isinstance(player, Human):
                     humanPlayerNum = player.getPlayerNum()
+        g.playerList = players
 
         # Start the game loop
         highlight = []  # list of start and end coordinates of picked move
+        path = []
         while True:
             playingPlayer = players[playingPlayerIndex]
-            # If 100 milliseconds has passed and there is no event, ev will be
-            # NOEVENT and the bot player will make a move. Otherwise, the bot
-            # player won't move until you move your mouse.
 
-            if waitBot:
+            if waitBot:  # wait for user to press a key
                 ev = pygame.event.wait()
-            else:
+            else:  # bot moves after waiting 500ms
                 ev = pygame.event.wait(500)
             # ev = pygame.event.wait(500)
 
@@ -394,9 +394,22 @@ class LoopController:
             else:  # No human players
                 drawBoard(g, window)
 
+            # Bot Text
+            botText = pygame.font.Font(size=int(HEIGHT * 0.05)).render(
+                "Press a key for the bot to make a move",
+                antialias=True,
+                color=BLACK,
+                wraplength=int(WIDTH * 0.375),
+            )
+            botTextRect = botText.get_rect()
+            botTextRect.topright = (WIDTH, 1)
+            window.blit(botText, botTextRect)
+
             # Highlight the 2 coordinates of the move
             if highlight:
                 highlightMove(g, window, highlight)
+                drawPath(g, window, path)
+                highlight = []
 
             backButton = TextButton(
                 "Back to Menu",
@@ -415,6 +428,7 @@ class LoopController:
             backButton.draw(window, mouse_pos)
             pygame.display.update()
 
+            print(f"Player {playingPlayer.getPlayerNum()}'s turn")
             # Playing player makes a move
             if isinstance(playingPlayer, Human):
                 # Human player makes a move
@@ -431,6 +445,13 @@ class LoopController:
             else:
                 # Bot player makes a move
                 start_coor, end_coor = playingPlayer.pickMove(g)
+
+            path = g.getMovePath(self.playerNum, start_coor, end_coor)
+
+            if path == []:
+                pygame.image.save(window, "assets/fail.png")
+                raise ValueError("No path found")
+
             g.movePiece(start_coor, end_coor)
 
             if oneHuman:
@@ -466,6 +487,7 @@ class LoopController:
 
             # Switch to the next player
             playingPlayerIndex = (playingPlayerIndex + 1) % len(players)
+            self.playerNum = playingPlayerIndex + 1
 
     def replayLoop(self, window: pygame.Surface, filePath: str = None):
         # Check if a path has been selected

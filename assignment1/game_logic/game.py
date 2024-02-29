@@ -2,11 +2,32 @@
 Game Class to represent the game state and logic.
 """
 import copy
-from game_logic.helpers import add, checkJump, obj_to_subj_coor
+from game_logic.helpers import add, checkJump, obj_to_subj_coor, mult
 from game_logic.constants import DIRECTIONS, END_COOR, NEUTRAL_COOR, START_COOR
 from game_logic.piece import Piece
 from gui.constants import HEIGHT, WIDTH
 from typing import List
+
+
+class Move:
+    def __init__(self, coord: tuple):
+        self.parent = None
+        self.coord = coord
+        self.children = []
+
+    def addChild(self, child):
+        self.children.append(child)
+        child.parent = self
+
+    def getPath(self):
+        """
+        Recursively add the parent to the path.
+        """
+        path = [self.coord]
+        if self.parent is self:  # reached the root node
+            return path
+        else:  # recurse
+            return self.parent.getPath() + path
 
 
 class Game:
@@ -15,6 +36,7 @@ class Game:
             self.playerCount = playerCount
         else:
             self.playerCount = 3
+        self.playerList = []
         self.pieces: dict[int, set[Piece]] = {1: set(), 2: set(), 3: set()}
         self.board: List[Piece] = self.createBoard(playerCount)
 
@@ -68,7 +90,7 @@ class Game:
         """
         moves = []
 
-        # Try all 8 directions
+        # Try all 6 directions
         for direction in DIRECTIONS:
             destination = add(startPos, direction)
             # Step is out of bounds
@@ -100,6 +122,110 @@ class Game:
                 while i in moves:
                     moves.remove(i)
         return list(set(moves))
+
+    def checkValidStepDest(self, playerNum: int, dest: tuple):
+        """
+        Check if the destination is valid single step for the player.
+
+        Args:
+            playerNum (int): the player number.
+            dest (tuple): the objective coordinates of the destination.
+
+        Returns:
+            bool: True if the destination is valid.
+        """
+        if dest not in self.board:  # out of bounds
+            return False
+        if self.board[dest] is not None:  # occupied cell
+            return False
+        if (
+            dest not in NEUTRAL_COOR  # other player's territory
+            and dest not in END_COOR[playerNum]
+            and dest not in START_COOR[playerNum]
+        ):
+            return False
+        return True
+
+    def checkValidJumpDest(self, playerNum: int, dest: tuple):
+        """
+        Check if the destination is valid jump for the player.
+
+        Args:
+            playerNum (int): the player number.
+            dest (tuple): the objective coordinates of the destination.
+
+        Returns:
+            bool: True if the destination is valid.
+        """
+        if dest not in self.board:  # out of bounds
+            return False
+        # if (dest not in NEUTRAL_COOR    # other player's territory
+        #     and dest not in END_COOR[playerNum]
+        #     and dest not in START_COOR[playerNum]
+        #     ):
+        #     return False
+        return True
+
+    def getMovePath(self, playerNum: int, start: tuple, end: tuple):
+        """
+        Find the path for the move using breadth-first search.
+
+        Args:
+            playerNum (int): the player number.
+            start (tuple): objective coordinates of the starting cell.
+            end (tuple): objective coordinates of the ending cell.
+
+        Returns:
+            path (list(tuples)): objective coordinates of cells along the path.
+        """
+        print(f"getMovePath({start}, {end})")
+        start_m = Move(start)
+        start_m.parent = start_m
+        path = []
+
+        # Single step
+        for dir in DIRECTIONS:
+            dest = add(start, dir)
+            dest_m = Move(dest)
+            if not self.checkValidStepDest(playerNum, dest):
+                continue
+            start_m.addChild(dest_m)
+            # Found end cell, return path
+            if dest == end:
+                path += dest_m.getPath()
+                print("full step path:", path, "\n")
+                return path
+
+        # Jump steps using BFS
+        queue = [start_m]
+        while queue:
+            current = queue.pop(0)
+            for dir in DIRECTIONS:
+                stepDest = add(current.coord, dir)
+                if not self.checkValidJumpDest(playerNum, stepDest):
+                    continue
+                if self.board[stepDest] is None:  # no piece to skip
+                    continue
+                jumpDir = mult(dir, 2)
+                dest = add(current.coord, jumpDir)
+                dest_m = Move(dest)
+                if not self.checkValidJumpDest(playerNum, dest):
+                    continue
+                if dest == current.parent.coord:
+                    continue  # prevents endless loops
+
+                dest_m.parent = current
+                current.addChild(dest_m)
+                if dest == end:
+                    path += dest_m.getPath()
+                    print("full jump path:", path, "\n")
+                    return path
+                queue.append(dest_m)
+
+        return path
+        # Assumes that a path will be found eventually.
+        # if path == []:
+        #     raise ValueError("No path found")
 
     def checkWin(self, playerNum: int):
         """
@@ -175,3 +301,4 @@ class Game:
         # Change piece's location in g.board
         self.board[end] = self.board[start]
         self.board[start] = None
+        # print(f"self.board[{start}] = {self.board[start]}")
