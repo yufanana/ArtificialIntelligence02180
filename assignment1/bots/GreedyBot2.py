@@ -12,7 +12,7 @@ class GreedyBot2(Player):
 
     def pickMove(self, g: Game):
         """
-        Choose a forward move with the greatest distance travelled. If there 
+        Choose a forward move with the greatest distance travelled. If there
         are no forward moves, choose a sideway move randomly.
 
         Returns:
@@ -54,7 +54,7 @@ class GreedyBot2(Player):
                 subj_to_obj_coor(start_coor, self.playerNum),
                 subj_to_obj_coor(end_coor, self.playerNum),
             ]
-        
+
         # Find forward with the max distance travelled
         max_dist = 0
         for coor in forwardMoves:

@@ -155,3 +155,10 @@ If you want to close the window, you can quit the game by clicking the X button 
 ## Development
 
 To create new custom bots, refer to [bots_development](assets/bots_development.md) for instructions on how to create your own custom bots.
+
+### Configurations
+
+ - The configurations for the game set up can be modified in the [`config.yaml`](config/config0.yaml) files inside the [`config`](config) folder.
+- To use a different config for a game, modify the `config_name` hydra parameter inside above `main()` in [`main.py`](main.py)
+- The string to represent the player type should be exactly the class name. </br>
+e.g. `Human` and not `human`, `GreedyBot0` and not `Greedybot`.

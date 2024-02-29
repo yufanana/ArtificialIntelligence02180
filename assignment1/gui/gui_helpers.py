@@ -56,21 +56,25 @@ def brighten_color(rgbTuple: tuple, factor=0.25):
 
 def drawBoard(g: Game, window: pygame.Surface, playerNum: int = 1):
     """
-    inputs Surface object
+    Draws the board polygon, lines and circles.
     """
     drawPolygons(g, window, playerNum)
     drawLines(g, window)
     drawCircles(g, window, playerNum)
 
 
-def drawCircles(g, window: pygame.Surface, playerNum: int):
+def drawCircles(g: Game, window: pygame.Surface, playerNum: int):
     for obj_coor in g.board:
+        # Draw an empty cell
         coor = obj_to_subj_coor(obj_coor, playerNum)
         c = add(
-            g.centerCoor, mult(h2c(coor), g.unitLength)
+            g.centerCoor,
+            mult(h2c(coor), g.unitLength),
         )  # absolute coordinates on screen
         pygame.draw.circle(window, WHITE, c, g.circleRadius)
         pygame.draw.circle(window, BLACK, c, g.circleRadius, g.lineWidth)
+
+        # Draw player's piece if the cell is occupied
         if isinstance(g.board[obj_coor], Piece):
             pygame.draw.circle(
                 window,
@@ -78,15 +82,12 @@ def drawCircles(g, window: pygame.Surface, playerNum: int):
                 c,
                 g.circleRadius - 2,
             )
-        # coor_str = str(coor)
-        # text = pygame.font.Font(size=14).render(coor_str, True, BLACK, None)
-        # textRect = text.get_rect()
-        # textRect.center = c
-        # window.blit(text, textRect)
 
 
 def drawLines(g: Game, window: pygame.Surface):
-    """Draws the black lines of the board. Doesn't need playerNum"""
+    """
+    Draws the black lines to connect the cells.
+    """
     visited = set()
     neighbors = set()
     for coor in g.board:
@@ -99,7 +100,6 @@ def drawLines(g: Game, window: pygame.Surface):
             n = add(g.centerCoor, mult(h2c(n_coor), g.unitLength))
             pygame.draw.line(window, BLACK, c, n, g.lineWidth)
         neighbors.clear()
-    # g.screen_is_altered = False
 
 
 def drawPolygons(g: Game, window: pygame.Surface, playerNum: int = 1):
@@ -116,13 +116,15 @@ def drawPolygons(g: Game, window: pygame.Surface, playerNum: int = 1):
             abs_coors(g.centerCoor, (-4, 0), g.unitLength),
         ),
     )
-    # triangles
+    # Set sequence of player colours.
     if playerNum == 1:
         colors = (YELLOW, RED, GREEN)
     elif playerNum == 2:
         colors = (RED, GREEN, YELLOW)
     elif playerNum == 3:
         colors = (GREEN, YELLOW, RED)
+
+    # Draw the 6 triangles
     pygame.draw.polygon(
         window,
         colors[0],
@@ -196,7 +198,10 @@ class Button:
         self.button_color = button_color
         if centerx and centery:
             self.buttonRect = pygame.Rect(
-                centerx - width / 2, centery - height / 2, width, height
+                centerx - width / 2,
+                centery - height / 2,
+                width,
+                height,
             )
         else:
             self.buttonRect = pygame.Rect(x, y, width, height)
@@ -213,7 +218,11 @@ class Button:
                 )
             else:
                 pygame.draw.rect(
-                    window, self.button_color, self.buttonRect, 0, 5
+                    window,
+                    self.button_color,
+                    self.buttonRect,
+                    0,
+                    5,
                 )
             pygame.draw.rect(window, BLACK, self.buttonRect, 2, 5)
         else:
@@ -257,7 +266,10 @@ class TextButton(Button):
         self.button_color = button_color
         if centerx and centery:
             self.buttonRect = pygame.Rect(
-                centerx - width / 2, centery - height / 2, width, height
+                centerx - width / 2,
+                centery - height / 2,
+                width,
+                height,
             )
         else:
             self.buttonRect = pygame.Rect(x, y, width, height)
@@ -272,7 +284,9 @@ class TextButton(Button):
         Fades the button if the mouse is hovering over it.
         """
         text = pygame.font.SysFont(self.font, self.font_size).render(
-            self.text, True, self.text_color
+            self.text,
+            True,
+            self.text_color,
         )
         textRect = text.get_rect()
         textRect.center = self.buttonRect.center
@@ -284,7 +298,11 @@ class TextButton(Button):
         pygame.draw.rect(window, color, self.buttonRect, 0, 5)
         if self.isHovering(mouse_pos) and self.enabled:
             pygame.draw.rect(
-                window, brighten_color(color, 0.25), self.buttonRect, 0, 5
+                window,
+                brighten_color(color, 0.25),
+                self.buttonRect,
+                0,
+                5,
             )
         pygame.draw.rect(window, BLACK, self.buttonRect, 2, 5)
         window.blit(text, textRect)

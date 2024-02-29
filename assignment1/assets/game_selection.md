@@ -46,7 +46,7 @@
     - Steps: single only or jumps only
     - Difficulty levels: amount of starting pieces, no. of players
 ![chinese_checkers](assets/chinese_checkers.png)
-    
+
 8. Rush Hour Shift
     - 1v1
     - **Goal**: Be the first to have your car exit on opponent's side
@@ -58,4 +58,3 @@
     - Individual high score
     - **Goal**: Create a highest tile
 ![2048](assets/2048.jpg)
-

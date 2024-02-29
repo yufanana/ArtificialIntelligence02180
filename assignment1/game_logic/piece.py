@@ -1,5 +1,5 @@
 """
-Class to represent a piece on the board. Each piece has a player number, 
+Class to represent a piece on the board. Each piece has a player number,
 and a position on the board.
 """
 

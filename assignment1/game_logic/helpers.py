@@ -42,26 +42,30 @@ def checkJump(
             or add(destination, jumpDir) in moves
         ):
             continue
-        elif board[add(destination, dir)] == None:
+        elif board[add(destination, dir)] is None:
             continue
         else:
             dest = add(destination, jumpDir)
         if dest in moves:
             continue  # prevents endless loops
-        elif dest not in board or board[dest] != None:
+        elif dest not in board or board[dest] is not None:
             continue  # out of bounds or two pieces in a line
         else:
             moves.append(dest)
             try:
                 checkJump(
-                    moves, board, dest, dir, playerNum
+                    moves,
+                    board,
+                    dest,
+                    dir,
+                    playerNum,
                 )  # recursively checks available squares
             except RecursionError:
                 print(
                     "RecursionError from "
                     + str(destination)
                     + " to "
-                    + str(dest)
+                    + str(dest),
                 )
 
 

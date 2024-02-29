@@ -1,20 +1,22 @@
 # usr/bin/python3
 """
-Script to display the coordinates of the Chinese Checkers 
+Script to display the coordinates of the Chinese Checkers
 board as an image.
 """
 
-import pygame, sys
-
-from game_logic.game import *
-from game_logic.helpers import *
-from gui.constants import *
+import pygame
+import sys
+from game_logic.game import Game
+from game_logic.piece import Piece
+from gui.constants import WIDTH, HEIGHT, WHITE, BLACK, PLAYER_COLORS
+from gui.gui_helpers import add, mult, h2c
 
 
 def main():
     pygame.init()
     window = pygame.display.set_mode(
-        (WIDTH, HEIGHT), pygame.SCALED | pygame.RESIZABLE
+        (WIDTH, HEIGHT),
+        pygame.SCALED | pygame.RESIZABLE,
     )
     pygame.display.set_caption("Chinese Checkers Coordinates")
     g = Game(3)
@@ -23,7 +25,8 @@ def main():
     g.drawLines(window)
     for coor in g.board:
         c = add(
-            g.centerCoor, mult(h2c(coor), g.unitLength)
+            g.centerCoor,
+            mult(h2c(coor), g.unitLength),
         )  # absolute coordinates on screen
         pygame.draw.circle(window, WHITE, c, g.circleRadius)
         pygame.draw.circle(window, BLACK, c, g.circleRadius, g.lineWidth)
@@ -36,7 +39,10 @@ def main():
             )
         coor_str = f"{coor[0]}, {coor[1]}"
         text = pygame.font.Font(size=int(WIDTH * 0.0175)).render(
-            coor_str, True, BLACK, None
+            coor_str,
+            True,
+            BLACK,
+            None,
         )
         textRect = text.get_rect()
         textRect.center = c

@@ -16,13 +16,16 @@ class PlayerMeta(ABCMeta):
 
 class Player(ABC, metaclass=PlayerMeta):
     def __init__(self):
-        self.playerNum = 0
+        self.playerNum = 0  # Starting from 1
         self.has_won = False
 
     def getPlayerNum(self):
         return self.playerNum
 
     def setPlayerNum(self, num: int):
+        """
+        Starting from 1.
+        """
         self.playerNum = num
 
     @abstractmethod

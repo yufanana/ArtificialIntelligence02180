@@ -14,7 +14,7 @@ class GreedyBot1(Player):
 
     def pickMove(self, g: Game):
         """
-        Choose the forward move with the greatest y value. If there are no 
+        Choose the forward move with the greatest y value. If there are no
         forward moves, choose a sideway move randomly.
 
         Returns:
@@ -25,7 +25,7 @@ class GreedyBot1(Player):
         forwardMoves = dict()
         sidewaysMoves = dict()
         (start_coor, end_coor) = ((), ())
-        
+
         # Split moves into forward and sideways
         for coor in moves:
             # If there are moves
@@ -39,7 +39,7 @@ class GreedyBot1(Player):
                     forwardMoves[coor].append(dest)
                 if dest[1] == coor[1]:
                     sidewaysMoves[coor].append(dest)
-        
+
         # Remove empty keys
         for coor in list(forwardMoves):
             if forwardMoves[coor] == []:
@@ -47,7 +47,6 @@ class GreedyBot1(Player):
         for coor in list(sidewaysMoves):
             if sidewaysMoves[coor] == []:
                 del sidewaysMoves[coor]
-
 
         # If there are no forward moves, move sideways randomly.
         if len(forwardMoves) == 0:
@@ -57,7 +56,7 @@ class GreedyBot1(Player):
                 subj_to_obj_coor(start_coor, self.playerNum),
                 subj_to_obj_coor(end_coor, self.playerNum),
             ]
-        
+
         # Choose the furthest destination (biggest y value in dest),
         # then backmost piece (smallest y value in coor)
         biggestDestY = -8
@@ -70,7 +69,7 @@ class GreedyBot1(Player):
                     (start_coor, end_coor) = (coor, dest)
                     biggestDestY = dest[1]
                     smallestStartY = coor[1]
-                
+
                 elif dest[1] == biggestDestY:
                     startY = coor[1]
 
@@ -82,7 +81,7 @@ class GreedyBot1(Player):
                         smallestStartY = coor[1]
                     elif startY == smallestStartY:
                         start_coor, end_coor = random.choice(
-                            [[start_coor, end_coor], [coor, dest]]
+                            [[start_coor, end_coor], [coor, dest]],
                         )
                         biggestDestY = end_coor[1]
                         smallestStartY = start_coor[1]

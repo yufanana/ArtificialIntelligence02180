@@ -4,13 +4,15 @@ LoopController class is used to control the game windows displayed.
 import os.path
 import pygame
 import sys
-from copy import deepcopy
+from bots.GreedyBot0 import GreedyBot0
 from bots.GreedyBot1 import GreedyBot1
 from bots.GreedyBot2 import GreedyBot2
+from bots.RandomBot import RandomBot
+from copy import deepcopy
 from game_logic.constants import ALL_COOR
 from game_logic.game import Game
-from game_logic.helpers import obj_to_subj_coor, setItem
-from game_logic.human import HumanPlayer
+from game_logic.helpers import obj_to_subj_coor
+from game_logic.human import Human
 from game_logic.player import Player, PlayerMeta
 from gui.constants import WIDTH, HEIGHT, WHITE, GRAY, BLACK
 from gui.gui_helpers import TextButton, drawBoard, highlightMove
@@ -25,6 +27,8 @@ from pygame import (
 from PySide6 import QtWidgets
 from time import strftime
 
+_ = [GreedyBot0, GreedyBot1, GreedyBot2, RandomBot]
+
 
 class LoopController:
     """
@@ -38,11 +42,30 @@ class LoopController:
         self.replayRecord = list()
         self.playerTypes = {}
         self.filePath = ""
+
+        # Create a dictionary of player types with PlayerMeta as parent class
         for i in PlayerMeta.playerTypes:
             # key: class name strings, value: class without ()
             self.playerTypes[i.__name__] = i
-        self.playerList = playerList
-        pygame.event.set_allowed([QUIT, MOUSEBUTTONDOWN, MOUSEBUTTONUP])
+
+        # Create objects of player types from hydra.cfg
+        self.playerList = []
+        for playerClass in playerList:
+            playerObject = eval(playerClass)()
+            self.playerList.append(playerObject)
+        print(f"Loaded {len(self.playerList)} players of types: {playerList}")
+
+        # Block all pygame events
+        for c_str in pygame.constants.__all__:
+            try:
+                c_id = eval(f"pygame.{c_str}")
+                pygame.event.set_blocked(c_id)
+            except (ValueError, TypeError):
+                pass
+        # Allow only these events
+        pygame.event.set_allowed(
+            [QUIT, MOUSEBUTTONDOWN, MOUSEBUTTONUP, KEYDOWN],
+        )
 
     def mainLoop(self, window: pygame.Surface):
         """
@@ -53,27 +76,23 @@ class LoopController:
 
         # First loop to display the main menu
         if self.loopNum == 0:
-            self.playerList = [
-                HumanPlayer(),
-                GreedyBot1(),
-                GreedyBot2(),
-            ]
-            pygame.event.set_allowed([QUIT, MOUSEBUTTONDOWN, MOUSEBUTTONUP])
             self.filePath = False
             self.replayRecord = []
             self.mainMenuLoop(window)
 
-        elif self.loopNum == 1:
-            # from playButton in mainMenuLoop
-            # enters loadPlayerLoop to choose player types
-            self.loadPlayerLoop()
+        # elif self.loopNum == 1:
+        #     # from playButton in mainMenuLoop
+        #     # enters loadPlayerLoop to choose player types
+        #     self.loadPlayerLoop()
 
         elif self.loopNum == 2:
             # from startButton in loadPlayerLoop
             # enters gameplayLoop to play the game
             waitBot = True
             self.winnerList, self.replayRecord = self.gameplayLoop(
-                window, self.playerList, waitBot
+                window,
+                self.playerList,
+                waitBot,
             )
 
         elif self.loopNum == 3:
@@ -83,7 +102,7 @@ class LoopController:
         elif self.loopNum == 4:
             # to view a replay
             pygame.event.set_allowed(
-                [QUIT, MOUSEBUTTONDOWN, MOUSEBUTTONUP, KEYDOWN]
+                [QUIT, MOUSEBUTTONDOWN, MOUSEBUTTONUP, KEYDOWN],
             )
             pygame.key.set_repeat(100)
             self.replayLoop(window, self.filePath)
@@ -98,7 +117,9 @@ class LoopController:
         """
         window.fill(WHITE)
         titleText = pygame.font.Font(size=int(WIDTH * 0.08)).render(
-            "Chinese Checkers", True, BLACK
+            "Chinese Checkers",
+            True,
+            BLACK,
         )
         titleTextRect = titleText.get_rect()
         titleTextRect.center = (WIDTH * 0.5, HEIGHT * 0.25)
@@ -126,12 +147,14 @@ class LoopController:
                 sys.exit()
             mouse_pos = pygame.mouse.get_pos()
             mouse_left_click = ev.type == MOUSEBUTTONDOWN
+
+            # Control flow to the next state
             if playButton.isClicked(mouse_pos, mouse_left_click):
-                # print("play")
-                self.loopNum = 1
+                # Go to the gamePlayLoop
+                self.loopNum = 2
                 break
             if loadReplayButton.isClicked(mouse_pos, mouse_left_click):
-                # print('load-replay')
+                # Go to the loadReplayLoop
                 self.loopNum = 5
                 break
 
@@ -139,146 +162,170 @@ class LoopController:
             loadReplayButton.draw(window, mouse_pos)
             pygame.display.update()
 
-    def loadPlayerLoop(self):
-        """
-        Display a smaller window to select number of players and player types.
-        """
-        loaded = False
-        appModifier = 0.75
-        appWidth = WIDTH * appModifier
-        appHeight = HEIGHT * appModifier
+    # def loadPlayerLoop(self):
+    #     """
+    #     Display a smaller window to select number of players and player types.
+    #     """
+    #     loaded = False
+    #     appModifier = 0.75
+    #     appWidth = WIDTH * appModifier
+    #     appHeight = HEIGHT * appModifier
 
-        if not QtWidgets.QApplication.instance():
-            app = QtWidgets.QApplication(sys.argv)
-        else:
-            app = QtWidgets.QApplication.instance()
-        app.aboutToQuit.connect(self.closing)
+    #     if not QtWidgets.QApplication.instance():
+    #         app = QtWidgets.QApplication(sys.argv)
+    #     else:
+    #         app = QtWidgets.QApplication.instance()
+    #     app.aboutToQuit.connect(self.closing)
 
-        Form = QtWidgets.QWidget()
-        Form.setWindowTitle("Game Settings")
-        Form.resize(appWidth, appHeight)
+    #     Form = QtWidgets.QWidget()
+    #     Form.setWindowTitle("Game Settings")
+    #     Form.resize(appWidth, appHeight)
 
-        box = QtWidgets.QWidget(Form)
-        box.setGeometry(
-            appWidth * 0.0625,
-            appHeight * 0.0625,
-            appWidth * 0.875,
-            appHeight * 0.625,
-        )
-        grid = QtWidgets.QGridLayout(box)
+    #     box = QtWidgets.QWidget(Form)
+    #     box.setGeometry(
+    #         appWidth * 0.0625,
+    #         appHeight * 0.0625,
+    #         appWidth * 0.875,
+    #         appHeight * 0.625,
+    #     )
+    #     grid = QtWidgets.QGridLayout(box)
 
-        # Choose number of players
-        label_pNum = QtWidgets.QLabel(Form)
-        label_pNum.setText("Number of Players")
-        rButton_2P = QtWidgets.QRadioButton(Form)
-        rButton_2P.setText("2")
-        rButton_2P.toggled.connect(
-            lambda: label_p3Type.setStyleSheet("color: #878787;")
-        )
-        rButton_2P.toggled.connect(lambda: cBox_p3.setDisabled(True))
-        rButton_2P.toggled.connect(lambda: setItem(self.playerList, 2, None))
-        # rButton_2P.toggled.connect(
-        #     lambda: print(self.playerList))
+    #     # Choose number of players
+    #     label_pNum = QtWidgets.QLabel(Form)
+    #     label_pNum.setText("No. of Players")
 
-        rButton_3P = QtWidgets.QRadioButton(Form)
-        rButton_3P.setText("3")
-        rButton_3P.setChecked(True)
-        rButton_3P.toggled.connect(
-            lambda: label_p3Type.setStyleSheet("color: #000000;")
-        )
-        rButton_3P.toggled.connect(lambda: cBox_p3.setDisabled(False))
-        rButton_3P.toggled.connect(
-            lambda: setItem(
-                self.playerList, 2, self.playerTypes[cBox_p3.currentText()]()
-            )
-        )
+    #     # Button for 1 player
+    #     rButton_1P = QtWidgets.QRadioButton(Form)
+    #     rButton_1P.setText("1")
+    #     rButton_1P.toggled.connect(
+    #         lambda: label_p2Type.setStyleSheet("color: #878787;")
+    #     )   # grey out p2 label
+    #     rButton_1P.toggled.connect(
+    #         lambda: label_p3Type.setStyleSheet("color: #878787;")
+    #     )   # grey out p3 label
+    #     rButton_1P.toggled.connect(lambda: cBox_p2.setDisabled(True))
+    #     rButton_1P.toggled.connect(lambda: cBox_p3.setDisabled(True))
+    #     rButton_1P.toggled.connect(lambda: setItem(self.playerList, 1, None))
+    #     rButton_1P.toggled.connect(lambda: setItem(self.playerList, 2, None))
 
-        # Choose player types
-        label_p1Type = QtWidgets.QLabel(Form)
-        label_p1Type.setText("Player 1:")
-        label_p2Type = QtWidgets.QLabel(Form)
-        label_p2Type.setText("Player 2:")
-        label_p3Type = QtWidgets.QLabel(Form)
-        label_p3Type.setText("Player 3:")
-        cBox_p1 = QtWidgets.QComboBox(Form)
-        cBox_p2 = QtWidgets.QComboBox(Form)
-        cBox_p3 = QtWidgets.QComboBox(Form)
-        cBoxes = (cBox_p1, cBox_p2, cBox_p3)
+    #     # Button for 2 players
+    #     rButton_2P = QtWidgets.QRadioButton(Form)
+    #     rButton_2P.setText("2")
+    #     rButton_2P.toggled.connect(
+    #         lambda: label_p3Type.setStyleSheet("color: #878787;")
+    #     )   # grey out p3 label
+    #     rButton_2P.toggled.connect(
+    #         lambda: label_p2Type.setStyleSheet("color: #000000;")
+    #     )   # restore p2 label
+    #     rButton_2P.toggled.connect(lambda: cBox_p2.setDisabled(False))
+    #     rButton_2P.toggled.connect(lambda: cBox_p3.setDisabled(True))
+    #     rButton_2P.toggled.connect(lambda: setItem(self.playerList, 2, None))
 
-        # Set initial player types
-        if not loaded:
-            initialPlayerList = [
-                HumanPlayer,
-                GreedyBot1,
-                GreedyBot2,
-            ]
-            for i in range(3):
-                grid.addWidget(cBoxes[i], i + 1, 2, 1, 2)
-                cBoxes[i].addItems(list(self.playerTypes))
-                cBoxes[i].setCurrentIndex(
-                    list(self.playerTypes.values()).index(initialPlayerList[i])
-                )
-            loaded = True
-            del initialPlayerList
+    #     # Button for 3 players
+    #     rButton_3P = QtWidgets.QRadioButton(Form)
+    #     rButton_3P.setText("3")
+    #     rButton_3P.setChecked(True)
+    #     rButton_3P.toggled.connect(
+    #         lambda: label_p2Type.setStyleSheet("color: #000000;")
+    #     )   # restore p3 label
+    #     rButton_3P.toggled.connect(
+    #         lambda: label_p3Type.setStyleSheet("color: #000000;")
+    #     )   # restore p3 label
+    #     rButton_3P.toggled.connect(lambda: cBox_p2.setDisabled(False))
+    #     rButton_3P.toggled.connect(lambda: cBox_p3.setDisabled(False))
+    #     rButton_3P.toggled.connect(
+    #         lambda: setItem(
+    #             self.playerList, 2, self.playerTypes[cBox_p3.currentText()]()
+    #         )
+    #     )
 
-        cBox_p1.currentIndexChanged.connect(
-            lambda: setItem(
-                self.playerList, 0, self.playerTypes[cBox_p1.currentText()]()
-            )
-        )
-        # cBox_p1.currentIndexChanged.connect(
-        #     lambda: print(self.playerList))
-        cBox_p2.currentIndexChanged.connect(
-            lambda: setItem(
-                self.playerList, 1, self.playerTypes[cBox_p2.currentText()]()
-            )
-        )
-        # cBox_p2.currentIndexChanged.connect(
-        #     lambda: print(self.playerList))
-        cBox_p3.currentIndexChanged.connect(
-            lambda: setItem(
-                self.playerList, 2, self.playerTypes[cBox_p3.currentText()]()
-            )
-        )
-        # cBox_p3.currentIndexChanged.connect(
-        #     lambda: print(self.playerList))
-        #
-        grid.addWidget(label_pNum, 0, 0, 1, 2)
-        grid.addWidget(rButton_2P, 0, 2)
-        grid.addWidget(rButton_3P, 0, 3)
-        grid.addWidget(label_p1Type, 1, 0, 1, 2)
-        grid.addWidget(label_p2Type, 2, 0, 1, 2)
-        grid.addWidget(label_p3Type, 3, 0, 1, 2)
+    #     # Combo boxes for player types
+    #     label_p1Type = QtWidgets.QLabel(Form)
+    #     label_p1Type.setText("Player 1:")
+    #     label_p2Type = QtWidgets.QLabel(Form)
+    #     label_p2Type.setText("Player 2:")
+    #     label_p3Type = QtWidgets.QLabel(Form)
+    #     label_p3Type.setText("Player 3:")
+    #     cBox_p1 = QtWidgets.QComboBox(Form)
+    #     cBox_p2 = QtWidgets.QComboBox(Form)
+    #     cBox_p3 = QtWidgets.QComboBox(Form)
+    #     cBoxes = (cBox_p1, cBox_p2, cBox_p3)
 
-        startButton = QtWidgets.QPushButton(Form)
-        startButton.setText("Start Game")
-        startButton.setGeometry(
-            appWidth * 0.625,
-            appHeight * 0.8125,
-            appWidth * 0.25,
-            appHeight * 0.125,
-        )
-        startButton.clicked.connect(self.startGame)
+    #     # Set initial player types for the 3 combo boxes
+    #     if not loaded:
+    #         for i in range(3):
+    #             grid.addWidget(cBoxes[i], i + 1, 2, 1, 2)
+    #             cBoxes[i].addItems(list(self.playerTypes))
+    #             cBoxes[i].setCurrentIndex(i)
+    #         loaded = True
 
-        cancelButton = QtWidgets.QPushButton(Form)
-        cancelButton.setText("Back to Menu")
-        cancelButton.setGeometry(
-            appWidth * 0.125,
-            appHeight * 0.8125,
-            appWidth * 0.25,
-            appHeight * 0.125,
-        )
-        cancelButton.clicked.connect(self.backToMenu)
+    #     # Modify playerList when player types are selected
+    #     cBox_p1.currentIndexChanged.connect(
+    #         lambda: setItem(
+    #             self.playerList, 0, self.playerTypes[cBox_p1.currentText()]()
+    #         )
+    #     )
+    #     cBox_p2.currentIndexChanged.connect(
+    #         lambda: setItem(
+    #             self.playerList, 1, self.playerTypes[cBox_p2.currentText()]()
+    #         )
+    #     )
+    #     cBox_p3.currentIndexChanged.connect(
+    #         lambda: setItem(
+    #             self.playerList, 2, self.playerTypes[cBox_p3.currentText()]()
+    #         )
+    #     )
 
-        Form.show()
-        app.exec()
+    #     # Print playerlist
+    #     rButton_1P.toggled.connect(lambda: print(self.playerList))
+    #     rButton_2P.toggled.connect(lambda: print(self.playerList))
+    #     rButton_3P.toggled.connect(lambda: print(self.playerList))
+
+    #     cBox_p1.currentIndexChanged.connect(
+    #         lambda: print(self.playerList))
+    #     cBox_p2.currentIndexChanged.connect(
+    #         lambda: print(self.playerList))
+    #     cBox_p3.currentIndexChanged.connect(
+    #         lambda: print(self.playerList))
+
+    #     # Add widgets to the grid
+    #     grid.addWidget(label_pNum, 0, 0)
+    #     grid.addWidget(rButton_1P, 0, 1)
+    #     grid.addWidget(rButton_2P, 0, 2)
+    #     grid.addWidget(rButton_3P, 0, 3)
+    #     grid.addWidget(label_p1Type, 1, 0, 1, 2)
+    #     grid.addWidget(label_p2Type, 2, 0, 1, 2)
+    #     grid.addWidget(label_p3Type, 3, 0, 1, 2)
+
+    #     startButton = QtWidgets.QPushButton(Form)
+    #     startButton.setText("Start Game")
+    #     startButton.setGeometry(
+    #         appWidth * 0.625,
+    #         appHeight * 0.8125,
+    #         appWidth * 0.25,
+    #         appHeight * 0.125,
+    #     )
+    #     startButton.clicked.connect(self.startGame)
+
+    #     cancelButton = QtWidgets.QPushButton(Form)
+    #     cancelButton.setText("Back to Menu")
+    #     cancelButton.setGeometry(
+    #         appWidth * 0.125,
+    #         appHeight * 0.8125,
+    #         appWidth * 0.25,
+    #         appHeight * 0.125,
+    #     )
+    #     cancelButton.clicked.connect(self.backToMenu)
+
+    #     Form.show()
+    #     app.exec()
 
     # helpers for loadPlayerLoop and replayLoop
     def startGame(self):
-        # print(self.playerList)
         self.loopNum = 2  # go to gameplay
         QtWidgets.QApplication.closeAllWindows()
 
+    # helpers for loadPlayerLoop and replayLoop
     def backToMenu(self):
         self.loopNum = 0  # go to main menu
         QtWidgets.QApplication.closeAllWindows()
@@ -287,7 +334,7 @@ class LoopController:
         self,
         window: pygame.Surface,
         playerss: list[Player],
-        waitBot: bool = False,
+        waitBot: bool = True,
     ):
         """
         Returns:
@@ -303,14 +350,12 @@ class LoopController:
 
         # Check player types, total and set player numbers
         players = deepcopy(playerss)
-        while None in players:
-            players.remove(None)
         if len(players) > 3:
             players = players[:3]
-        players[0].setPlayerNum(1)
-        players[1].setPlayerNum(2)
-        if len(players) == 3:
-            players[2].setPlayerNum(3)
+        while None in players:
+            players.remove(None)
+        for i in range(len(players)):
+            players[i].setPlayerNum(i + 1)
 
         # 1st line in replayRecord is the number of players
         replayRecord.append(str(len(players)))
@@ -320,7 +365,7 @@ class LoopController:
         oneHuman = exactly_one_is_human(players)
         if oneHuman:
             for player in players:
-                if isinstance(player, HumanPlayer):
+                if isinstance(player, Human):
                     humanPlayerNum = player.getPlayerNum()
 
         # Start the game loop
@@ -331,12 +376,11 @@ class LoopController:
             # NOEVENT and the bot player will make a move. Otherwise, the bot
             # player won't move until you move your mouse.
 
-            # if waitBot:
-            #     ev.type == KEYDOWN
-            #         and ev.key == K_RIGHT
-            #     ev = pygame.event.wait()
-            # else:
-            ev = pygame.event.wait(100)
+            if waitBot:
+                ev = pygame.event.wait()
+            else:
+                ev = pygame.event.wait(500)
+            # ev = pygame.event.wait(500)
 
             # Quit the game if the window is closed
             if ev.type == QUIT:
@@ -347,7 +391,7 @@ class LoopController:
             window.fill(GRAY)
             if humanPlayerNum != 0:
                 drawBoard(g, window, humanPlayerNum)
-            else:
+            else:  # No human players
                 drawBoard(g, window)
 
             # Highlight the 2 coordinates of the move
@@ -372,10 +416,13 @@ class LoopController:
             pygame.display.update()
 
             # Playing player makes a move
-            if isinstance(playingPlayer, HumanPlayer):
+            if isinstance(playingPlayer, Human):
                 # Human player makes a move
                 start_coor, end_coor = playingPlayer.pickMove(
-                    g, window, humanPlayerNum, highlight
+                    g,
+                    window,
+                    humanPlayerNum,
+                    highlight,
                 )
                 if (not start_coor) and (not end_coor):
                     # Return to main menu
@@ -406,19 +453,16 @@ class LoopController:
                     drawBoard(g, window)
                 playingPlayer.has_won = True
                 returnStuff[0].append(playingPlayer.getPlayerNum())
-                # print('The winner is Player %d' % playingPlayer.getPlayerNum())
                 returnStuff[1] = replayRecord
 
                 # Go to the game over loop
                 self.loopNum = 3
-                # print(returnStuff)
                 return returnStuff
+
             elif winning and len(players) == 3:
                 playingPlayer.has_won = True
                 returnStuff[0].append(playingPlayer.getPlayerNum())
                 players.remove(playingPlayer)
-                # TODO: show the message on screen
-                # print("The first winner is Player %d" % playingPlayer.getPlayerNum())
 
             # Switch to the next player
             playingPlayerIndex = (playingPlayerIndex + 1) % len(players)
@@ -437,7 +481,7 @@ class LoopController:
                 text = f.read()
                 move_list = text.split("\n")
                 playerCount = move_list.pop(0)
-                if not eval(playerCount) in (2, 3):
+                if eval(playerCount) not in (2, 3):
                     self.showNotValidReplay()
                     isValidReplay = False
                 else:
@@ -445,6 +489,7 @@ class LoopController:
                     for i in range(len(move_list)):
                         move_list[i] = move_list[i].split("to")
                         if len(move_list[i]) != 2:
+                            print(i, move_list[i])
                             self.showNotValidReplay()
                             isValidReplay = False
                             break
@@ -571,22 +616,27 @@ class LoopController:
             app = QtWidgets.QApplication(sys.argv)
         else:
             app = QtWidgets.QApplication.instance()
+        app.aboutToQuit.connect(self.closing)
+
         if not os.path.isdir("./replays"):
             os.mkdir("./replays")
         filePath = QtWidgets.QFileDialog.getOpenFileName(
-            dir="./replays", filter="*.txt"
+            dir="./replays",
+            filter="*.txt",
         )[0]
         if filePath:
             # print(filePath)
             self.loopNum = 4
             return filePath
-        else:
-            # print("cancelled")
+        else:  # User cancelled
             self.loopNum = 0
             return False
 
     def gameOverLoop(
-        self, window: pygame.Surface, winnerList: list, replayRecord: list
+        self,
+        window: pygame.Surface,
+        winnerList: list,
+        replayRecord: list,
     ):
         # print(winnerList); print(replayRecord)
         # winner announcement text
@@ -660,9 +710,9 @@ def exactly_one_is_human(players: list[Player]):
     """
     only_one = False
     for player in players:
-        if only_one is False and isinstance(player, HumanPlayer):
+        if only_one is False and isinstance(player, Human):
             only_one = True
-        elif only_one is True and isinstance(player, HumanPlayer):
+        elif only_one is True and isinstance(player, Human):
             return False
     return only_one
 
@@ -678,7 +728,7 @@ def trainingLoop(g: Game, players: list[Player], recordReplay: bool = False):
 
     # Ensure no humans are playing
     for player in players:
-        assert not isinstance(player, HumanPlayer), (
+        assert not isinstance(player, Human), (
             "Can't have humans during training! Human at player %d"
             % players.index(player)
             + 1
@@ -709,7 +759,7 @@ def trainingLoop(g: Game, players: list[Player], recordReplay: bool = False):
             playingPlayer.has_won = True
             players.remove(playingPlayer)
             print(
-                "The first winner is Player %d" % playingPlayer.getPlayerNum()
+                "The first winner is Player %d" % playingPlayer.getPlayerNum(),
             )
         if playingPlayerIndex >= len(players) - 1:
             playingPlayerIndex = 0
