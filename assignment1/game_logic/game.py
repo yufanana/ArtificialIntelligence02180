@@ -178,7 +178,7 @@ class Game:
         Returns:
             path (list(tuples)): objective coordinates of cells along the path.
         """
-        print(f"getMovePath({start}, {end})")
+        # print(f"getMovePath({start}, {end})")
         start_m = Move(start)
         start_m.parent = start_m
         path = []
@@ -193,7 +193,7 @@ class Game:
             # Found end cell, return path
             if dest == end:
                 path += dest_m.getPath()
-                print("full step path:", path, "\n")
+                # print("full step path:", path, "\n")
                 return path
 
         # Jump steps using BFS
@@ -218,14 +218,14 @@ class Game:
                 current.addChild(dest_m)
                 if dest == end:
                     path += dest_m.getPath()
-                    print("full jump path:", path, "\n")
+                    # print("full jump path:", path, "\n")
                     return path
                 queue.append(dest_m)
 
-        return path
+        # return path
         # Assumes that a path will be found eventually.
-        # if path == []:
-        #     raise ValueError("No path found")
+        if path == []:
+            raise ValueError("No path found")
 
     def checkWin(self, playerNum: int):
         """

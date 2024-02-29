@@ -1,6 +1,6 @@
 # Assignment 1
 
-Our group has chosen game Chinese Checkers as our game.
+Our group has chosen **Chinese Checkers** as our game.
 
 The GUI is adapted from [henrychess's repository](https://github.com/henrychess/pygame-chinese-checkers/). The code has been reorganised to have 3 main packages: `bots`,`game_logic`,`gui`. Our group intends to put most of work as new scripts and bots into the `bots` package.
 

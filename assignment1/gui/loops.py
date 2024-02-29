@@ -395,11 +395,11 @@ class LoopController:
                 drawBoard(g, window)
 
             # Bot Text
-            botText = pygame.font.Font(size=int(HEIGHT * 0.05)).render(
-                "Press a key for the bot to make a move",
+            botText = pygame.font.Font(size=int(HEIGHT * 0.035)).render(
+                "Press any key for the bot to make a move",
                 antialias=True,
                 color=BLACK,
-                wraplength=int(WIDTH * 0.375),
+                wraplength=int(WIDTH * 0.2),
             )
             botTextRect = botText.get_rect()
             botTextRect.topright = (WIDTH, 1)
@@ -428,7 +428,7 @@ class LoopController:
             backButton.draw(window, mouse_pos)
             pygame.display.update()
 
-            print(f"Player {playingPlayer.getPlayerNum()}'s turn")
+            # print(f"Player {playingPlayer.getPlayerNum()}'s turn")
             # Playing player makes a move
             if isinstance(playingPlayer, Human):
                 # Human player makes a move
@@ -447,10 +447,6 @@ class LoopController:
                 start_coor, end_coor = playingPlayer.pickMove(g)
 
             path = g.getMovePath(self.playerNum, start_coor, end_coor)
-
-            if path == []:
-                pygame.image.save(window, "assets/fail.png")
-                raise ValueError("No path found")
 
             g.movePiece(start_coor, end_coor)
 

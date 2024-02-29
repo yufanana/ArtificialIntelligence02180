@@ -50,16 +50,16 @@ class GreedyBot0(Player):
         if len(forwardMoves) != 0:
             start_coor = random.choice(list(forwardMoves))
             end_coor = random.choice(forwardMoves[start_coor])
-            print(f"GreedyBot0: {start_coor}")
-            print(f"possible moves: {forwardMoves[start_coor]}")
-            print(f"chosen move: {end_coor}")
+            # print(f"GreedyBot0: {start_coor}")
+            # print(f"possible moves: {forwardMoves[start_coor]}")
+            # print(f"chosen move: {end_coor}")
         # Else, choose a sideway move randomly
         else:
             start_coor = random.choice(list(sidewaysMoves))
             end_coor = random.choice(sidewaysMoves[start_coor])
-            print(f"GreedyBot0: {start_coor}")
-            print(f"possible moves: {sidewaysMoves[start_coor]}")
-            print(f"chosen move: {end_coor}")
+            # print(f"GreedyBot0: {start_coor}")
+            # print(f"possible moves: {sidewaysMoves[start_coor]}")
+            # print(f"chosen move: {end_coor}")
 
         return [
             subj_to_obj_coor(start_coor, self.playerNum),
