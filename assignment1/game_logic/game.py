@@ -10,6 +10,10 @@ from typing import List
 
 
 class Move:
+    """
+    Class to backtrace the path of a move.
+    """
+
     def __init__(self, coord: tuple):
         self.parent = None
         self.coord = coord
