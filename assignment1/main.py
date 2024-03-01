@@ -2,17 +2,26 @@
 """
 Script to start the game of Chinese Checkers.
 """
-import hydra
+import yaml
 import pygame
 from gui.loops import LoopController
 from gui.constants import WIDTH, HEIGHT
 
 
-@hydra.main(version_base=None, config_path="config", config_name="config4.yaml")
-def main(cfg):
+def read_config(file_name="config0.yaml"):
+    # Read from YAML config file
+    with open("config/" + file_name, "r") as file:
+        cfg = yaml.safe_load(file)
     # Check config
-    if len(cfg.player_list) != cfg.no_of_players:
+    if len(cfg["player_list"]) != cfg["no_of_players"]:
         raise ValueError("Player count and types are not equal in config.")
+    return cfg
+
+
+def main():
+    # Set config file
+    config_name = "config4.yaml"
+    cfg = read_config(config_name)
 
     # Initialize pygame window
     pygame.init()
@@ -23,7 +32,7 @@ def main(cfg):
     pygame.display.set_caption("Chinese Checkers")
 
     # Enter game control loop
-    lc = LoopController(cfg.player_list)
+    lc = LoopController(cfg["player_list"])
     while True:
         lc.mainLoop(window)
 
