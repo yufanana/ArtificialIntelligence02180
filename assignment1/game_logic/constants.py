@@ -9,7 +9,7 @@ The following literals are defined:
 - DIRECTIONS: set
 - POINTS: set
 """
-
+# Zones start clockwise from the bottom-most middle yellow triangle.
 ZONE_1 = {
     (3, -5),
     (1, -4),
@@ -169,15 +169,7 @@ NEUTRAL_COOR = {
 }
 
 # All possible coordinates on the board
-ALL_COOR = (
-    END_COOR[1]
-    | END_COOR[2]
-    | END_COOR[3]
-    | START_COOR[1]
-    | START_COOR[2]
-    | START_COOR[3]
-    | NEUTRAL_COOR
-)
+ALL_COOR = ZONE_1 | ZONE_2 | ZONE_3 | ZONE_4 | ZONE_5 | ZONE_6 | NEUTRAL_COOR
 
 # Unit vectors for the 6 directions from a cell
 DIRECTIONS = {(1, 0), (0, 1), (-1, 1), (-1, 0), (0, -1), (1, -1)}
