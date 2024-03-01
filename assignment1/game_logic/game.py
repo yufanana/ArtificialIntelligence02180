@@ -43,6 +43,7 @@ class Game:
         self.playerList = []
         self.pieces: dict[int, set[Piece]] = {1: set(), 2: set(), 3: set()}
         self.board: List[Piece] = self.createBoard(playerCount)
+        self.turnCount = 0
 
         # Parameters for drawing board
         self.unitLength = int(WIDTH * 0.05)  # unitLength length in pixels

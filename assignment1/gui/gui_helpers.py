@@ -75,6 +75,25 @@ def drawBoard(g: Game, window: pygame.Surface, playerNum: int = 1):
     drawCircles(g, window, playerNum)
     drawCoordinates(g, window)
     drawPlayerTypes(g, window)
+    drawTurnCount(g, window)
+
+
+def drawTurnCount(g: Game, window: pygame.Surface):
+    """
+    Adds the turn count to the window.
+    """
+    text = pygame.font.Font(size=int(WIDTH * 0.04)).render(
+        f"Turn: {g.turnCount}",
+        True,
+        BLACK,
+        None,
+    )
+    textRect = text.get_rect()
+    textRect.center = add(
+        g.centerCoor,
+        mult(h2c((-3, -7)), g.unitLength),
+    )
+    window.blit(text, textRect)
 
 
 def drawPlayerTypes(g: Game, window: pygame.Surface):
