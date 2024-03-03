@@ -374,6 +374,7 @@ class LoopController:
         highlight = []  # list of start and end coordinates of picked move
         path = []
         while True:
+            g.turnCount += 1
             playingPlayer = players[playingPlayerIndex]
 
             if waitBot:  # wait for user to press a key
