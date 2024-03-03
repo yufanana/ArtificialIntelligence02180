@@ -81,7 +81,6 @@ class Human(Player):
         """
         Returns the start and end coordinates of the selected move.
         """
-        print(f"playerNum: {self.playerNum}")
         pieceSet: set[Piece] = g.pieces[self.playerNum]
         validMoves = []
         clicking = False

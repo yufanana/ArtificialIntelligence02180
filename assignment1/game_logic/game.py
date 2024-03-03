@@ -3,7 +3,13 @@ Game Class to represent the game state and logic.
 """
 import copy
 from game_logic.helpers import add, checkJump, obj_to_subj_coor, mult
-from game_logic.constants import DIRECTIONS, END_COOR, NEUTRAL_COOR, START_COOR
+from game_logic.constants import (
+    DIRECTIONS,
+    END_COOR,
+    NEUTRAL_COOR,
+    START_COOR,
+    ALL_COOR,
+)
 from game_logic.piece import Piece
 from gui.constants import HEIGHT, WIDTH
 from typing import List
@@ -57,24 +63,13 @@ class Game:
         """
         Board = {}
 
-        # Neutral zone
-        for x, y in NEUTRAL_COOR:
+        for x, y in ALL_COOR:
             Board[(x, y)] = None
-
-        # Add empty
-        for playerNum in range(playerCount + 1, 3 + 1):
-            for p, q in START_COOR[playerNum]:
-                Board[(p, q)] = None
-            for p, q in END_COOR[playerNum]:
-                Board[(p, q)] = None
 
         # Add empty spaces first because a player's start zones overlaps with
         # another player's end zone
 
         # Add pieces
-        for playerNum in range(1, playerCount + 1):
-            for p, q in END_COOR[playerNum]:
-                Board[(p, q)] = None
         for playerNum in range(1, playerCount + 1):
             for p, q in START_COOR[playerNum]:
                 Board[(p, q)] = Piece(playerNum, p, q)
