@@ -50,6 +50,8 @@ class Game:
         self.pieces: dict[int, set[Piece]] = {1: set(), 2: set(), 3: set()}
         self.board: List[Piece] = self.createBoard(playerCount)
         self.turnCount = 0
+        self.playerNames = 0
+        self.playerNum = 0
 
         # Parameters for drawing board
         self.unitLength = int(WIDTH * 0.05)  # unitLength length in pixels
@@ -243,6 +245,15 @@ class Game:
                 return False
         return True
 
+    def isOver(self):
+        """
+        Check if the game is over.
+        """
+        for i in range(1, self.playerCount + 1):
+            if self.checkWin(i):
+                return True
+        return False
+
     def getBoardState(self, playerNum: int):
         """
         Key: subjective coordinates
@@ -292,12 +303,39 @@ class Game:
         """
         Moves a piece from start coord to end coord.
         """
-        assert (
-            self.board[start] is not None and self.board[end] is None
-        ), "Start or end coord is occupied."
+        assert self.board[start] is not None, "startCoord is empty"
+        assert self.board[end] is None, "endCoord is occupied"
+
         # Update piece attribute
         self.board[start].setCoor(end)
 
         # Change piece's location in g.board
         self.board[end] = self.board[start]
         self.board[start] = None
+
+    def eval(self):
+        """
+        Returns the evaluation of the game state for the player.
+        """
+        if self.checkWin(self.playerNum):
+            return 100
+
+        # Find the furthest empty cell in end zone
+        furthestCell = (0, 0)
+        for coord in END_COOR[self.playerNum]:
+            # Check if the piece is occupied by the current player
+            if (
+                self.board[coord] is None
+                or self.board[coord].getPlayerNum() != self.playerNum
+            ):
+                if coord[1] > furthestCell[1]:
+                    furthestCell = coord
+
+        # Compute cumulative y-distance of all pieces to furthest cell
+        cumDist = 0
+        for piece in self.pieces[self.playerNum]:
+            cumDist += furthestCell[1] - piece.getCoor()[1]
+
+        # TODO: replace 100 with cumDist(?) for opponent
+        score = 100 - cumDist
+        return score

@@ -52,10 +52,13 @@ class GreedyBot1(Player):
         if len(forwardMoves) == 0:
             start_coor = random.choice(list(sidewaysMoves))
             end_coor = random.choice(sidewaysMoves[start_coor])
-            return [
+
+            move = [
                 subj_to_obj_coor(start_coor, self.playerNum),
                 subj_to_obj_coor(end_coor, self.playerNum),
             ]
+            print(f"[GreedyBot1] Move: {move}\n")
+            return move
 
         # Choose the furthest destination (biggest y value in dest),
         # then backmost piece (smallest y value in coor)
@@ -85,7 +88,10 @@ class GreedyBot1(Player):
                         )
                         biggestDestY = end_coor[1]
                         smallestStartY = start_coor[1]
-        return [
+
+        move = [
             subj_to_obj_coor(start_coor, self.playerNum),
             subj_to_obj_coor(end_coor, self.playerNum),
         ]
+        print(f"[GreedyBot1] Move: {move}\n")
+        return move

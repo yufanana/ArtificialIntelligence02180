@@ -21,10 +21,12 @@ class RandomBot(Player):
                 start_coords.append(coor)
 
         # Choose a random start_coor
-        start_coord = random.choice(start_coords)
-        end_coord = random.choice(moves[start_coord])
+        start_coor = random.choice(start_coords)
+        end_coor = random.choice(moves[start_coor])
 
-        return [
-            subj_to_obj_coor(start_coord, self.playerNum),
-            subj_to_obj_coor(end_coord, self.playerNum),
+        move = [
+            subj_to_obj_coor(start_coor, self.playerNum),
+            subj_to_obj_coor(end_coor, self.playerNum),
         ]
+        print(f"[RandomBot] Move: {move}\n")
+        return move

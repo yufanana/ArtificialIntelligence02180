@@ -19,7 +19,6 @@ class GreedyBot2(Player):
             [start_coor, end_coor] : in objective coordinates
         """
         moves = g.allMovesDict(self.playerNum)
-        # state = g.boardState(self.playerNum)
 
         forwardMoves = dict()
         sidewaysMoves = dict()
@@ -50,10 +49,13 @@ class GreedyBot2(Player):
         if len(forwardMoves) == 0:
             start_coor = random.choice(list(sidewaysMoves))
             end_coor = random.choice(sidewaysMoves[start_coor])
-            return [
+
+            move = [
                 subj_to_obj_coor(start_coor, self.playerNum),
                 subj_to_obj_coor(end_coor, self.playerNum),
             ]
+            print(f"[GreedyBot2] Move: {move}\n")
+            return move
 
         # Find forward with the max distance travelled
         max_dist = 0
@@ -68,7 +70,10 @@ class GreedyBot2(Player):
                     if dest[1] < end_coor[1]:
                         max_dist = dist
                         (start_coor, end_coor) = (coor, dest)
-        return [
+
+        move = [
             subj_to_obj_coor(start_coor, self.playerNum),
             subj_to_obj_coor(end_coor, self.playerNum),
         ]
+        print(f"[GreedyBot2] Move: {move}\n")
+        return move
