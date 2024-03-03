@@ -20,8 +20,9 @@ def read_config(file_name="config0.yaml"):
 
 def main():
     # Set config file
-    config_name = "config2.yaml"
+    config_name = "config_adv.yaml"
     cfg = read_config(config_name)
+    waitBot = False
 
     # Initialize pygame window
     pygame.init()
@@ -34,7 +35,7 @@ def main():
     # Enter game control loop
     lc = LoopController(cfg["player_list"])
     while True:
-        lc.mainLoop(window)
+        lc.mainLoop(window, waitBot)
 
 
 if __name__ == "__main__":
