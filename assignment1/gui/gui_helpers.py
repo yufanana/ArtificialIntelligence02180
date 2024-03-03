@@ -22,6 +22,8 @@ def highlightMove(g: Game, window: pygame.Surface, moves):
     """
     Highlights the start and end coordinates of a move.
     """
+    if moves == []:
+        return
     # Highlight start coordinate
     pygame.draw.circle(
         window,
@@ -59,6 +61,8 @@ def drawPath(g: Game, window: pygame.Surface, path: list):
     """
     Draws dots in the cells along the path of a move.
     """
+    if path is None:
+        return
     for i in range(len(path) - 1):
         cell = abs_coors(g.centerCoor, path[i], g.unitLength)
         nextCell = abs_coors(g.centerCoor, path[i + 1], g.unitLength)
@@ -70,6 +74,7 @@ def drawBoard(g: Game, window: pygame.Surface, playerNum: int = 1):
     """
     Draws the board polygon, lines and circles.
     """
+    window.fill(GRAY)
     drawPolygons(g, window, playerNum)
     drawLines(g, window)
     drawCircles(g, window, playerNum)
