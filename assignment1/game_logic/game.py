@@ -301,4 +301,3 @@ class Game:
         # Change piece's location in g.board
         self.board[end] = self.board[start]
         self.board[start] = None
-        # print(f"self.board[{start}] = {self.board[start]}")

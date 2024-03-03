@@ -9,13 +9,14 @@ from bots.GreedyBot1 import GreedyBot1
 from bots.GreedyBot2 import GreedyBot2
 from bots.MiniMaxBot import MiniMaxBot
 from bots.RandomBot import RandomBot
+from bots.AdversarialBot import AdversarialBot
 from copy import deepcopy
 from game_logic.constants import ALL_COOR
 from game_logic.game import Game
 from game_logic.helpers import obj_to_subj_coor
 from game_logic.human import Human
 from game_logic.player import Player, PlayerMeta
-from gui.constants import WIDTH, HEIGHT, WHITE, GRAY, BLACK
+from gui.constants import WIDTH, HEIGHT, WHITE, BLACK
 from gui.gui_helpers import TextButton, drawBoard, drawPath, highlightMove
 from pygame import (
     QUIT,
@@ -28,7 +29,7 @@ from pygame import (
 from PySide6 import QtWidgets
 from time import strftime
 
-_ = [GreedyBot0, GreedyBot1, MiniMaxBot, GreedyBot2, RandomBot]
+_ = [GreedyBot0, GreedyBot1, GreedyBot2, RandomBot, AdversarialBot]
 
 
 class LoopController:
@@ -372,7 +373,7 @@ class LoopController:
         g.playerList = players
 
         # Start the game loop
-        highlight = []  # list of start and end coordinates of picked move
+        selectedMove = []  # list of start and end coordinates of picked move
         path = []
         while True:
             playingPlayer = players[playingPlayerIndex]
@@ -389,11 +390,7 @@ class LoopController:
                 sys.exit()
 
             # Draw the board
-            window.fill(GRAY)
-            if humanPlayerNum != 0:
-                drawBoard(g, window, humanPlayerNum)
-            else:  # No human players
-                drawBoard(g, window)
+            drawBoard(g, window)
 
             # Bot Text
             botText = pygame.font.Font(size=int(HEIGHT * 0.035)).render(
@@ -407,10 +404,9 @@ class LoopController:
             window.blit(botText, botTextRect)
 
             # Highlight the 2 coordinates of the move
-            if highlight:
-                highlightMove(g, window, highlight)
-                drawPath(g, window, path)
-                highlight = []
+            highlightMove(g, window, selectedMove)
+            drawPath(g, window, path)
+            selectedMove = []
 
             backButton = TextButton(
                 "Back to Menu",
@@ -437,7 +433,6 @@ class LoopController:
                     g,
                     window,
                     humanPlayerNum,
-                    highlight,
                 )
                 if (not start_coor) and (not end_coor):
                     # Return to main menu
@@ -452,12 +447,12 @@ class LoopController:
             g.movePiece(start_coor, end_coor)
 
             if oneHuman:
-                highlight = [
+                selectedMove = [
                     obj_to_subj_coor(start_coor, humanPlayerNum),
                     obj_to_subj_coor(end_coor, humanPlayerNum),
                 ]
             else:
-                highlight = [start_coor, end_coor]
+                selectedMove = [start_coor, end_coor]
 
             replayRecord.append(str(start_coor) + "to" + str(end_coor))
 
@@ -465,10 +460,7 @@ class LoopController:
             winning = g.checkWin(playingPlayer.getPlayerNum())
 
             if winning and len(players) == 2:
-                if humanPlayerNum != 0:
-                    drawBoard(g, window, humanPlayerNum)
-                else:
-                    drawBoard(g, window)
+                drawBoard(g, window)
                 playingPlayer.has_won = True
                 returnStuff[0].append(playingPlayer.getPlayerNum())
                 returnStuff[1] = replayRecord
@@ -562,7 +554,7 @@ class LoopController:
             moveListIndex = -1
             left = False
             right = False
-            highlight = []
+            selectedMove = []
             window.fill(WHITE)
             hintText = pygame.font.Font(size=int(HEIGHT * 0.05)).render(
                 "Use the buttons or the left and right arrow keys to navigate through the game",
@@ -608,7 +600,7 @@ class LoopController:
                         move_list[moveListIndex + 1][1],
                         move_list[moveListIndex + 1][0],
                     )
-                    highlight = (
+                    selectedMove = (
                         move_list[moveListIndex] if moveListIndex >= 0 else []
                     )
                 if nextButton.isClicked(mouse_pos, mouse_left_click) or right:
@@ -618,13 +610,12 @@ class LoopController:
                         move_list[moveListIndex][0],
                         move_list[moveListIndex][1],
                     )
-                    highlight = move_list[moveListIndex]
+                    selectedMove = move_list[moveListIndex]
                 prevButton.draw(window, mouse_pos)
                 nextButton.draw(window, mouse_pos)
                 backButton.draw(window, mouse_pos)
                 drawBoard(g, window)
-                if highlight:
-                    highlightMove(g, window, highlight)
+                highlightMove(g, window, selectedMove)
                 pygame.display.update()
 
     def loadReplayLoop(self):
