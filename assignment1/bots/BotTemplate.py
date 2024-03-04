@@ -1,33 +1,77 @@
+import random
+import numpy as np
 from game_logic.player import Player
 from game_logic.game import Game
 from game_logic.helpers import subj_to_obj_coor
 
+class GreedyGroup(Player):
+    """Always finds a move that jumps through the maximum distance (dest[1] - coor[1]), if not it reduces distance between pieces"""
 
-class CustomBotTemplate(Player):
     def __init__(self):
         super().__init__()
 
     def pickMove(self, g: Game):
-        moves = g.allMovesDict(self.playerNum)
-        # board_state = g.getBoardState(self.playerNum)
-        # bool_board_state = g.getBoolBoardState(self.playerNum)
         """
-        The following code section is a simple example: it
-        randomly picks a valid move and return it.
-        """
-        from random import choice
+        Choose a forward move with the greatest distance travelled. If there
+        are no forward moves, choose a sideway move randomly.
 
-        l = []
+        Returns:
+            [start_coor, end_coor] : in objective coordinates
+        """
+        moves = g.allMovesDict(self.playerNum)
+        # state = g.boardState(self.playerNum)
+
+        forwardMoves = dict()
+        sidewaysMoves = dict()
+        (start_coor, end_coor) = ((), ())
+
+        # Split moves into forward and sideways
         for coor in moves:
             if moves[coor] != []:
-                l.append(coor)
-        start = choice(l)
-        end = choice(moves[start])
-        """
-        This is the return section. `start` and `end` are
-        the starting and ending subjective coordinates.
-        """
+                forwardMoves[coor] = []
+                sidewaysMoves[coor] = []
+            else:
+                continue
+            for dest in moves[coor]:
+                if dest[1] > coor[1]:
+                    forwardMoves[coor].append(dest)
+                if dest[1] == coor[1]:
+                    sidewaysMoves[coor].append(dest)
+
+        # Remove empty keys
+        for coor in list(forwardMoves):
+            if forwardMoves[coor] == []:
+                del forwardMoves[coor]
+        for coor in list(sidewaysMoves):
+            if sidewaysMoves[coor] == []:
+                del sidewaysMoves[coor]
+
+        # If forward is empty, move sideways
+        if len(forwardMoves) == 0:
+            start_coor = random.choice(list(sidewaysMoves))
+            end_coor = random.choice(sidewaysMoves[start_coor])
+            return [
+                subj_to_obj_coor(start_coor, self.playerNum),
+                subj_to_obj_coor(end_coor, self.playerNum),
+            ]
+
+        # Find forward with the max distance travelled
+        max_dist = 0		
+        for coor in forwardMoves:
+            for dest in forwardMoves[coor]:
+                dist = dest[1] - coor[1] 
+				std_dev = np.std([coor[1] for coor in forwardMoves[coor]])
+                if dist > max_dist:
+                    max_dist = dist
+                    (start_coor, end_coor) = (coor, dest)
+                elif dist == max_dist:
+                    # Prefers to move the piece to reduce pieces stdev
+                    if (np.std([dest[1] for dest in forwardMoves[coor]]) < std_dev):
+                        max_dist = dist
+                        (start_coor, end_coor) = (coor, dest)
         return [
-            subj_to_obj_coor(start, self.playerNum),
-            subj_to_obj_coor(end, self.playerNum),
+            subj_to_obj_coor(start_coor, self.playerNum),
+            subj_to_obj_coor(end_coor, self.playerNum),
         ]
+
+
