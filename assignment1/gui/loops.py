@@ -7,7 +7,6 @@ import sys
 from bots.GreedyBot0 import GreedyBot0
 from bots.GreedyBot1 import GreedyBot1
 from bots.GreedyBot2 import GreedyBot2
-from bots.MiniMaxBot import MiniMaxBot
 from bots.RandomBot import RandomBot
 from bots.AdversarialBot import AdversarialBot
 from copy import deepcopy
@@ -482,6 +481,7 @@ class LoopController:
             playingPlayerIndex = (playingPlayerIndex + 1) % len(players)
             self.playerNum = playingPlayerIndex + 1
             g.playerNum = self.playerNum
+            g.turnCount += 1
 
     def replayLoop(self, window: pygame.Surface, filePath: str = None):
         # Check if a path has been selected

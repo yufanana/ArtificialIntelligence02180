@@ -49,7 +49,7 @@ class Game:
         self.playerList = []
         self.pieces: dict[int, set[Piece]] = {1: set(), 2: set(), 3: set()}
         self.board: List[Piece] = self.createBoard(playerCount)
-        self.turnCount = 0
+        self.turnCount = 1
         self.playerNames = 0
         self.playerNum = 0
 
