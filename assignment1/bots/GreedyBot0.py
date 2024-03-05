@@ -61,7 +61,9 @@ class GreedyBot0(Player):
             # print(f"possible moves: {sidewaysMoves[start_coor]}")
             # print(f"chosen move: {end_coor}")
 
-        return [
+        move = [
             subj_to_obj_coor(start_coor, self.playerNum),
             subj_to_obj_coor(end_coor, self.playerNum),
         ]
+        print(f"[GreedyBot0] Move: {move}\n")
+        return move
