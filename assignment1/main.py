@@ -4,7 +4,6 @@ Script to start the game of Chinese Checkers.
 """
 import pygame
 import yaml
-import numpy as np
 from gui.loops import LoopController
 from gui.constants import WIDTH, HEIGHT
 
