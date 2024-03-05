@@ -11,9 +11,6 @@ The GUI is adapted from [henrychess's repository](https://github.com/henrychess/
 - [Folder Directory](#folder-directory)
 - [Cloning the Repository](#cloning-the-repository)
 - [Installing Python Environment](#installing-python-environment)
-  - [With Anaconda](#with-anaconda)
-  - [With venv](#with-venv)
-  - [With virtualenv](#with-virtualenv)
 - [Running the program](#running-the-program)
 - [Development](#development)
 
@@ -156,9 +153,50 @@ If you want to close the window, you can quit the game by clicking the X button 
 
 To create new custom bots, refer to [bots_development](assets/bots_development.md) for instructions on how to create your own custom bots.
 
+### Updating your Branch
+
+1. Commit whatever changes you have on your branch. 
+
+```bash
+git add .
+git commit -m "describe your changes"
+```
+
+2. Change to the main branch
+
+```bash
+git checkout main
+```
+
+3. Get the latest updates
+
+```bash
+git pull
+```
+
+4. Change back to your adversarial branch
+
+```bash
+git checkout my-adversarial
+```
+
+5. Rebase your branch onto the main branch
+
+```bash
+git rebase main
+```
+
+6. If there are any conflicts, resolve them in VS Code. Find the files that have been highlighted red with an exclamation mark in the `Folder Explorer`. After you have resolved the conflicts, run
+
+```bash
+git rebase --continue
+```
+
+7. Done! :)
+
 ### Configurations
 
  - The configurations for the game set up can be modified in the [`config.yaml`](config/config0.yaml) files inside the [`config`](config) folder.
-- To use a different config for a game, modify the `config_name` hydra parameter inside above `main()` in [`main.py`](main.py)
+- To use a different config for a game, modify the `config_name` parameter inside `main()` in [`main.py`](main.py)
 - The string to represent the player type should be exactly the class name. </br>
 e.g. `Human` and not `human`, `GreedyBot0` and not `Greedybot`.
