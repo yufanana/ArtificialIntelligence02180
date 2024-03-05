@@ -20,7 +20,7 @@ def read_config(file_name="config0.yaml"):
 
 def main():
     # Set config file
-    config_name = "config2.yaml"
+    config_name = "config_6_players.yaml"
     cfg = read_config(config_name)
 
     # Initialize pygame window
