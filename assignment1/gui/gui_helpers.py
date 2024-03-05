@@ -18,15 +18,17 @@ from gui.constants import (
 )
 
 
-def highlightMove(g: Game, window: pygame.Surface, moves):
+def highlightMove(g: Game, window: pygame.Surface, move):
     """
     Highlights the start and end coordinates of a move.
     """
+    if move == []:
+        return
     # Highlight start coordinate
     pygame.draw.circle(
         window,
         PURPLE,
-        abs_coors(g.centerCoor, moves[0], g.unitLength),
+        abs_coors(g.centerCoor, move[0], g.unitLength),
         g.circleRadius,
         g.lineWidth + 2,
     )
@@ -35,7 +37,7 @@ def highlightMove(g: Game, window: pygame.Surface, moves):
     pygame.draw.circle(
         window,
         PURPLE,
-        abs_coors(g.centerCoor, moves[1], g.unitLength),
+        abs_coors(g.centerCoor, move[1], g.unitLength),
         g.circleRadius,
         g.lineWidth + 2,
     )
@@ -59,6 +61,8 @@ def drawPath(g: Game, window: pygame.Surface, path: list):
     """
     Draws dots in the cells along the path of a move.
     """
+    if path is None:
+        return
     for i in range(len(path) - 1):
         cell = abs_coors(g.centerCoor, path[i], g.unitLength)
         nextCell = abs_coors(g.centerCoor, path[i + 1], g.unitLength)
@@ -82,8 +86,9 @@ def drawTurnCount(g: Game, window: pygame.Surface):
     """
     Adds the turn count to the window.
     """
+    playerName = g.playerNames[g.playerNum - 1]
     text = pygame.font.Font(size=int(WIDTH * 0.04)).render(
-        f"Turn: {g.turnCount}",
+        f"Turn: {g.turnCount}, {playerName}",
         True,
         BLACK,
         None,
@@ -108,7 +113,7 @@ def drawPlayerTypes(g: Game, window: pygame.Surface):
             mult(h2c(coor), g.unitLength),
         )  # absolute coordinates on screen
         playerStr = type(p).__name__
-        text = pygame.font.Font(size=int(WIDTH * 0.04)).render(
+        text = pygame.font.Font(size=int(WIDTH * 0.035)).render(
             playerStr,
             True,
             BLACK,

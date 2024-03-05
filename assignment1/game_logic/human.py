@@ -19,7 +19,6 @@ from gui.gui_helpers import (
     brighten_color,
     TextButton,
     obj_to_subj_coor,
-    highlightMove,
     drawBoard,
 )
 
@@ -76,7 +75,6 @@ class Human(Player):
         g: Game,
         window: pygame.Surface,
         humanPlayerNum: int = 0,
-        highlight=None,
     ):
         """
         Returns the start and end coordinates of the selected move.
@@ -97,9 +95,6 @@ class Human(Player):
             # Wait for a click. If mouse hovers on a piece, highlight it
             mousePos = pygame.mouse.get_pos()
             clicking = ev.type == MOUSEBUTTONDOWN
-
-            if highlight:
-                highlightMove(g, window, highlight)
 
             # Return to main menu
             backButton = TextButton(
@@ -203,4 +198,3 @@ class Human(Player):
                     )
 
             pygame.display.update()
-            # return [start_coor, end_coor]

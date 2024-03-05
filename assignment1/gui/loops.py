@@ -9,13 +9,14 @@ from bots.GreedyBot1 import GreedyBot1
 from bots.GreedyBot2 import GreedyBot2
 from bots.MiniMaxBot import MiniMaxBot
 from bots.RandomBot import RandomBot
+from bots.AdversarialBot import AdversarialBot
 from copy import deepcopy
 from game_logic.constants import ALL_COOR
 from game_logic.game import Game
 from game_logic.helpers import obj_to_subj_coor
 from game_logic.human import Human
 from game_logic.player import Player, PlayerMeta
-from gui.constants import WIDTH, HEIGHT, WHITE, GRAY, BLACK
+from gui.constants import WIDTH, HEIGHT, WHITE, BLACK, GRAY
 from gui.gui_helpers import TextButton, drawBoard, drawPath, highlightMove
 from pygame import (
     QUIT,
@@ -28,7 +29,7 @@ from pygame import (
 from PySide6 import QtWidgets
 from time import strftime
 
-_ = [GreedyBot0, GreedyBot1, MiniMaxBot, GreedyBot2, RandomBot]
+_ = [GreedyBot0, GreedyBot1, GreedyBot2, RandomBot, AdversarialBot]
 
 
 class LoopController:
@@ -37,13 +38,14 @@ class LoopController:
     GameOverLoop, ReplayLoop, LoadReplayLoop.
     """
 
-    def __init__(self, playerList) -> None:
+    def __init__(self, playerNames) -> None:
         self.loopNum = 0
         self.playerNum = 1
         self.winnerList = list()
         self.replayRecord = list()
         self.playerTypes = {}
         self.filePath = ""
+        self.playerNames = playerNames  # e.g. ["Human", "GreedyBot1"]
 
         # Create a dictionary of player types with PlayerMeta as parent class
         for i in PlayerMeta.playerTypes:
@@ -51,11 +53,11 @@ class LoopController:
             self.playerTypes[i.__name__] = i
 
         # Create objects of player types from hydra.cfg
-        self.playerList = []
-        for playerClass in playerList:
+        self.playerList = []  # list of player objects
+        for playerClass in self.playerNames:
             playerObject = eval(playerClass)()
             self.playerList.append(playerObject)
-        print(f"Loaded {len(self.playerList)} players of types: {playerList}")
+        print(f"Loaded {len(self.playerList)} players of types: {playerNames}")
 
         # Block all pygame events
         for c_str in pygame.constants.__all__:
@@ -69,7 +71,7 @@ class LoopController:
             [QUIT, MOUSEBUTTONDOWN, MOUSEBUTTONUP, KEYDOWN],
         )
 
-    def mainLoop(self, window: pygame.Surface):
+    def mainLoop(self, window: pygame.Surface, waitBot=True):
         """
         Controls the flow to enter mainMenuLoop (0), loadPlayerLoop (1),
         gameplayLoop (2), gameOverLoop (3), replayLoop (4), loadReplayLoop (5).
@@ -370,18 +372,20 @@ class LoopController:
                 if isinstance(player, Human):
                     humanPlayerNum = player.getPlayerNum()
         g.playerList = players
+        g.playerNum = self.playerNum
+        g.playerNames = self.playerNames
 
         # Start the game loop
-        highlight = []  # list of start and end coordinates of picked move
+        selectedMove = []  # list of start and end coordinates of picked move
         path = []
         while True:
             playingPlayer = players[playingPlayerIndex]
 
             if waitBot:  # wait for user to press a key
                 ev = pygame.event.wait()
-            else:  # bot moves after waiting 500ms
-                ev = pygame.event.wait(500)
-            # ev = pygame.event.wait(500)
+            else:  # bot moves after waiting
+                duration = 1000  # milliseconds
+                ev = pygame.event.wait(duration)
 
             # Quit the game if the window is closed
             if ev.type == QUIT:
@@ -390,10 +394,7 @@ class LoopController:
 
             # Draw the board
             window.fill(GRAY)
-            if humanPlayerNum != 0:
-                drawBoard(g, window, humanPlayerNum)
-            else:  # No human players
-                drawBoard(g, window)
+            drawBoard(g, window)
 
             # Bot Text
             botText = pygame.font.Font(size=int(HEIGHT * 0.035)).render(
@@ -407,10 +408,9 @@ class LoopController:
             window.blit(botText, botTextRect)
 
             # Highlight the 2 coordinates of the move
-            if highlight:
-                highlightMove(g, window, highlight)
-                drawPath(g, window, path)
-                highlight = []
+            highlightMove(g, window, selectedMove)
+            drawPath(g, window, path)
+            selectedMove = []
 
             backButton = TextButton(
                 "Back to Menu",
@@ -437,7 +437,6 @@ class LoopController:
                     g,
                     window,
                     humanPlayerNum,
-                    highlight,
                 )
                 if (not start_coor) and (not end_coor):
                     # Return to main menu
@@ -452,12 +451,12 @@ class LoopController:
             g.movePiece(start_coor, end_coor)
 
             if oneHuman:
-                highlight = [
+                selectedMove = [
                     obj_to_subj_coor(start_coor, humanPlayerNum),
                     obj_to_subj_coor(end_coor, humanPlayerNum),
                 ]
             else:
-                highlight = [start_coor, end_coor]
+                selectedMove = [start_coor, end_coor]
 
             replayRecord.append(str(start_coor) + "to" + str(end_coor))
 
@@ -465,10 +464,7 @@ class LoopController:
             winning = g.checkWin(playingPlayer.getPlayerNum())
 
             if winning and len(players) == 2:
-                if humanPlayerNum != 0:
-                    drawBoard(g, window, humanPlayerNum)
-                else:
-                    drawBoard(g, window)
+                drawBoard(g, window)
                 playingPlayer.has_won = True
                 returnStuff[0].append(playingPlayer.getPlayerNum())
                 returnStuff[1] = replayRecord
@@ -485,6 +481,7 @@ class LoopController:
             # Switch to the next player
             playingPlayerIndex = (playingPlayerIndex + 1) % len(players)
             self.playerNum = playingPlayerIndex + 1
+            g.playerNum = self.playerNum
 
     def replayLoop(self, window: pygame.Surface, filePath: str = None):
         # Check if a path has been selected
@@ -562,7 +559,7 @@ class LoopController:
             moveListIndex = -1
             left = False
             right = False
-            highlight = []
+            selectedMove = []
             window.fill(WHITE)
             hintText = pygame.font.Font(size=int(HEIGHT * 0.05)).render(
                 "Use the buttons or the left and right arrow keys to navigate through the game",
@@ -608,7 +605,7 @@ class LoopController:
                         move_list[moveListIndex + 1][1],
                         move_list[moveListIndex + 1][0],
                     )
-                    highlight = (
+                    selectedMove = (
                         move_list[moveListIndex] if moveListIndex >= 0 else []
                     )
                 if nextButton.isClicked(mouse_pos, mouse_left_click) or right:
@@ -618,13 +615,12 @@ class LoopController:
                         move_list[moveListIndex][0],
                         move_list[moveListIndex][1],
                     )
-                    highlight = move_list[moveListIndex]
+                    selectedMove = move_list[moveListIndex]
                 prevButton.draw(window, mouse_pos)
                 nextButton.draw(window, mouse_pos)
                 backButton.draw(window, mouse_pos)
                 drawBoard(g, window)
-                if highlight:
-                    highlightMove(g, window, highlight)
+                highlightMove(g, window, selectedMove)
                 pygame.display.update()
 
     def loadReplayLoop(self):
