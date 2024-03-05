@@ -2,7 +2,9 @@
 
 Our group has chosen **Chinese Checkers** as our game.
 
-The GUI is adapted from [henrychess's repository](https://github.com/henrychess/pygame-chinese-checkers/). The code has been reorganised to have 3 main packages: `bots`,`game_logic`,`gui`. Our group intends to put most of work as new scripts and bots into the `bots` package.
+The GUI is adapted from [henrychess's repository](https://github.com/henrychess/pygame-chinese-checkers/). The code has been reorganised to have 3 main packages: `bots`,`game_logic`,`gui`.
+
+Our group has placed most of work as new scripts and bots in the `bots` package.
 
 ## Table of Contents
 
@@ -61,14 +63,6 @@ For external viewers/examiners,
 
 ```bash
 git clone https://github.com/yufanana/ArtificialIntelligence02180.git
-```
-
-For developers, follow [this tutorial](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent) to add SSH keys to your GitHub.
-
-Run this command to clone.
-
-```bash
-git clone git@github.com:yufanana/ArtificialIntelligence02180.git
 ```
 
 ## Installing Python Environment
@@ -151,11 +145,19 @@ If you want to close the window, you can quit the game by clicking the X button 
 
 ## Development
 
+For developers, follow [this tutorial](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent) to add SSH keys to your GitHub.
+
+Run this command to clone.
+
+```bash
+git clone git@github.com:yufanana/ArtificialIntelligence02180.git
+```
+
 To create new custom bots, refer to [bots_development](assets/bots_development.md) for instructions on how to create your own custom bots.
 
 ### Updating your Branch
 
-1. Commit whatever changes you have on your branch. 
+1. Commit whatever changes you have on your branch.
 
 ```bash
 git add .
