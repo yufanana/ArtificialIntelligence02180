@@ -4,6 +4,7 @@ Script to start the game of Chinese Checkers.
 """
 import pygame
 import yaml
+import numpy as np
 from gui.loops import LoopController
 from gui.constants import WIDTH, HEIGHT
 
@@ -20,7 +21,7 @@ def read_config(file_name="config0.yaml"):
 
 def main():
     # Set config file
-    config_name = "config2.yaml"
+    config_name = "config7.yaml"
     cfg = read_config(config_name)
 
     # Initialize pygame window
