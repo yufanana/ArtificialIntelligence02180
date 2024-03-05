@@ -5,13 +5,14 @@ from game_logic.game import Game
 from game_logic.constants import END_COOR
 from game_logic.helpers import subj_to_obj_coor, obj_to_subj_coor
 
-MAX_DEPTH = 2
+MAX_DEPTH = 3
 POS_DEV_WEIGHT = 2
-STD_DEV_WEIGHT = 0.6
+STD_DEV_WEIGHT = 0.8
 X_STD_DEV_WEIGHT = 0.3
 Y_STD_DEV_WEIGHT = 1
 OPT_X = 2.5
 OPT_Y = 2.6
+y_rotations = 0.75
 
 
 class MiniMaxBot(Player):
@@ -45,9 +46,9 @@ class MiniMaxBot(Player):
         for coor in boardState:
             if boardState[coor] == self.playerNum:
                 x.append(coor[0])
-                y.append(coor[1])
+                y.append(coor[1]*y_rotations)
                 x_avg += coor[0]
-                y_avg += coor[1]
+                y_avg += coor[1]*y_rotations
                 pieces += 1
         std_dev_x = np.std(x)
         std_dev_y = np.std(y)
@@ -68,8 +69,11 @@ class MiniMaxBot(Player):
         v = 100
         move = None
         # For each possible move, get the maximum value
-        for c in g.allMovesDict(self.playerNum):
-            for m in g.allMovesDict(self.playerNum)[c]:
+        moves = g.allMovesDict(self.playerNum)
+        for c in moves:
+            for m in moves[c]:
+                if m[1] < c[1]:
+                    continue
                 g.movePiece(subj_to_obj_coor(c, self.playerNum),
                             subj_to_obj_coor(m, self.playerNum)) # We move the piece
                 v2, a2 = self.max_value(g, depth, alpha, beta)
@@ -94,8 +98,11 @@ class MiniMaxBot(Player):
         move = None
 
         # For each possible move, get the minimum value
-        for c in g.allMovesDict(self.playerNum):
-            for m in g.allMovesDict(self.playerNum)[c]:
+        moves = g.allMovesDict(self.playerNum)
+        for c in moves:
+            for m in moves[c]:
+                if m[1] < c[1]:
+                    continue
                 g.movePiece(subj_to_obj_coor(c, self.playerNum),
                             subj_to_obj_coor(m, self.playerNum)) # We move the piece
                 v2, a2 = self.min_value(g, depth, alpha, beta) # We move the piece and call min_value
