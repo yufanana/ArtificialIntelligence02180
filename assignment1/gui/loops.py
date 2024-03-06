@@ -39,11 +39,11 @@ class LoopController:
 
     def __init__(self, playerNames) -> None:
         self.loopNum = 0
-        self.playerNum = 1
         self.winnerList = list()
         self.replayRecord = list()
-        self.playerTypes = {}
         self.filePath = ""
+        self.playerNum = 1
+        self.playerTypes = {}  # e.g. {"GreedyBot1": <class 'bots.GreedyBot0.GreedyBot0'>}
         self.playerNames = playerNames  # e.g. ["Human", "GreedyBot1"]
 
         # Create a dictionary of player types with PlayerMeta as parent class
@@ -51,12 +51,15 @@ class LoopController:
             # key: class name strings, value: class without ()
             self.playerTypes[i.__name__] = i
 
-        # Create objects of player types from hydra.cfg
+        # Instantiate objects of player types from cfg
         self.playerList = []  # list of player objects
         for playerClass in self.playerNames:
             playerObject = eval(playerClass)()
             self.playerList.append(playerObject)
-        print(f"Loaded {len(self.playerList)} players of types: {playerNames}")
+        print(
+            f"[Loops] Loaded {len(self.playerList)} players of types: \
+              {playerNames}\n",
+        )
 
         # Block all pygame events
         for c_str in pygame.constants.__all__:
@@ -348,7 +351,8 @@ class LoopController:
         """
         playingPlayerIndex = 0
         humanPlayerNum = 0
-        returnStuff = [[], []]
+        # returnStuff = [[], []]
+        result = []
         replayRecord = []
 
         # Check player types, total and set player numbers
@@ -465,16 +469,19 @@ class LoopController:
             if winning and len(players) == 2:
                 drawBoard(g, window)
                 playingPlayer.has_won = True
-                returnStuff[0].append(playingPlayer.getPlayerNum())
-                returnStuff[1] = replayRecord
+                result.append(playingPlayer.getPlayerNum())
+                replayRecord.append(str(playingPlayer.getPlayerNum()))
+                # returnStuff[0].append(playingPlayer.getPlayerNum())
+                # returnStuff[1] = replayRecord
 
                 # Go to the game over loop
                 self.loopNum = 3
-                return returnStuff
+                return [result, replayRecord]
 
             elif winning and len(players) == 3:
                 playingPlayer.has_won = True
-                returnStuff[0].append(playingPlayer.getPlayerNum())
+                result.append(playingPlayer.getPlayerNum())
+                # returnStuff[0].append(playingPlayer.getPlayerNum())
                 players.remove(playingPlayer)
 
             # Switch to the next player

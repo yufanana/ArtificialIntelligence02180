@@ -36,7 +36,7 @@ and other colours used.
 
 HEIGHT = 800
 WIDTH = HEIGHT * 4 // 3
-print(f"Creating GUI window of size ({WIDTH},{HEIGHT})")
+print(f"[gui.constants] Creating GUI window of size ({WIDTH},{HEIGHT})")
 
 # Colors
 WHITE = (255, 255, 255)
