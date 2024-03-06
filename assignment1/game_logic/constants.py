@@ -117,14 +117,20 @@ ZONE_6 = {
 START_COOR = {
     1: ZONE_1,
     2: ZONE_4,
-    3: ZONE_5,
+    3: ZONE_2,
+    4: ZONE_5,
+    5: ZONE_3,
+    6: ZONE_6,
 }
 
 # Key: playerNum, Value: set of end coordinates
 END_COOR = {
-    3: ZONE_2,
-    2: ZONE_1,
     1: ZONE_4,
+    2: ZONE_1,
+    3: ZONE_5,
+    4: ZONE_2,
+    5: ZONE_6,
+    6: ZONE_3,
 }
 
 # Set of neutral coordinates in the middle of the board
