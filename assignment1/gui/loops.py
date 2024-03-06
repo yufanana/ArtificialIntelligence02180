@@ -27,6 +27,7 @@ from pygame import (
 )
 from PySide6 import QtWidgets
 from time import strftime
+from typing import List
 
 _ = [GreedyBot0, GreedyBot1, GreedyBot2, RandomBot, AdversarialBot]
 
@@ -42,7 +43,6 @@ class LoopController:
         self.winnerList = list()
         self.replayRecord = list()
         self.filePath = ""
-        self.playerNum = 1
         self.playerTypes = {}  # e.g. {"GreedyBot1": <class 'bots.GreedyBot0.GreedyBot0'>}
         self.playerNames = playerNames  # e.g. ["Human", "GreedyBot1"]
 
@@ -52,7 +52,7 @@ class LoopController:
             self.playerTypes[i.__name__] = i
 
         # Instantiate objects of player types from cfg
-        self.playerList = []  # list of player objects
+        self.playerList = []  # list of all possible player objects
         for playerClass in self.playerNames:
             playerObject = eval(playerClass)()
             self.playerList.append(playerObject)
@@ -97,7 +97,6 @@ class LoopController:
             waitBot = False
             self.winnerList, self.replayRecord = self.gameplayLoop(
                 window,
-                self.playerList,
                 waitBot,
             )
 
@@ -339,7 +338,6 @@ class LoopController:
     def gameplayLoop(
         self,
         window: pygame.Surface,
-        playerss: list[Player],
         waitBot: bool = True,
     ):
         """
@@ -349,20 +347,21 @@ class LoopController:
                 the 1st winnder at index 0. -1 if draw.
             replayRecord : list of moves in the game.
         """
-        playingPlayerIndex = 0
+        # Initialize variables
+        playerIndex = 0
         humanPlayerNum = 0
-        # returnStuff = [[], []]
         result = []
         replayRecord = []
 
-        # Check player types, total and set player numbers
-        players = deepcopy(playerss)
+        # Remove player objects that are not selected
+        players : List[Player] = deepcopy(self.playerList)
         if len(players) > 3:
             players = players[:3]
         while None in players:
             players.remove(None)
         for i in range(len(players)):
             players[i].setPlayerNum(i + 1)
+        # players: list of player objects selected
 
         # 1st line in replayRecord is the number of players
         replayRecord.append(str(len(players)))
@@ -374,15 +373,17 @@ class LoopController:
             for player in players:
                 if isinstance(player, Human):
                     humanPlayerNum = player.getPlayerNum()
-        g.playerList = players
-        g.playerNum = self.playerNum
-        g.playerNames = self.playerNames
+
+        # Pass useful parameters to game object
+        g.playerList = players      # list of player objects
+        g.playerNum = 1             # current player number (1->6)
+        g.playerNames = self.playerNames    # e.g. ["Human", "GreedyBot1"]
 
         # Start the game loop
         selectedMove = []  # list of start and end coordinates of picked move
         path = []
         while True:
-            playingPlayer = players[playingPlayerIndex]
+            currentPlayer = players[playerIndex]
 
             if waitBot:  # wait for user to press a key
                 ev = pygame.event.wait()
@@ -432,11 +433,10 @@ class LoopController:
             backButton.draw(window, mouse_pos)
             pygame.display.update()
 
-            # print(f"Player {playingPlayer.getPlayerNum()}'s turn")
             # Playing player makes a move
-            if isinstance(playingPlayer, Human):
+            if isinstance(currentPlayer, Human):
                 # Human player makes a move
-                start_coor, end_coor = playingPlayer.pickMove(
+                start_coor, end_coor = currentPlayer.pickMove(
                     g,
                     window,
                     humanPlayerNum,
@@ -447,9 +447,9 @@ class LoopController:
                     return ([], [])
             else:
                 # Bot player makes a move
-                start_coor, end_coor = playingPlayer.pickMove(g)
+                start_coor, end_coor = currentPlayer.pickMove(g)
 
-            path = g.getMovePath(self.playerNum, start_coor, end_coor)
+            path = g.getMovePath(g.playerNum, start_coor, end_coor)
 
             g.movePiece(start_coor, end_coor)
 
@@ -464,31 +464,26 @@ class LoopController:
             replayRecord.append(str(start_coor) + "to" + str(end_coor))
 
             # Check if the playing player has won
-            winning = g.checkWin(playingPlayer.getPlayerNum())
+            winning = g.checkWin(currentPlayer.getPlayerNum())
 
             if winning and len(players) == 2:
                 drawBoard(g, window)
-                playingPlayer.has_won = True
-                result.append(playingPlayer.getPlayerNum())
-                replayRecord.append(str(playingPlayer.getPlayerNum()))
-                # returnStuff[0].append(playingPlayer.getPlayerNum())
-                # returnStuff[1] = replayRecord
+                currentPlayer.has_won = True
+                result.append(currentPlayer.getPlayerNum())
+                replayRecord.append(str(currentPlayer.getPlayerNum()))
 
                 # Go to the game over loop
                 self.loopNum = 3
                 return [result, replayRecord]
 
             elif winning and len(players) == 3:
-                playingPlayer.has_won = True
-                result.append(playingPlayer.getPlayerNum())
-                # returnStuff[0].append(playingPlayer.getPlayerNum())
-                players.remove(playingPlayer)
+                currentPlayer.has_won = True
+                result.append(currentPlayer.getPlayerNum())
+                players.remove(currentPlayer)
 
             # Switch to the next player
-            playingPlayerIndex = (playingPlayerIndex + 1) % len(players)
-            self.playerNum = playingPlayerIndex + 1
-            g.playerNum = self.playerNum
-            g.turnCount += 1
+            playerIndex = (playerIndex + 1) % len(players)
+            g.playerNum = playerIndex + 1
 
     def replayLoop(self, window: pygame.Surface, filePath: str = None):
         # Check if a path has been selected
@@ -743,7 +738,7 @@ def trainingLoop(g: Game, players: list[Player], recordReplay: bool = False):
     """
     Not sure what this does. Currently not used.
     """
-    playingPlayerIndex = 0
+    playerIndex = 0
     replayRecord = []
     if recordReplay:
         replayRecord.append(str(len(players)))
@@ -761,29 +756,29 @@ def trainingLoop(g: Game, players: list[Player], recordReplay: bool = False):
 
     # Main training game loop
     while True:
-        playingPlayer = players[playingPlayerIndex]
+        currentPlayer = players[playerIndex]
 
         # Playing player makes a move
-        start_coor, end_coor = playingPlayer.pickMove(g)
+        start_coor, end_coor = currentPlayer.pickMove(g)
         g.movePiece(start_coor, end_coor)
 
         if recordReplay:
             replayRecord.append(str(start_coor) + " " + str(end_coor))
 
-        winning = g.checkWin(playingPlayer.getPlayerNum())
+        winning = g.checkWin(currentPlayer.getPlayerNum())
 
         if winning and len(players) == 2:
-            playingPlayer.has_won = True
-            print("The winner is Player %d" % playingPlayer.getPlayerNum())
+            currentPlayer.has_won = True
+            print("The winner is Player %d" % currentPlayer.getPlayerNum())
             print(f"{len(replayRecord)} moves")
             break  # TODO: return stuff?
         elif winning and len(players) == 3:
-            playingPlayer.has_won = True
-            players.remove(playingPlayer)
+            currentPlayer.has_won = True
+            players.remove(currentPlayer)
             print(
-                "The first winner is Player %d" % playingPlayer.getPlayerNum(),
+                "The first winner is Player %d" % currentPlayer.getPlayerNum(),
             )
-        if playingPlayerIndex >= len(players) - 1:
-            playingPlayerIndex = 0
+        if playerIndex >= len(players) - 1:
+            playerIndex = 0
         else:
-            playingPlayerIndex += 1
+            playerIndex += 1

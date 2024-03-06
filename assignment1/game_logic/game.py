@@ -46,12 +46,16 @@ class Game:
             self.playerCount = playerCount
         else:
             self.playerCount = 3
-        self.playerList = []
         self.pieces: dict[int, set[Piece]] = {1: set(), 2: set(), 3: set()}
         self.board: List[Piece] = self.createBoard(playerCount)
-        self.turnCount = 1
-        self.playerNames = 0
+        self.turnCount = 0  
+
         self.playerNum = 0
+        self.playerNames = []    
+        # e.g. ["Human", "GreedyBot1"], used in gui_helpers.drawTurnCount()  
+        self.playerList = []    
+        # e.g. {"Human": <class 'game_logic.Human.Human'>,
+        # "GreedyBot1": <class 'bots.GreedyBot0.GreedyBot0'>}
 
         # Parameters for drawing board
         self.unitLength = int(WIDTH * 0.05)  # unitLength length in pixels
