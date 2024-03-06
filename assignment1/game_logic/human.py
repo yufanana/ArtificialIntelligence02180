@@ -79,6 +79,7 @@ class Human(Player):
         """
         Returns the start and end coordinates of the selected move.
         """
+        print(f"[Human] is player {self.playerNum}")
         pieceSet: set[Piece] = g.pieces[self.playerNum]
         validMoves = []
         clicking = False
@@ -137,6 +138,8 @@ class Human(Player):
                         # Gray circle if mouse is hovering over it
                         if math.dist(mousePos, destCoor) <= g.circleRadius:
                             if clicking:
+                                move = [selected_piece_coor, d]
+                                print(f"[Human] Move: {move}\n")
                                 return [selected_piece_coor, d]
                             else:
                                 pygame.draw.circle(

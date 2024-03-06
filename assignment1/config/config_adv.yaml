@@ -3,3 +3,4 @@ player_list:
   - 'AdversarialBot'
   - 'GreedyBot1'
 layout: opposite
+waitBott: True

@@ -13,6 +13,7 @@ class RandomBot(Player):
         Returns:
             [start_coor, end_coor] : in objective coordinates
         """
+        print(f"[RandomBot] is player {self.playerNum}")
         moves = g.allMovesDict(self.playerNum)
 
         start_coords = []

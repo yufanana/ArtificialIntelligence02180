@@ -1,6 +1,6 @@
 no_of_players: 3
 player_list:
-  - 'Human'
-  - 'RandomBot'
+  - 'LadderBot'
+  - 'GreedyBot0'
   - 'GreedyBot1'
 layout: opposite

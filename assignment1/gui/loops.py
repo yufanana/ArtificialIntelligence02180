@@ -8,6 +8,7 @@ from bots.GreedyBot0 import GreedyBot0
 from bots.GreedyBot1 import GreedyBot1
 from bots.GreedyBot2 import GreedyBot2
 from bots.RandomBot import RandomBot
+from bots.LadderBot import LadderBot
 from bots.AdversarialBot import AdversarialBot
 from copy import deepcopy
 from game_logic.constants import ALL_COOR
@@ -27,9 +28,8 @@ from pygame import (
 )
 from PySide6 import QtWidgets
 from time import strftime
-from typing import List
 
-_ = [GreedyBot0, GreedyBot1, GreedyBot2, RandomBot, AdversarialBot]
+_ = [GreedyBot0, GreedyBot1, GreedyBot2, RandomBot, AdversarialBot, LadderBot]
 
 
 class LoopController:
@@ -57,7 +57,7 @@ class LoopController:
             playerObject = eval(playerClass)()
             self.playerList.append(playerObject)
         print(
-            f"[Loops] Loaded {len(self.playerList)} players of types: \
+            f"[gui.loops] Loaded {len(self.playerList)} players of types: \
               {playerNames}\n",
         )
 
@@ -354,11 +354,11 @@ class LoopController:
         replayRecord = []
 
         # Remove player objects that are not selected
-        players : List[Player] = deepcopy(self.playerList)
-        if len(players) > 3:
-            players = players[:3]
-        while None in players:
-            players.remove(None)
+        players: list[Player] = deepcopy(self.playerList)
+        # if len(players) > 3:
+        #     players = players[:3]
+        # while None in players:
+        #     players.remove(None)
         for i in range(len(players)):
             players[i].setPlayerNum(i + 1)
         # players: list of player objects selected
@@ -367,28 +367,24 @@ class LoopController:
         replayRecord.append(str(len(players)))
 
         # Generate the game
-        g = Game(len(players))
+        g = Game(playerList=players, playerNum=1, playerNames=self.playerNames)
         oneHuman = exactly_one_is_human(players)
         if oneHuman:
             for player in players:
                 if isinstance(player, Human):
                     humanPlayerNum = player.getPlayerNum()
 
-        # Pass useful parameters to game object
-        g.playerList = players      # list of player objects
-        g.playerNum = 1             # current player number (1->6)
-        g.playerNames = self.playerNames    # e.g. ["Human", "GreedyBot1"]
-
         # Start the game loop
         selectedMove = []  # list of start and end coordinates of picked move
         path = []
+        waitBot = False
         while True:
             currentPlayer = players[playerIndex]
 
             if waitBot:  # wait for user to press a key
                 ev = pygame.event.wait()
             else:  # bot moves after waiting
-                duration = 1000  # milliseconds
+                duration = 100  # milliseconds
                 ev = pygame.event.wait(duration)
 
             # Quit the game if the window is closed
@@ -483,6 +479,7 @@ class LoopController:
 
             # Switch to the next player
             playerIndex = (playerIndex + 1) % len(players)
+            g.turnCount += 1
             g.playerNum = playerIndex + 1
 
     def replayLoop(self, window: pygame.Surface, filePath: str = None):

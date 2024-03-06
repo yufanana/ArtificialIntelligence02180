@@ -77,7 +77,7 @@ class LadderBot(Player):
         Returns:
             [start_coor, end_coor] : in objective coordinates
         """
-
+        print(f"[LadderBot] is player {self.playerNum}")
         # Find all pieces
         pieces_obj = g.pieces[self.playerNum]
         pieces = [p.getCoor() for p in pieces_obj]  # contains coordinates
@@ -97,7 +97,7 @@ class LadderBot(Player):
         min_y_piece = min(pieces, key=lambda x: x[1])
         max_y_piece = max(pieces, key=lambda x: x[1])
         if max_y_piece[1] - min_y_piece[1] > max_gap:
-            print("LadderBot: Max gap exceeded")
+            print("[LadderBot] Max gap exceeded")
             # Move the further back piece
             sorted_pieces = sorted(pieces, key=lambda x: x[1])
             for piece in sorted_pieces:
@@ -107,7 +107,7 @@ class LadderBot(Player):
                     forward_moves = check_forward_moves(moves, far_piece)
                     if forward_moves == []:  # No forward moves
                         continue
-                    print(f"LadderBot: moving last piece, {far_piece}")
+                    print(f"[LadderBot] moving last piece, {far_piece}")
                     break
 
         start_coor = far_piece
@@ -119,10 +119,12 @@ class LadderBot(Player):
         # If there are no forward moves, move sideways randomly. End.
         if forward_moves == []:
             end_coor = random.choice(moves[start_coor])
-            return [
+            move = [
                 subj_to_obj_coor(start_coor, self.playerNum),
                 subj_to_obj_coor(end_coor, self.playerNum),
             ]
+            print(f"[LadderBot] Move: {move}\n")
+            return move
 
         # Choose moves with greatest dist travelled
         d = np.linalg.norm(
@@ -139,7 +141,9 @@ class LadderBot(Player):
             min_d_idx = np.argmin(d)
             end_coor = forward_moves[min_d_idx]
 
-        return [
+        move = [
             subj_to_obj_coor(start_coor, self.playerNum),
             subj_to_obj_coor(end_coor, self.playerNum),
         ]
+        print(f"[LadderBot] Move: {move}\n")
+        return move

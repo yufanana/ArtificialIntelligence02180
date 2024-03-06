@@ -138,7 +138,7 @@ class MiniMaxBot(Player):
         Returns:
             [start_coor, end_coor] : in objective coordinates
         """
-        print(f"playerNum: {self.playerNum}")
+        print(f"[MiniMaxBot] is player {self.playerNum}")
         moves = g.allMovesDict(self.playerNum)
         # print(f"moves: {[subj_to_obj_coor(move, self.playerNum) for move in moves]}")
 

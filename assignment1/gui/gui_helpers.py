@@ -15,6 +15,7 @@ from gui.constants import (
     PLAYER_COLORS,
     PURPLE,
     WIDTH,
+    PLAYER_LABELS,
 )
 
 
@@ -74,7 +75,8 @@ def drawBoard(g: Game, window: pygame.Surface, playerNum: int = 1):
     """
     Draws the board polygon, lines and circles.
     """
-    drawPolygons(g, window, playerNum)
+    drawPolygons(g, window)
+    # drawTriangles(g, window, playerNum)
     drawLines(g, window)
     drawCircles(g, window, playerNum)
     drawCoordinates(g, window)
@@ -105,9 +107,8 @@ def drawPlayerTypes(g: Game, window: pygame.Surface):
     """
     Adds the player types to the window.
     """
-    coors = [(6, -7), (-7, 5), (2, 5)]  # coordinates to draw text
 
-    for p, coor in zip(g.playerList, coors):
+    for p, coor in zip(g.playerList, PLAYER_LABELS):
         c = add(
             g.centerCoor,
             mult(h2c(coor), g.unitLength),
@@ -116,7 +117,7 @@ def drawPlayerTypes(g: Game, window: pygame.Surface):
         text = pygame.font.Font(size=int(WIDTH * 0.035)).render(
             playerStr,
             True,
-            BLACK,
+            PLAYER_COLORS[p.getPlayerNum() - 1],
             None,
         )
         textRect = text.get_rect()
@@ -163,11 +164,11 @@ def drawLines(g: Game, window: pygame.Surface):
         neighbors.clear()
 
 
-def drawPolygons(g: Game, window: pygame.Surface, playerNum: int = 1):
+def drawPolygons(g: Game, window: pygame.Surface):
     # center hexagon
     pygame.draw.polygon(
         window,
-        WHITE,
+        GRAY,
         (
             abs_coors(g.centerCoor, (-4, 4), g.unitLength),
             abs_coors(g.centerCoor, (0, 4), g.unitLength),
@@ -177,6 +178,9 @@ def drawPolygons(g: Game, window: pygame.Surface, playerNum: int = 1):
             abs_coors(g.centerCoor, (-4, 0), g.unitLength),
         ),
     )
+
+
+def drawTriangles(g: Game, window: pygame.Surface, playerNum: int = 1):
     # Set sequence of player colours.
     if playerNum == 1:
         colors = (YELLOW, RED, GREEN)

@@ -75,22 +75,47 @@ def setItem(listt, index, item):
 
 def obj_to_subj_coor(c: tuple, playerNum: int):
     p, q, r = c[0], c[1], 0 - c[0] - c[1]
-    if playerNum == 1 or playerNum not in (1, 2, 3):
+    # c: (0, -4) -> pqr: (0, -4, 4)
+    # c: (1, -4) -> pqr: (1, -4, 3)
+    # c: (2, -4) -> pqr: (2, -4, 2)
+    # c: (3, -4) -> pqr: (3, -4, 1)
+    # c: (-2, 4) -> pqr: (-2, 4, -2)
+    if playerNum == 1:
         return c
     if playerNum == 2:
-        return (r, p)
+        return (-p, -q)
     if playerNum == 3:
+        return (-q, -r)
+    if playerNum == 4:  # originally player 3
         return (q, r)
+    if playerNum == 5:  # originally player 2
+        return (r, p)
+    if playerNum == 6:
+        return (-r, -p)
 
 
 def subj_to_obj_coor(c: tuple, playerNum: int):
+    if type(c) is not tuple:
+        print(c)
     p, q, r = c[0], c[1], 0 - c[0] - c[1]
-    if playerNum == 1 or playerNum not in (1, 2, 3):
+    # c: (0, -4) -> pqr: (0, -4, 4)
+    # c: (1, -4) -> pqr: (1, -4, 3)
+    # c: (2, -4) -> pqr: (2, -4, 2)
+    # c: (3, -4) -> pqr: (3, -4, 1)
+    # c: (-2, 4) -> pqr: (-2, 4, -2)
+    # c: (-3, -1) -> pqr: (-3, -1, 4)
+    if playerNum == 1:
         return c
     if playerNum == 2:
-        return (q, r)
+        return (-p, -q)
     if playerNum == 3:
+        return (-r, -p)
+    if playerNum == 4:  # originally player 3
         return (r, p)
+    if playerNum == 5:  # originally player 2
+        return (q, r)
+    if playerNum == 6:
+        return (-q, -r)
 
 
 def sign_func(i: int):

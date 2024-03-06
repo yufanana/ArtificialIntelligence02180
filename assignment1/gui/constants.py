@@ -44,6 +44,7 @@ BLACK = (0, 0, 0)
 RED = (210, 43, 43)
 GREEN = (0, 128, 0)
 BLUE = (0, 0, 128)
+LIGHT_BLUE = (173, 216, 230)
 YELLOW = (255, 215, 0)
 ORANGE = (252, 147, 3)
 GRAY = (189, 189, 189)
@@ -51,7 +52,25 @@ TEAL = (0, 128, 128)
 LIGHT_GRAY = (228, 230, 231)
 DARK_GRAY = (161, 166, 196)
 PURPLE = (117, 10, 199)
-PLAYER_COLORS = (YELLOW, RED, GREEN, BLUE, ORANGE, TEAL)
+PLAYER_COLORS = (YELLOW, RED, GREEN, LIGHT_BLUE, ORANGE, TEAL)
 BG_RED = RED  # (235,160,160)
 BG_GREEN = GREEN  # (0,200,0)
 BG_YELLOW = YELLOW  # (255,238,144)
+
+
+# coordinates to draw text
+# START_COOR =
+# 1: ZONE_1,
+# 2: ZONE_4,
+# 3: ZONE_2,
+# 4: ZONE_5,
+# 5: ZONE_3,
+# 6: ZONE_6,
+PLAYER_LABELS = [
+    (7, -7),
+    (-6, 7),
+    (-4, -5),
+    (4, 5),
+    (-8, 5),
+    (8, -5),
+]

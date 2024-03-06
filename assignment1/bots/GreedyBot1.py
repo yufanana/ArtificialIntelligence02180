@@ -18,44 +18,34 @@ class GreedyBot1(Player):
         forward moves, choose a sideway move randomly.
 
         Returns:
-            [start_coor, end_coor] : in objective coordinates
+            [startCoor, endCoor] : in objective coordinates
         """
+        print(f"[GreedyBot1] is player {self.playerNum}")
         moves = g.allMovesDict(self.playerNum)
-        # state = g.boardState(self.playerNum)
         forwardMoves = dict()
         sidewaysMoves = dict()
-        (start_coor, end_coor) = ((), ())
+        (startCoor, endCoor) = ((), ())
 
         # Split moves into forward and sideways
-        for coor in moves:
-            # If there are moves
-            if moves[coor] != []:
-                forwardMoves[coor] = []
-                sidewaysMoves[coor] = []
-
+        for startCoor in moves:
             # Check y-coordinate of destination
-            for dest in moves[coor]:
-                if dest[1] > coor[1]:
-                    forwardMoves[coor].append(dest)
-                if dest[1] == coor[1]:
-                    sidewaysMoves[coor].append(dest)
-
-        # Remove empty keys
-        for coor in list(forwardMoves):
-            if forwardMoves[coor] == []:
-                del forwardMoves[coor]
-        for coor in list(sidewaysMoves):
-            if sidewaysMoves[coor] == []:
-                del sidewaysMoves[coor]
+            for dest in moves[startCoor]:
+                if dest[1] > startCoor[1]:
+                    forwardMoves[startCoor] = dest
+                if dest[1] == startCoor[1]:
+                    sidewaysMoves[startCoor] = dest
+        # BUG: moves return int when there are no forward moves
 
         # If there are no forward moves, move sideways randomly.
         if len(forwardMoves) == 0:
-            start_coor = random.choice(list(sidewaysMoves))
-            end_coor = random.choice(sidewaysMoves[start_coor])
+            print("NO FORWARD MOVESSSSSSSSSSSSSSSSSS")
+            print(sidewaysMoves)
+            startCoor = random.choice(list(sidewaysMoves))
+            endCoor = random.choice(sidewaysMoves[startCoor])
 
             move = [
-                subj_to_obj_coor(start_coor, self.playerNum),
-                subj_to_obj_coor(end_coor, self.playerNum),
+                subj_to_obj_coor(startCoor, self.playerNum),
+                subj_to_obj_coor(endCoor, self.playerNum),
             ]
             print(f"[GreedyBot1] Move: {move}\n")
             return move
@@ -65,33 +55,32 @@ class GreedyBot1(Player):
         biggestDestY = -8
         smallestStartY = 8
         for coor in forwardMoves:
-            for i in range(len(forwardMoves[coor])):
-                dest = forwardMoves[coor][i]
-                # Find forward move with biggest y dest value
-                if dest[1] > biggestDestY:
-                    (start_coor, end_coor) = (coor, dest)
+            dest = forwardMoves[coor]
+            # Find forward move with biggest y dest value
+            if dest[1] > biggestDestY:
+                (startCoor, endCoor) = (coor, dest)
+                biggestDestY = dest[1]
+                smallestStartY = coor[1]
+
+            elif dest[1] == biggestDestY:
+                startY = coor[1]
+
+                # If tiebreakers,
+                # choose forward move with smallest y start value
+                if startY < smallestStartY:
+                    (startCoor, endCoor) = (coor, dest)
                     biggestDestY = dest[1]
                     smallestStartY = coor[1]
-
-                elif dest[1] == biggestDestY:
-                    startY = coor[1]
-
-                    # If tiebreakers,
-                    # choose forward move with smallest y start value
-                    if startY < smallestStartY:
-                        (start_coor, end_coor) = (coor, dest)
-                        biggestDestY = dest[1]
-                        smallestStartY = coor[1]
-                    elif startY == smallestStartY:
-                        start_coor, end_coor = random.choice(
-                            [[start_coor, end_coor], [coor, dest]],
-                        )
-                        biggestDestY = end_coor[1]
-                        smallestStartY = start_coor[1]
+                elif startY == smallestStartY:
+                    startCoor, endCoor = random.choice(
+                        [[startCoor, endCoor], [coor, dest]],
+                    )
+                    biggestDestY = endCoor[1]
+                    smallestStartY = startCoor[1]
 
         move = [
-            subj_to_obj_coor(start_coor, self.playerNum),
-            subj_to_obj_coor(end_coor, self.playerNum),
+            subj_to_obj_coor(startCoor, self.playerNum),
+            subj_to_obj_coor(endCoor, self.playerNum),
         ]
         print(f"[GreedyBot1] Move: {move}\n")
         return move
