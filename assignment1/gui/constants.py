@@ -36,20 +36,33 @@ and other colours used.
 
 HEIGHT = 800
 WIDTH = HEIGHT * 4 // 3
-print(f"Creating GUI window of size ({WIDTH},{HEIGHT})")
+print(f"[gui.constants] Creating GUI window of size ({WIDTH},{HEIGHT})")
 
 # Colors
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 RED = (210, 43, 43)
 GREEN = (0, 128, 0)
+BLUE = (0, 0, 128)
+LIGHT_BLUE = (173, 216, 230)
 YELLOW = (255, 215, 0)
 ORANGE = (252, 147, 3)
 GRAY = (189, 189, 189)
+TEAL = (0, 128, 128)
 LIGHT_GRAY = (228, 230, 231)
 DARK_GRAY = (161, 166, 196)
 PURPLE = (117, 10, 199)
-PLAYER_COLORS = (YELLOW, RED, GREEN)
 BG_RED = RED  # (235,160,160)
 BG_GREEN = GREEN  # (0,200,0)
 BG_YELLOW = YELLOW  # (255,238,144)
+
+PLAYER_COLORS = (YELLOW, RED, GREEN, LIGHT_BLUE, ORANGE, TEAL)
+# coordinates to draw text
+PLAYER_LABELS = [
+    (7, -7),
+    (-6, 7),
+    (-4, -5),
+    (4, 5),
+    (-8, 5),
+    (8, -5),
+]

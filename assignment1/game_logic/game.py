@@ -3,7 +3,7 @@ Game Class to represent the game state and logic.
 """
 import copy
 from game_logic.helpers import add, checkJump, obj_to_subj_coor, mult
-from game_logic.constants import (
+from game_logic.layout import (
     DIRECTIONS,
     END_COOR,
     NEUTRAL_COOR,
@@ -21,15 +21,15 @@ class Move:
     """
 
     def __init__(self, coord: tuple):
-        self.parent = None
-        self.coord = coord
-        self.children = []
+        self.parent: Move = None
+        self.coord: tuple = coord
+        self.children: List[Move] = []
 
     def addChild(self, child):
         self.children.append(child)
         child.parent = self
 
-    def getPath(self):
+    def getPath(self) -> List[tuple]:
         """
         Recursively add the parent to the path.
         """
@@ -41,43 +41,49 @@ class Move:
 
 
 class Game:
-    def __init__(self, playerCount=3):
-        if playerCount in (2, 3):
-            self.playerCount = playerCount
-        else:
-            self.playerCount = 3
-        self.playerList = []
-        self.pieces: dict[int, set[Piece]] = {1: set(), 2: set(), 3: set()}
-        self.board: List[Piece] = self.createBoard(playerCount)
-        self.turnCount = 1
-        self.playerNames = 0
-        self.playerNum = 0
+    def __init__(self, playerList, playerNum: int, playerNames: list[str]):
+        # Gameplay variables
+        self.turnCount = 1  # current turn number
+        self.playerNum = playerNum  # current player number (1->6)
+        self.playerNames = playerNames  # e.g. ["Human", "GreedyBot1"]
+        # e.g. ["Human", "GreedyBot1"], used in gui_helpers.drawTurnCount()
+        self.playerList = playerList  # list of player objects
+        # e.g. [<game_logic.human.Human object at 0x000001F1E4428DA0>,
+        #       <bots.GreedyBot1.GreedyBot1 object at 0x000001F1E5AEA660>]
+
+        # Instantiate pieces and board
+        self.pieces: dict[int, set[Piece]] = {}
+        self.board: dict[tuple, Piece | None] = {}
+        self.createBoard()
 
         # Parameters for drawing board
         self.unitLength = int(WIDTH * 0.05)  # unitLength length in pixels
-        self.lineWidth = int(self.unitLength * 0.05)  # line width
+        self.lineWidth = int(self.unitLength * 0.05)
         self.circleRadius = int(HEIGHT * 0.025)  # board square (circle) radius
-        self.centerCoor = (WIDTH / 2, HEIGHT / 2)  # window size is 800*600
+        self.centerCoor = (WIDTH / 2, HEIGHT / 2)
 
-    def createBoard(self, playerCount: int):
+    def createBoard(self):
         """
         Returns a dict of the board. Adds pieces to starting zones.
         """
-        Board = {}
+        playerCount = len(self.playerList)
 
+        for i in range(1, playerCount + 1):
+            self.pieces[i] = set()
+
+        # Initialize all possible positions
         for x, y in ALL_COOR:
-            Board[(x, y)] = None
-
+            self.board[(x, y)] = None
         # Add empty spaces first because a player's start zones overlaps with
         # another player's end zone
 
         # Add pieces
         for playerNum in range(1, playerCount + 1):
             for p, q in START_COOR[playerNum]:
-                Board[(p, q)] = Piece(playerNum, p, q)
-                self.pieces[playerNum].add(Board[p, q])
-
-        return Board
+                # Add piece to board
+                self.board[(p, q)] = Piece(playerNum, p, q)
+                # Add piece to player's set
+                self.pieces[playerNum].add(self.board[p, q])
 
     def getValidMoves(self, startPos: tuple, playerNum: int):
         """
@@ -137,36 +143,26 @@ class Game:
             bool: True if the destination is valid.
         """
         if dest not in self.board:  # out of bounds
+            # print("out of bounds")
             return False
         if self.board[dest] is not None:  # occupied cell
+            # print("occupied cell")
             return False
         if (
-            dest not in NEUTRAL_COOR  # other player's territory
-            and dest not in END_COOR[playerNum]
-            and dest not in START_COOR[playerNum]
-        ):
-            return False
-        return True
-
-    def checkValidJumpDest(self, playerNum: int, dest: tuple):
-        """
-        Check if the destination is valid jump for the player.
-
-        Args:
-            playerNum (int): the player number.
-            dest (tuple): the objective coordinates of the destination.
-
-        Returns:
-            bool: True if the destination is valid.
-        """
-        if dest not in self.board:  # out of bounds
-            return False
-        # if (dest not in NEUTRAL_COOR    # other player's territory
+            dest in NEUTRAL_COOR  # neutral territory
+            or dest in START_COOR[playerNum]  # own start zone
+            or dest in END_COOR[playerNum]
+        ):  # own end zone
+            return True
+        return False
+        # if (
+        #     dest not in NEUTRAL_COOR  # other player's territory
         #     and dest not in END_COOR[playerNum]
         #     and dest not in START_COOR[playerNum]
-        #     ):
+        # ):
+        #     # print("other player's territory")
         #     return False
-        return True
+        # return True
 
     def getMovePath(self, playerNum: int, start: tuple, end: tuple):
         """
@@ -180,7 +176,6 @@ class Game:
         Returns:
             path (list(tuples)): objective coordinates of cells along the path.
         """
-        # print(f"getMovePath({start}, {end})")
         start_m = Move(start)
         start_m.parent = start_m
         path = []
@@ -195,36 +190,42 @@ class Game:
             # Found end cell, return path
             if dest == end:
                 path += dest_m.getPath()
-                # print("full step path:", path, "\n")
                 return path
 
-        # Jump steps using BFS
+        # Jump steps using BFS. Note that a jump can be made through
+        # opponent's territory.
         queue = [start_m]
         while queue:
             current = queue.pop(0)
             for dir in DIRECTIONS:
+                # print(f"dir: {dir}")
                 stepDest = add(current.coord, dir)
-                if not self.checkValidJumpDest(playerNum, stepDest):
+                if stepDest not in self.board:  # out of bounds
+                    # print("step: out of bounds")
                     continue
                 if self.board[stepDest] is None:  # no piece to skip
+                    # print("step: no piece to skip")
                     continue
                 jumpDir = mult(dir, 2)
-                dest = add(current.coord, jumpDir)
-                dest_m = Move(dest)
-                if not self.checkValidJumpDest(playerNum, dest):
+                jumpDest = add(current.coord, jumpDir)
+                jumpDest_m = Move(jumpDest)  # create Move object
+                if jumpDest not in self.board:  # out of bounds
+                    # print("jump: out of bounds")
                     continue
-                if dest == current.parent.coord:
+                if self.board[jumpDest] is not None:  # occupied cell
+                    # print("jump: occupied cell", jumpDest)
+                    continue
+                if jumpDest == current.parent.coord:
+                    # print("jump: back to parent")
                     continue  # prevents endless loops
 
-                dest_m.parent = current
-                current.addChild(dest_m)
-                if dest == end:
-                    path += dest_m.getPath()
-                    # print("full jump path:", path, "\n")
+                jumpDest_m.parent = current
+                current.addChild(jumpDest_m)
+                if jumpDest == end:
+                    path += jumpDest_m.getPath()
                     return path
-                queue.append(dest_m)
+                queue.append(jumpDest_m)
 
-        # return path
         # Assumes that a path will be found eventually.
         if path == []:
             raise ValueError("No path found")
@@ -249,7 +250,7 @@ class Game:
         """
         Check if the game is over.
         """
-        for i in range(1, self.playerCount + 1):
+        for i in range(1, len(self.playerList) + 1):
             if self.checkWin(i):
                 return True
         return False
@@ -287,6 +288,8 @@ class Game:
 
         Key: coordinates of a piece (`tuple`),
         Value: list of destination coordinates.
+
+        e.g. {(1, -5): [(1, -4), (0, -4)], (3, -5): [(4, -6), (2, -4)]}
         """
         moves = dict()
         for p in self.pieces[playerNum]:
@@ -297,6 +300,7 @@ class Game:
             moves[p_subj_coor] = [
                 obj_to_subj_coor(i, playerNum) for i in p_moves_list
             ]
+        # print(f"[Game] All moves (sub): {moves}")
         return moves
 
     def movePiece(self, start: tuple, end: tuple):

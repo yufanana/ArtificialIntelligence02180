@@ -19,6 +19,7 @@ class GreedyBot0(Player):
         Returns:
             [start_coor, end_coor] : in objective coordinates
         """
+        print(f"[GreedyBot0] is player {self.playerNum}")
         moves = g.allMovesDict(self.playerNum)
         forwardMoves = dict()
         sidewaysMoves = dict()

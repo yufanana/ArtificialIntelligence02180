@@ -89,7 +89,7 @@ class AdversarialBot(Player):
         Returns:
             [start_coor, end_coor] : in objective coordinates
         """
-
+        print(f"[AdversarialBot] is player {self.playerNum}")
         print("[AdversarialBot] Computing...")
         bestMove = alphaBetaSearch(g, 3)
         print(f"[AdversarialBot] bestMove: {bestMove}\n")
