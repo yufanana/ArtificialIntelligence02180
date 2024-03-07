@@ -8,6 +8,7 @@ from gui.loops import LoopController
 from gui.constants import WIDTH, HEIGHT
 
 
+
 def read_config(file_name="config0.yaml"):
     # Read from YAML config file
     with open("config/" + file_name, "r") as file:
@@ -17,6 +18,9 @@ def read_config(file_name="config0.yaml"):
         raise ValueError("Player count and types are not equal in config.")
     return cfg
 
+def run_game_loop(lc,window):
+    # Run one game
+    lc.mainLoop(window, waitbot)
 
 def main():
     # Set config file
@@ -37,6 +41,27 @@ def main():
     lc = LoopController(cfg["player_list"])
     while True:
         lc.mainLoop(window, waitBot)
+    # Initialize variables for overall wins
+    total_player_wins = [0 for _ in range(cfg["no_of_players"])]
+
+    # Outer Loop
+    for round_number in range(1,101):
+        print(f"Round {round_number}")
+
+        # Run_game_round(lc,window)
+        run_game_round(lc, window)
+
+        # Update overall wins
+        for i, player_win in enumerate(lc.get_winners()):
+            total_player_wins[i] += player_win
+
+    # Print the overall results
+    print("\nOverall Results:")
+    for i, total_wins in enumerate(total_player_wins):
+        print(f"Player {i + 1} total wins: {total_wins}")
+
+    # Quit Pygame and close the script
+    pygame.quit()
 
 
 if __name__ == "__main__":
