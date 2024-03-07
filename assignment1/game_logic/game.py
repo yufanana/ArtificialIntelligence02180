@@ -312,30 +312,3 @@ class Game:
         # Change piece's location in g.board
         self.board[end] = self.board[start]
         self.board[start] = None
-
-    def eval(self):
-        """
-        Returns the evaluation of the game state for the player.
-        """
-        if self.checkWin(self.playerNum):
-            return 100
-
-        # Find the furthest empty cell in end zone
-        furthestCell = (0, 0)
-        for coord in END_COOR[self.playerNum]:
-            # Check if the piece is occupied by the current player
-            if (
-                self.board[coord] is None
-                or self.board[coord].getPlayerNum() != self.playerNum
-            ):
-                if coord[1] > furthestCell[1]:
-                    furthestCell = coord
-
-        # Compute cumulative y-distance of all pieces to furthest cell
-        cumDist = 0
-        for piece in self.pieces[self.playerNum]:
-            cumDist += furthestCell[1] - piece.getCoor()[1]
-
-        # TODO: replace 100 with cumDist(?) for opponent
-        score = 100 - cumDist
-        return score

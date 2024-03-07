@@ -8,6 +8,7 @@ from bots.GreedyBot0 import GreedyBot0
 from bots.GreedyBot1 import GreedyBot1
 from bots.GreedyBot2 import GreedyBot2
 from bots.RandomBot import RandomBot
+from bots.LadderBot import LadderBot
 from bots.AdversarialBot import AdversarialBot
 from copy import deepcopy
 from game_logic.constants import ALL_COOR
@@ -28,7 +29,7 @@ from pygame import (
 from PySide6 import QtWidgets
 from time import strftime
 
-_ = [GreedyBot0, GreedyBot1, GreedyBot2, RandomBot, AdversarialBot]
+_ = [GreedyBot0, GreedyBot1, GreedyBot2, RandomBot, LadderBot, AdversarialBot]
 
 
 class LoopController:
@@ -91,7 +92,6 @@ class LoopController:
         elif self.loopNum == 2:
             # from startButton in loadPlayerLoop
             # enters gameplayLoop to play the game
-            waitBot = False
             self.winnerList, self.replayRecord = self.gameplayLoop(
                 window,
                 self.playerList,
@@ -377,6 +377,7 @@ class LoopController:
         # Start the game loop
         selectedMove = []  # list of start and end coordinates of picked move
         path = []
+        waitBot = False
         while True:
             playingPlayer = players[playingPlayerIndex]
 

@@ -8,7 +8,6 @@ from gui.loops import LoopController
 from gui.constants import WIDTH, HEIGHT
 
 
-
 def read_config(file_name="config0.yaml"):
     # Read from YAML config file
     with open("config/" + file_name, "r") as file:
@@ -18,9 +17,11 @@ def read_config(file_name="config0.yaml"):
         raise ValueError("Player count and types are not equal in config.")
     return cfg
 
-def run_game_loop(lc,window):
+
+def run_game_loop(lc, window):
     # Run one game
     lc.mainLoop(window, waitbot)
+
 
 def main():
     # Set config file
@@ -44,7 +45,7 @@ def main():
     total_player_wins = [0 for _ in range(cfg["no_of_players"])]
 
     # Outer Loop
-    for round_number in range(1,101):
+    for round_number in range(1, 101):
         print(f"Round {round_number}")
 
         # Run_game_round(lc,window)
