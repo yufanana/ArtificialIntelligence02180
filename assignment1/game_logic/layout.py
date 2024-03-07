@@ -283,12 +283,6 @@ NEUTRAL_COOR = NEUTRAL_ZONE | NEUTRAL_RING
 ALL_COOR = ZONE_1 | ZONE_2 | ZONE_3 | ZONE_4 | ZONE_5 | ZONE_6 | NEUTRAL_COOR
 
 
-# zones = [ZONE_1, ZONE_2, ZONE_3, ZONE_4, ZONE_5, ZONE_6]
-# for zone in zones:
-#     for coor in zone:
-#         if coor in NEUTRAL_COOR:
-#             zone.remove(coor)
-
 # Unit vectors for the 6 directions from a cell
 DIRECTIONS = {(1, 0), (0, 1), (-1, 1), (-1, 0), (0, -1), (1, -1)}
 

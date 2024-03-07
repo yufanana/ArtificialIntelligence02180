@@ -2,7 +2,7 @@
 Helper functions to determine moves in the game.
 """
 import math
-from game_logic.constants import DIRECTIONS
+from game_logic.layout import DIRECTIONS
 
 
 def add(a: tuple, b: tuple):

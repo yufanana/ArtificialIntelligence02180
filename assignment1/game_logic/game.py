@@ -3,7 +3,7 @@ Game Class to represent the game state and logic.
 """
 import copy
 from game_logic.helpers import add, checkJump, obj_to_subj_coor, mult
-from game_logic.constants import (
+from game_logic.layout import (
     DIRECTIONS,
     END_COOR,
     NEUTRAL_COOR,
@@ -149,35 +149,20 @@ class Game:
             # print("occupied cell")
             return False
         if (
-            dest not in NEUTRAL_COOR  # other player's territory
-            and dest not in END_COOR[playerNum]
-            and dest not in START_COOR[playerNum]
-        ):
-            # print("other player's territory")
-            return False
-        return True
-
-    # def checkValidJumpDest(self, playerNum: int, dest: tuple):
-    #     """
-    #     Check if the destination is valid jump for the player.
-
-    #     Args:
-    #         playerNum (int): the player number.
-    #         dest (tuple): the objective coordinates of the destination.
-
-    #     Returns:
-    #         bool: True if the destination is valid.
-    #     """
-    #     if dest not in self.board:  # out of bounds
-    #         print("jump: out of bounds")
-    #         return False
-    #     if self.board[dest] is not None:  # occupied cell
-    #         print("jump: occupied cell")
-    #         print(self.board[dest].getCoor())
-    #         return False
-    #     # Does not check if the destination is in opponent's territory
-    #     # because a jump can be made through it.
-    #     return True
+            dest in NEUTRAL_COOR  # neutral territory
+            or dest in START_COOR[playerNum]  # own start zone
+            or dest in END_COOR[playerNum]
+        ):  # own end zone
+            return True
+        return False
+        # if (
+        #     dest not in NEUTRAL_COOR  # other player's territory
+        #     and dest not in END_COOR[playerNum]
+        #     and dest not in START_COOR[playerNum]
+        # ):
+        #     # print("other player's territory")
+        #     return False
+        # return True
 
     def getMovePath(self, playerNum: int, start: tuple, end: tuple):
         """

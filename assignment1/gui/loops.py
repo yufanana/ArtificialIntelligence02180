@@ -11,7 +11,7 @@ from bots.RandomBot import RandomBot
 from bots.LadderBot import LadderBot
 from bots.AdversarialBot import AdversarialBot
 from copy import deepcopy
-from game_logic.constants import ALL_COOR
+from game_logic.layout import ALL_COOR
 from game_logic.game import Game
 from game_logic.helpers import obj_to_subj_coor
 from game_logic.human import Human
@@ -384,7 +384,7 @@ class LoopController:
             if waitBot:  # wait for user to press a key
                 ev = pygame.event.wait()
             else:  # bot moves after waiting
-                duration = 100  # milliseconds
+                duration = 50  # milliseconds
                 ev = pygame.event.wait(duration)
 
             # Quit the game if the window is closed
@@ -674,11 +674,13 @@ class LoopController:
             "Back to menu",
             centerx=int(WIDTH * 0.25),
             centery=int(HEIGHT * 2 / 3),
+            font_size=32,
         )
         exportReplayButton = TextButton(
             "Export replay",
             centerx=int(WIDTH * 0.75),
             centery=int(HEIGHT * 2 / 3),
+            font_size=32,
         )
 
         while True:

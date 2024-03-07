@@ -19,38 +19,28 @@ class GreedyBot2(Player):
             [start_coor, end_coor] : in objective coordinates
         """
         print(f"[GreedyBot2] is player {self.playerNum}")
-        moves = g.allMovesDict(self.playerNum)
 
         forwardMoves = dict()
         sidewaysMoves = dict()
-        (start_coor, end_coor) = ((), ())
+        (start_coor, end_coor) = (None, None)
 
         # Split moves into forward and sideways
+        moves = g.allMovesDict(self.playerNum)
         for coor in moves:
-            if moves[coor] != []:
-                forwardMoves[coor] = []
-                sidewaysMoves[coor] = []
-            else:
+            if moves == []:
                 continue
+            forwardMoves[coor] = []
+            sidewaysMoves[coor] = []
             for dest in moves[coor]:
                 if dest[1] > coor[1]:
                     forwardMoves[coor].append(dest)
                 if dest[1] == coor[1]:
                     sidewaysMoves[coor].append(dest)
 
-        # Remove empty keys
-        for coor in list(forwardMoves):
-            if forwardMoves[coor] == []:
-                del forwardMoves[coor]
-        for coor in list(sidewaysMoves):
-            if sidewaysMoves[coor] == []:
-                del sidewaysMoves[coor]
-
         # If forward is empty, move sideways
         if len(forwardMoves) == 0:
             start_coor = random.choice(list(sidewaysMoves))
             end_coor = random.choice(sidewaysMoves[start_coor])
-
             move = [
                 subj_to_obj_coor(start_coor, self.playerNum),
                 subj_to_obj_coor(end_coor, self.playerNum),
@@ -67,10 +57,15 @@ class GreedyBot2(Player):
                     max_dist = dist
                     (start_coor, end_coor) = (coor, dest)
                 elif dist == max_dist:
-                    # Prefers to move the piece that is more backwards
+                    # Prefer to move the piece that is more backwards
                     if dest[1] < end_coor[1]:
                         max_dist = dist
                         (start_coor, end_coor) = (coor, dest)
+
+        if start_coor is None or end_coor is None:
+            print("[GreedyBot2] Error: No move found")
+            start_coor = random.choice(list(moves))
+            end_coor = random.choice(moves[start_coor])
 
         move = [
             subj_to_obj_coor(start_coor, self.playerNum),

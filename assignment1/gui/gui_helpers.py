@@ -1,6 +1,6 @@
 import pygame
 from colorsys import rgb_to_hls, hls_to_rgb
-from game_logic.constants import DIRECTIONS
+from game_logic.layout import DIRECTIONS
 from game_logic.game import Game
 from game_logic.helpers import add, abs_coors, h2c, mult, obj_to_subj_coor
 from game_logic.piece import Piece
@@ -89,8 +89,11 @@ def drawTurnCount(g: Game, window: pygame.Surface):
     Adds the turn count to the window.
     """
     playerName = g.playerNames[g.playerNum - 1]
+    n_players = len(g.playerNames)
+    turn_cycle = (g.turnCount - 1) // n_players + 1
+    subturn = (g.turnCount - 1) % n_players + 1
     text = pygame.font.Font(size=int(WIDTH * 0.04)).render(
-        f"Turn: {g.turnCount}, {playerName}",
+        f"Turn: {turn_cycle}.{subturn}, {playerName}",
         True,
         BLACK,
         None,

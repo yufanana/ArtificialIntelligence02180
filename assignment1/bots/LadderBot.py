@@ -93,7 +93,7 @@ class LadderBot(Player):
         far_piece = pieces[max_hor_idx]
 
         # Enforce max y-distance between pieces
-        max_gap = 7.0
+        max_gap = 10.0
         min_y_piece = min(pieces, key=lambda x: x[1])
         max_y_piece = max(pieces, key=lambda x: x[1])
         if max_y_piece[1] - min_y_piece[1] > max_gap:
@@ -107,7 +107,7 @@ class LadderBot(Player):
                     forward_moves = check_forward_moves(moves, far_piece)
                     if forward_moves == []:  # No forward moves
                         continue
-                    print(f"[LadderBot] moving last piece, {far_piece}")
+                    # print(f"[LadderBot] moving last piece, {far_piece}")
                     break
 
         start_coor = far_piece
@@ -116,14 +116,19 @@ class LadderBot(Player):
         # Check for forward moves
         forward_moves = check_forward_moves(moves, far_piece)
 
-        # If there are no forward moves, move sideways randomly. End.
+        # If there are no forward moves, find another piece with forward move.\
         if forward_moves == []:
+            for piece in pieces:
+                if piece in moves:
+                    forward_moves = check_forward_moves(moves, piece)
+                    if forward_moves != []:
+                        start_coor = piece
+                        break
             end_coor = random.choice(moves[start_coor])
             move = [
                 subj_to_obj_coor(start_coor, self.playerNum),
                 subj_to_obj_coor(end_coor, self.playerNum),
             ]
-            print(f"[LadderBot] Move: {move}\n")
             return move
 
         # Choose moves with greatest dist travelled

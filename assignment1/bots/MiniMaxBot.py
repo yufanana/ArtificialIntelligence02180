@@ -1,7 +1,7 @@
 import numpy as np
 from game_logic.player import Player
 from game_logic.game import Game
-from game_logic.constants import END_COOR
+from game_logic.layout import END_COOR
 from game_logic.helpers import subj_to_obj_coor, obj_to_subj_coor
 
 MAX_DEPTH = 2
