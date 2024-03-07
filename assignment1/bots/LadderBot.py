@@ -4,6 +4,8 @@ from game_logic.player import Player
 from game_logic.game import Game
 from game_logic.helpers import subj_to_obj_coor
 
+MAX_GAP = 7
+
 
 def distance_to_line(line: np.ndarray, p: list[tuple]):
     """
@@ -93,11 +95,10 @@ class LadderBot(Player):
         far_piece = pieces[max_hor_idx]
 
         # Enforce max y-distance between pieces
-        max_gap = 10.0
         min_y_piece = min(pieces, key=lambda x: x[1])
         max_y_piece = max(pieces, key=lambda x: x[1])
-        if max_y_piece[1] - min_y_piece[1] > max_gap:
-            print("[LadderBot] Max gap exceeded")
+        if max_y_piece[1] - min_y_piece[1] > MAX_GAP:
+            print("LadderBot: Max gap exceeded")
             # Move the further back piece
             sorted_pieces = sorted(pieces, key=lambda x: x[1])
             for piece in sorted_pieces:

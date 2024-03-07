@@ -4,6 +4,7 @@ from game_logic.player import Player
 from game_logic.game import Game
 from game_logic.helpers import subj_to_obj_coor
 
+
 class Groupbot(Player):
     """Always finds a move that jumps through the maximum distance (dest[1] - coor[1]), if not it reduces distance between pieces"""
 
@@ -60,7 +61,7 @@ class Groupbot(Player):
         pieces_obj = g.pieces[self.playerNum]
         pieces_in_play = [p.getCoor() for p in pieces_obj]
         std_dev = np.std([coor[0] for coor in pieces_in_play])
-        print(f'stdev: {std_dev}')	
+        print(f"stdev: {std_dev}")
         for coor in forwardMoves:
             for dest in forwardMoves[coor]:
                 dist = dest[1] - coor[1]
@@ -69,15 +70,16 @@ class Groupbot(Player):
                     (start_coor, end_coor) = (coor, dest)
                 elif dist == max_dist:
                     if end_coor[1] < start_coor[1]:  # do not go backwards
-                        continue 
-                    else: 
+                        continue
+                    else:
                         # Prefers to move the piece to reduce pieces stdev
-                        if (np.std([dest[1] for dest in forwardMoves[coor]]) < std_dev):
+                        if (
+                            np.std([dest[1] for dest in forwardMoves[coor]])
+                            < std_dev
+                        ):
                             max_dist = dist
                             (start_coor, end_coor) = (coor, dest)
         return [
             subj_to_obj_coor(start_coor, self.playerNum),
             subj_to_obj_coor(end_coor, self.playerNum),
         ]
-
-
