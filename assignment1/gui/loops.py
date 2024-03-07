@@ -29,13 +29,15 @@ from pygame import (
 from PySide6 import QtWidgets
 from time import strftime
 
-_ = [GreedyBot0, 
-     GreedyBot1,
-     GreedyBot2, 
-     RandomBot,
-     LadderBot,
-     AdversarialBot,
+_ = [
+    GreedyBot0,
+    GreedyBot1,
+    GreedyBot2,
+    RandomBot,
+    LadderBot,
+    AdversarialBot,
 ]
+
 
 class LoopController:
     """
