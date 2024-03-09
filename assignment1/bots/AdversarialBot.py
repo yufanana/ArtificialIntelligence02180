@@ -14,14 +14,15 @@ START_PENALTY = 5
 
 
 def alphaBetaSearch(game: Game, depth: int):
-    '''
+    """
     Alpha-beta search algorithm to find the best move with the largest utility.
-    '''
+    """
+
     def minValue(game: Game, depth: int, alpha: int, beta: int):
-        '''
+        """
         Returns the minimum value of the possible game state among the children
         up to the given depth.
-        '''
+        """
         opponentNum = 2
         nonlocal nodeCount
         if game.isOver() or depth == 0:
@@ -36,8 +37,10 @@ def alphaBetaSearch(game: Game, depth: int):
                     continue
                 # Create a new game state and make the move
                 new_game = deepcopy(game)
-                new_game.movePiece(subj_to_obj_coor(startCoor, opponentNum),
-                                   subj_to_obj_coor(endCoor, opponentNum))
+                new_game.movePiece(
+                    subj_to_obj_coor(startCoor, opponentNum),
+                    subj_to_obj_coor(endCoor, opponentNum),
+                )
                 v = min(v, maxValue(new_game, depth - 1, alpha, beta))
                 nodeCount += 1
                 if v <= alpha:  # alpha cut-off
@@ -46,10 +49,10 @@ def alphaBetaSearch(game: Game, depth: int):
         return v
 
     def maxValue(game: Game, depth: int, alpha: int, beta: int):
-        '''
+        """
         Returns the maximum value of the possible game state among the children
         up to the given depth.
-        '''
+        """
         nonlocal nodeCount
         if game.isOver() or depth == 0:
             nodeCount += 1
@@ -66,7 +69,7 @@ def alphaBetaSearch(game: Game, depth: int):
                 new_game.movePiece(startCoor, endCoor)
                 v = max(v, minValue(new_game, depth - 1, alpha, beta))
                 nodeCount += 1
-                if v >= beta:   # beta cut-off
+                if v >= beta:  # beta cut-off
                     return v
                 alpha = max(alpha, v)
         return v
@@ -90,10 +93,10 @@ def alphaBetaSearch(game: Game, depth: int):
 
 
 def furthestEndCell(game: Game, playerNum: int) -> tuple:
-    '''
+    """
     Compares the furthest cell based on subjective subjective,
     returns the furthest cell in objective coordinates.
-    '''
+    """
     furthestCell = (0, 0)
     for coord in END_COOR[playerNum]:
         subCoor = obj_to_subj_coor(coord, playerNum)
@@ -110,9 +113,9 @@ def furthestEndCell(game: Game, playerNum: int) -> tuple:
 
 
 def countStartPieces(game: Game, playerNum: int) -> int:
-    '''
+    """
     Count how many of the player's pieces are in its start zone.
-    '''
+    """
     count = 0
     for coor in START_COOR[playerNum]:
         if game.board[coor] is None:  # unoccupied cell
@@ -132,10 +135,10 @@ def countStartPieces(game: Game, playerNum: int) -> int:
 
 
 def distanceToFurthestCell(game: Game, playerNum: int):
-    '''
+    """
     Computes the cumulative distance of the player's pieces
     to the furthest empty cell in the end zone.
-    '''
+    """
     furthestCell = furthestEndCell(game, playerNum)
     cumDistance = 0
     for piece in game.pieces[playerNum]:
@@ -144,9 +147,9 @@ def distanceToFurthestCell(game: Game, playerNum: int):
 
 
 def utility(game: Game):
-    '''
+    """
     Returns the evaluation of the game state for the player.
-    '''
+    """
     # BUG: bot is unable to make the last 3 moves to finish the game
     if game.checkWin(game.playerNum):
         return 300
@@ -177,24 +180,26 @@ def utility_cluster(game: Game):
 
 
 class AdversarialBot(Player):
-    '''
+    """
     Moves pieces based on the minimax algorithm with alpha-beta pruning.
-    '''
+    """
 
     def __init__(self):
         super().__init__()
 
     def pickMove(self, g: Game):
-        '''
+        """
         Returns:
             [start_coor, end_coor] : in objective coordinates
-        '''
+        """
         print(f"[AdversarialBot] is player {self.playerNum}")
         print("[AdversarialBot] Computing...")
         bestMove = alphaBetaSearch(g, 3)
         print(f"[AdversarialBot] bestMove: {bestMove}\n")
 
-        bestMove = [subj_to_obj_coor(bestMove[0], self.playerNum),
-                    subj_to_obj_coor(bestMove[1], self.playerNum)]
+        bestMove = [
+            subj_to_obj_coor(bestMove[0], self.playerNum),
+            subj_to_obj_coor(bestMove[1], self.playerNum),
+        ]
 
         return bestMove

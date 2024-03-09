@@ -112,10 +112,10 @@ class LoopController:
 
         elif self.loopNum == 4:
             # to view a replay
-            pygame.event.set_allowed(
-                [QUIT, MOUSEBUTTONDOWN, MOUSEBUTTONUP, KEYDOWN],
-            )
-            pygame.key.set_repeat(100)
+            # pygame.event.set_allowed(
+            #     [QUIT, MOUSEBUTTONDOWN, MOUSEBUTTONUP, KEYDOWN],
+            # )
+            # pygame.key.set_repeat(100)
             self.replayLoop(window, self.filePath)
 
         elif self.loopNum == 5:
@@ -152,14 +152,15 @@ class LoopController:
             font_size=32,
         )
         while True:
+            # Register close button event
             ev = pygame.event.wait()
             if ev.type == QUIT:
                 pygame.quit()
                 sys.exit()
-            mouse_pos = pygame.mouse.get_pos()
-            mouse_left_click = ev.type == MOUSEBUTTONDOWN
 
             # Control flow to the next state
+            mouse_pos = pygame.mouse.get_pos()
+            mouse_left_click = ev.type == MOUSEBUTTONDOWN
             if playButton.isClicked(mouse_pos, mouse_left_click):
                 # Go to the gamePlayLoop
                 self.loopNum = 2
@@ -369,8 +370,10 @@ class LoopController:
             players[i].setPlayerNum(i + 1)
         # players: list of player objects selected
 
-        # 1st line in replayRecord is the number of players
+        # 1st line: no. of players
+        # 2nd line: player names
         replayRecord.append(str(len(players)))
+        replayRecord.append(",".join(self.playerNames))
 
         # Generate the game
         g = Game(playerList=players, playerNum=1, playerNames=self.playerNames)
@@ -392,7 +395,7 @@ class LoopController:
                 duration = 50  # milliseconds
                 ev = pygame.event.wait(duration)
 
-            # Quit the game if the window is closed
+            # Register close button event
             if ev.type == QUIT:
                 pygame.quit()
                 sys.exit()
@@ -493,7 +496,7 @@ class LoopController:
             print("File Path is void!")
             self.loopNum = 0
 
-        # Replay the game
+        # Check validity of replay file
         if (not self.replayRecord) and filePath:
             isValidReplay = True
             move_list = []
@@ -501,11 +504,22 @@ class LoopController:
                 text = f.read()
                 move_list = text.split("\n")
                 playerCount = move_list.pop(0)
+                playerNames = move_list.pop(0).split(",")
+                playerList: list[Player] = []
+                for i, className in enumerate(
+                    playerNames,
+                ):  # Create player objects
+                    playerList.append(eval(className)())
+                    playerList[-1].setPlayerNum(i + 1)
+
+                # Check total player count
                 if eval(playerCount) not in (2, 3):
                     self.showNotValidReplay()
                     isValidReplay = False
                 else:
                     playerCount = eval(playerCount)
+
+                    # Check there are 2 sets of coordinates for each move
                     for i in range(len(move_list)):
                         move_list[i] = move_list[i].split("to")
                         if len(move_list[i]) != 2:
@@ -514,6 +528,7 @@ class LoopController:
                             isValidReplay = False
                             break
                         else:
+                            # Check coordinates are tuples
                             for j in range(len(move_list[i])):
                                 move_list[i][j] = eval(move_list[i][j])
                                 if not isinstance(move_list[i][j], tuple):
@@ -521,6 +536,7 @@ class LoopController:
                                     isValidReplay = False
                                     break
 
+            # Check if all coordinates are valid
             for i in range(len(move_list)):
                 if (
                     move_list[i][0] not in ALL_COOR
@@ -529,15 +545,23 @@ class LoopController:
                     self.showNotValidReplay()
                     isValidReplay = False
                     break
+
             if isValidReplay:
-                self.replayRecord = [playerCount] + move_list
+                self.replayRecord = move_list
+
+        # Start the replay if it is valid
         if self.replayRecord:
             if f:
                 del f
             if text:
                 del text
-            playerCount = self.replayRecord.pop(0)
-            g = Game(playerCount)
+            # Initialise game
+            path = None
+            g = Game(playerList, 1, playerNames)
+            g.playerNum = 0
+            g.turnCount = 0
+
+            # Draw UI buttons
             prevButton = TextButton(
                 "<",
                 centerx=WIDTH * 0.125,
@@ -560,12 +584,7 @@ class LoopController:
                 height=int(HEIGHT * 0.0833),
                 font_size=int(WIDTH * 0.04),
             )
-            moveListIndex = -1
-            left = False
-            right = False
-            selectedMove = []
-            window.fill(WHITE)
-            hintText = pygame.font.Font(size=int(HEIGHT * 0.05)).render(
+            hintText = pygame.font.Font(size=int(HEIGHT * 0.04)).render(
                 "Use the buttons or the left and right arrow keys to navigate through the game",
                 antialias=True,
                 color=BLACK,
@@ -573,12 +592,21 @@ class LoopController:
             )
             hintTextRect = hintText.get_rect()
             hintTextRect.topright = (WIDTH, 1)
-            window.blit(hintText, hintTextRect)
+            drawBoard(g, window)
+
+            # Iterate through all the moves
+            moveListIndex = -1
+            left = False
+            right = False
+            selectedMove = []
             while True:
+                # Register close button event
                 ev = pygame.event.wait()
                 if ev.type == QUIT:
                     pygame.quit()
                     sys.exit()
+
+                # Update button states
                 if moveListIndex == -1:
                     prevButton.enabled = False
                 else:
@@ -587,6 +615,8 @@ class LoopController:
                     nextButton.enabled = False
                 else:
                     nextButton.enabled = True
+
+                # Register mouse click and key press events
                 mouse_pos = pygame.mouse.get_pos()
                 mouse_left_click = ev.type == MOUSEBUTTONDOWN
                 left = (
@@ -599,32 +629,45 @@ class LoopController:
                     and ev.key == K_RIGHT
                     and nextButton.enabled
                 )
+
+                # Exit replay mode
                 if backButton.isClicked(mouse_pos, mouse_left_click):
                     self.loopNum = 0
                     break
+
+                # Reverse move
                 if prevButton.isClicked(mouse_pos, mouse_left_click) or left:
+                    g.playerNum = g.turnCount % playerCount + 1
+                    g.turnCount -= 1
                     moveListIndex -= 1
-                    # reverse-move move_list[moveListIndex + 1]
-                    g.movePiece(
-                        move_list[moveListIndex + 1][1],
-                        move_list[moveListIndex + 1][0],
-                    )
+                    start_coor = move_list[moveListIndex + 1][1]
+                    end_coor = move_list[moveListIndex + 1][0]
+                    path = g.getMovePath(g.playerNum, start_coor, end_coor)
+                    g.movePiece(start_coor, end_coor)
                     selectedMove = (
                         move_list[moveListIndex] if moveListIndex >= 0 else []
                     )
+
+                # Move to next move
                 if nextButton.isClicked(mouse_pos, mouse_left_click) or right:
+                    g.playerNum = g.turnCount % playerCount + 1
+                    g.turnCount += 1
                     moveListIndex += 1
-                    # move move_list[moveListIndex]
-                    g.movePiece(
-                        move_list[moveListIndex][0],
-                        move_list[moveListIndex][1],
-                    )
+                    start_coor = move_list[moveListIndex][0]
+                    end_coor = move_list[moveListIndex][1]
+                    path = g.getMovePath(g.playerNum, start_coor, end_coor)
+                    g.movePiece(start_coor, end_coor)
                     selectedMove = move_list[moveListIndex]
+
+                # Draw buttons and board
+                window.fill(GRAY)
+                window.blit(hintText, hintTextRect)
+                drawBoard(g, window)
+                highlightMove(g, window, selectedMove)
+                drawPath(g, window, path)
                 prevButton.draw(window, mouse_pos)
                 nextButton.draw(window, mouse_pos)
                 backButton.draw(window, mouse_pos)
-                drawBoard(g, window)
-                highlightMove(g, window, selectedMove)
                 pygame.display.update()
 
     def loadReplayLoop(self):
@@ -689,15 +732,20 @@ class LoopController:
         )
 
         while True:
+            # Register events
             for event in pygame.event.get():
                 if event.type == QUIT:
                     pygame.quit()
                     sys.exit()
             mouse_pos = pygame.mouse.get_pos()
             mouse_left_click = pygame.mouse.get_pressed()[0]
+
+            # Return to main menu
             if menuButton.isClicked(mouse_pos, mouse_left_click):
                 self.loopNum = 0
                 break
+
+            # Export replay
             if exportReplayButton.isClicked(mouse_pos, mouse_left_click):
                 curTime = strftime("%Y%m%d-%H%M%S")
                 if not os.path.isdir("./replays"):
@@ -710,6 +758,8 @@ class LoopController:
                             f.write(str(replayRecord[i]))
                 exportReplayButton.text = "Replay exported!"
                 exportReplayButton.enabled = False
+
+            # Draw buttons
             menuButton.draw(window, mouse_pos)
             exportReplayButton.draw(window, mouse_pos)
             pygame.display.update()

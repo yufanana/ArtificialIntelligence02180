@@ -42,27 +42,27 @@ def main():
     lc = LoopController(cfg["player_list"])
     while True:
         lc.mainLoop(window, waitBot)
-    # Initialize variables for overall wins
-    total_player_wins = [0 for _ in range(cfg["no_of_players"])]
+    # # Initialize variables for overall wins
+    # total_player_wins = [0 for _ in range(cfg["no_of_players"])]
 
-    # Outer Loop
-    for round_number in range(1, 101):
-        print(f"Round {round_number}")
+    # # Outer Loop
+    # for round_number in range(1, 101):
+    #     print(f"Round {round_number}")
 
-        # Run_game_round(lc,window)
-        run_game_round(lc, window)
+    #     # Run_game_round(lc,window)
+    #     run_game_round(lc, window)
 
-        # Update overall wins
-        for i, player_win in enumerate(lc.get_winners()):
-            total_player_wins[i] += player_win
+    #     # Update overall wins
+    #     for i, player_win in enumerate(lc.get_winners()):
+    #         total_player_wins[i] += player_win
 
-    # Print the overall results
-    print("\nOverall Results:")
-    for i, total_wins in enumerate(total_player_wins):
-        print(f"Player {i + 1} total wins: {total_wins}")
+    # # Print the overall results
+    # print("\nOverall Results:")
+    # for i, total_wins in enumerate(total_player_wins):
+    #     print(f"Player {i + 1} total wins: {total_wins}")
 
-    # Quit Pygame and close the script
-    pygame.quit()
+    # # Quit Pygame and close the script
+    # pygame.quit()
 
 
 if __name__ == "__main__":
