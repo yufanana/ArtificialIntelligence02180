@@ -1,6 +1,6 @@
-"""
+'''
 Game Class to represent the game state and logic.
-"""
+'''
 import copy
 from game_logic.helpers import add, checkJump, obj_to_subj_coor, mult
 from game_logic.layout import (
@@ -16,9 +16,9 @@ from typing import List
 
 
 class Move:
-    """
+    '''
     Class to backtrace the path of a move.
-    """
+    '''
 
     def __init__(self, coord: tuple):
         self.parent: Move = None
@@ -30,9 +30,9 @@ class Move:
         child.parent = self
 
     def getPath(self) -> List[tuple]:
-        """
+        '''
         Recursively add the parent to the path.
-        """
+        '''
         path = [self.coord]
         if self.parent is self:  # reached the root node
             return path
@@ -63,9 +63,9 @@ class Game:
         self.centerCoor = (WIDTH / 2, HEIGHT / 2)
 
     def createBoard(self):
-        """
+        '''
         Returns a dict of the board. Adds pieces to starting zones.
-        """
+        '''
         playerCount = len(self.playerList)
 
         for i in range(1, playerCount + 1):
@@ -86,7 +86,7 @@ class Game:
                 self.pieces[playerNum].add(self.board[p, q])
 
     def getValidMoves(self, startPos: tuple, playerNum: int):
-        """
+        '''
         Compute all valid moves for a piece.
 
         Args:
@@ -95,7 +95,7 @@ class Game:
 
         Returns:
             list of tuples: objective coordinates of the dest valid moves.
-        """
+        '''
         moves = []
 
         # Try all 6 directions
@@ -132,7 +132,7 @@ class Game:
         return list(set(moves))
 
     def checkValidStepDest(self, playerNum: int, dest: tuple):
-        """
+        '''
         Check if the destination is valid single step for the player.
 
         Args:
@@ -141,7 +141,7 @@ class Game:
 
         Returns:
             bool: True if the destination is valid.
-        """
+        '''
         if dest not in self.board:  # out of bounds
             # print("out of bounds")
             return False
@@ -165,7 +165,7 @@ class Game:
         # return True
 
     def getMovePath(self, playerNum: int, start: tuple, end: tuple):
-        """
+        '''
         Find the path for the move using breadth-first search.
 
         Args:
@@ -175,7 +175,7 @@ class Game:
 
         Returns:
             path (list(tuples)): objective coordinates of cells along the path.
-        """
+        '''
         start_m = Move(start)
         start_m.parent = start_m
         path = []
@@ -231,9 +231,9 @@ class Game:
             raise ValueError("No path found")
 
     def checkWin(self, playerNum: int):
-        """
+        '''
         Check if all of the player's pieces are in their end zone.
-        """
+        '''
         for i in END_COOR[playerNum]:
             # if there are no pieces
             if self.board[i] is None:
@@ -247,20 +247,20 @@ class Game:
         return True
 
     def isOver(self):
-        """
+        '''
         Check if the game is over.
-        """
+        '''
         for i in range(1, len(self.playerList) + 1):
             if self.checkWin(i):
                 return True
         return False
 
     def getBoardState(self, playerNum: int):
-        """
+        '''
         Key: subjective coordinates
         Value: piece's player number,
         or 0 if it's vacant
-        """
+        '''
         state = dict()
         for i in self.board:
             state[obj_to_subj_coor(i, playerNum)] = (
@@ -271,26 +271,26 @@ class Game:
         return state
 
     def getBoolBoardState(self, playerNum: int):
-        """
+        '''
         Returns a dict of the board in subjective coordinates.
 
         Key: subjective coordinates
         Value: true if occupied, false if vacant
-        """
+        '''
         state = dict()
         for i in self.board:
             state[obj_to_subj_coor(i, playerNum)] = self.board[i] is not None
         return state
 
     def allMovesDict(self, playerNum: int):
-        """
+        '''
         Returns a dict of all valid moves, in subjective coordinates.
 
         Key: coordinates of a piece (`tuple`),
         Value: list of destination coordinates.
 
         e.g. {(1, -5): [(1, -4), (0, -4)], (3, -5): [(4, -6), (2, -4)]}
-        """
+        '''
         moves = dict()
         for p in self.pieces[playerNum]:
             p_moves_list = self.getValidMoves(p.getCoor(), playerNum)
@@ -304,9 +304,9 @@ class Game:
         return moves
 
     def movePiece(self, start: tuple, end: tuple):
-        """
-        Moves a piece from start coord to end coord.
-        """
+        '''
+        Moves a piece from start coord to end coord. in objective coordinates.
+        '''
         assert self.board[start] is not None, "startCoord is empty"
         assert self.board[end] is None, "endCoord is occupied"
 

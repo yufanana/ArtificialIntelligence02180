@@ -18,15 +18,15 @@ def read_config(file_name="config0.yaml"):
     return cfg
 
 
-def run_game_loop(lc, window):
-    # Run one game
-    lc.mainLoop(window, waitbot)
+# def run_game_loop(lc, window):
+#     # Run one game
+#     lc.mainLoop(window, waitbot)
 
 
 def main():
     # Set config file
-    # config_name = "config_adv.yaml"
-    config_name = "config3.yaml"
+    config_name = "config_adv.yaml"
+    # config_name = "config3.yaml"
     cfg = read_config(config_name)
     waitBot = False
 

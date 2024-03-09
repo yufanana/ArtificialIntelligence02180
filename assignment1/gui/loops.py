@@ -383,7 +383,6 @@ class LoopController:
         # Start the game loop
         selectedMove = []  # list of start and end coordinates of picked move
         path = []
-        waitBot = False
         while True:
             currentPlayer = players[playerIndex]
 
