@@ -5,7 +5,7 @@ from game_logic.game import Game
 from game_logic.constants import END_COOR
 from game_logic.helpers import subj_to_obj_coor, obj_to_subj_coor
 
-MAX_DEPTH = 4
+MAX_DEPTH = 3
 POS_DEV_WEIGHT = 2
 STD_DEV_WEIGHT = [0.8, 0.8]
 X_STD_DEV_WEIGHT = [0.1, 0.1]
