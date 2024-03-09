@@ -5,14 +5,15 @@ from game_logic.game import Game
 from game_logic.constants import END_COOR
 from game_logic.helpers import subj_to_obj_coor, obj_to_subj_coor
 
-MAX_DEPTH = 3
+MAX_DEPTH = 4
 POS_DEV_WEIGHT = 2
 STD_DEV_WEIGHT = 0.8
 X_STD_DEV_WEIGHT = 0.3
 Y_STD_DEV_WEIGHT = 1
 OPT_X = 2.5
 OPT_Y = 2.6
-y_rotations = 0.75
+y_rotations = 0.6
+
 
 
 class MiniMaxBot(Player):
@@ -46,19 +47,19 @@ class MiniMaxBot(Player):
         for coor in boardState:
             if boardState[coor] == self.playerNum:
                 x.append(coor[0])
-                y.append(coor[1]*y_rotations)
+                y.append(coor[1])
                 x_avg += coor[0]
-                y_avg += coor[1]*y_rotations
+                y_avg += coor[1]
                 pieces += 1
         std_dev_x = np.std(x)
-        std_dev_y = np.std(y)
+        std_dev_y = np.std(([num * y_rotations for num in y])+x)
         x_avg /= pieces
         y_avg /= pieces
         # print(f"x_avg: {x_avg}, y_avg: {y_avg}")
 
         return ((x_avg - OPT_X) + (y_avg - OPT_Y)) - STD_DEV_WEIGHT*(X_STD_DEV_WEIGHT*std_dev_x + Y_STD_DEV_WEIGHT*std_dev_y)
 
-    def min_value(self, g: Game, depth, alpha, beta):
+    def min_value(self, g: Game, depth, alpha, beta, playerNum):
         if depth >= MAX_DEPTH:
             return self.utility(g), None
         # Check if the game is over (we are in a leaf) and return the utility of the final state
@@ -69,25 +70,25 @@ class MiniMaxBot(Player):
         v = 100
         move = None
         # For each possible move, get the maximum value
-        moves = g.allMovesDict(self.playerNum)
+        moves = g.allMovesDict(playerNum)
         for c in moves:
             for m in moves[c]:
                 if m[1] < c[1]:
                     continue
-                g.movePiece(subj_to_obj_coor(c, self.playerNum),
-                            subj_to_obj_coor(m, self.playerNum)) # We move the piece
-                v2, a2 = self.max_value(g, depth, alpha, beta)
+                g.movePiece(subj_to_obj_coor(c, playerNum),
+                            subj_to_obj_coor(m, playerNum)) # We move the piece
+                v2, a2 = self.max_value(g, depth, alpha, beta, self.changePlayer(playerNum))
                 if v2 < v:
                     v = v2
                     move = (c, m)
                     beta = min(beta, v)
-                g.movePiece(subj_to_obj_coor(m, self.playerNum),
-                             subj_to_obj_coor(c, self.playerNum)) # We reset the last move
+                g.movePiece(subj_to_obj_coor(m, playerNum),
+                             subj_to_obj_coor(c, playerNum)) # We reset the last move
                 if v <= alpha:
                     return v, move
         return v, move
     
-    def max_value(self, g: Game, depth, alpha, beta):
+    def max_value(self, g: Game, depth, alpha, beta, playerNum):
         if depth >= MAX_DEPTH:
             return self.utility(g), None
         for player in g.playerList:
@@ -98,21 +99,21 @@ class MiniMaxBot(Player):
         move = None
 
         # For each possible move, get the minimum value
-        moves = g.allMovesDict(self.playerNum)
+        moves = g.allMovesDict(playerNum)
         for c in moves:
             for m in moves[c]:
                 if m[1] < c[1]:
                     continue
-                g.movePiece(subj_to_obj_coor(c, self.playerNum),
-                            subj_to_obj_coor(m, self.playerNum)) # We move the piece
-                v2, a2 = self.min_value(g, depth, alpha, beta) # We move the piece and call min_value
+                g.movePiece(subj_to_obj_coor(c, playerNum),
+                            subj_to_obj_coor(m, playerNum)) # We move the piece
+                v2, a2 = self.min_value(g, depth, alpha, beta, self.changePlayer(playerNum)) # We move the piece and call min_value
                 # If we get a higher value, we update the value and the "best move"
                 if v2 > v:
                     v = v2
                     move = (c, m)
                     alpha = max(alpha, v)
-                g.movePiece(subj_to_obj_coor(m, self.playerNum),
-                             subj_to_obj_coor(c, self.playerNum)) # We reset the last move
+                g.movePiece(subj_to_obj_coor(m, playerNum),
+                             subj_to_obj_coor(c, playerNum)) # We reset the last move
                 if v >= beta:
                     return v, move
         return v, move
@@ -122,7 +123,7 @@ class MiniMaxBot(Player):
         Find the best move for the current player based on the minimax algrithm.
         Returns:
             [start_coor, end_coor] : in subjective coordinates"""
-        v, move = self.max_value(g, 0, -100, 100)
+        v, move = self.max_value(g, 0, -100, 100, self.playerNum)
         return move
 
 
@@ -166,3 +167,12 @@ class MiniMaxBot(Player):
             subj_to_obj_coor(start_coord, self.playerNum),
             subj_to_obj_coor(end_coord, self.playerNum),
         ]
+    
+    def changePlayer(self, playerNum: int):
+        """
+        Changes the player's turn.
+        """
+        if playerNum == self.playerNum:
+            return 1
+        else:
+            return self.playerNum
