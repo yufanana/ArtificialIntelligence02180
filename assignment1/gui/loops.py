@@ -9,6 +9,7 @@ from bots.GreedyBot1 import GreedyBot1
 from bots.GreedyBot2 import GreedyBot2
 from bots.RandomBot import RandomBot
 from bots.LadderBot import LadderBot
+from bots.MiniMaxBot import MiniMaxBot
 from bots.AdversarialBot import AdversarialBot
 from copy import deepcopy
 from game_logic.layout import ALL_COOR
@@ -36,6 +37,7 @@ _ = [
     RandomBot,
     LadderBot,
     AdversarialBot,
+    MiniMaxBot,
 ]
 
 
@@ -64,8 +66,7 @@ class LoopController:
             playerObject = eval(playerClass)()
             self.playerList.append(playerObject)
         print(
-            f"[gui.loops] Loaded {len(self.playerList)} players of types: \
-              {playerNames}\n",
+            f"[gui.loops] Loaded {len(self.playerList)} players of types: {playerNames}\n",
         )
 
         # Block all pygame events
@@ -501,50 +502,46 @@ class LoopController:
             isValidReplay = True
             move_list = []
             with open(filePath) as f:
+                # Parse the file
                 text = f.read()
                 move_list = text.split("\n")
-                playerCount = move_list.pop(0)
+                playerCount = int(move_list.pop(0))
                 playerNames = move_list.pop(0).split(",")
                 playerList: list[Player] = []
-                for i, className in enumerate(
-                    playerNames,
-                ):  # Create player objects
+
+                # Create player objects
+                for i, className in enumerate(playerNames):
                     playerList.append(eval(className)())
                     playerList[-1].setPlayerNum(i + 1)
 
-                # Check total player count
-                if eval(playerCount) not in (2, 3):
-                    self.showNotValidReplay()
-                    isValidReplay = False
-                else:
-                    playerCount = eval(playerCount)
+                # Removed the check for total number of players
+
+                # Check each move is valid
+                # Empty line at the end of the file results in an invalid replay
+                for i in range(len(move_list)):
+                    move_list[i] = move_list[i].split("to")
 
                     # Check there are 2 sets of coordinates for each move
-                    for i in range(len(move_list)):
-                        move_list[i] = move_list[i].split("to")
-                        if len(move_list[i]) != 2:
-                            print(i, move_list[i])
+                    if len(move_list[i]) != 2:
+                        print(i, move_list[i])
+                        self.showNotValidReplay()
+                        isValidReplay = False
+                        break
+                    for j in range(len(move_list[i])):
+                        move_list[i][j] = eval(move_list[i][j])
+
+                        # Check coordinates are tuples
+                        if not isinstance(move_list[i][j], tuple):
+                            print(f"Invalid coordinates: {move_list[i][j]}")
                             self.showNotValidReplay()
                             isValidReplay = False
                             break
-                        else:
-                            # Check coordinates are tuples
-                            for j in range(len(move_list[i])):
-                                move_list[i][j] = eval(move_list[i][j])
-                                if not isinstance(move_list[i][j], tuple):
-                                    self.showNotValidReplay()
-                                    isValidReplay = False
-                                    break
-
-            # Check if all coordinates are valid
-            for i in range(len(move_list)):
-                if (
-                    move_list[i][0] not in ALL_COOR
-                    or move_list[i][1] not in ALL_COOR
-                ):
-                    self.showNotValidReplay()
-                    isValidReplay = False
-                    break
+                        # Check if the coordinates exists on the board
+                        if move_list[i][j] not in ALL_COOR:
+                            print(f"Invalid coordinates: {move_list[i][j]}")
+                            self.showNotValidReplay()
+                            isValidReplay = False
+                            break
 
             if isValidReplay:
                 self.replayRecord = move_list
@@ -555,13 +552,14 @@ class LoopController:
                 del f
             if text:
                 del text
+
             # Initialise game
             path = None
             g = Game(playerList, 1, playerNames)
             g.playerNum = 0
             g.turnCount = 0
 
-            # Draw UI buttons
+            # Set up UI buttons
             prevButton = TextButton(
                 "<",
                 centerx=WIDTH * 0.125,
@@ -584,7 +582,15 @@ class LoopController:
                 height=int(HEIGHT * 0.0833),
                 font_size=int(WIDTH * 0.04),
             )
-            hintText = pygame.font.Font(size=int(HEIGHT * 0.04)).render(
+            autoPlayButton = TextButton(
+                "Auto Play",
+                centerx=WIDTH * 0.875,
+                centery=HEIGHT * 0.875,
+                width=int(WIDTH / 9),
+                height=int(HEIGHT / 10),
+                font_size=int(WIDTH * 0.03),
+            )
+            hintText = pygame.font.Font(size=int(HEIGHT * 0.03)).render(
                 "Use the buttons or the left and right arrow keys to navigate through the game",
                 antialias=True,
                 color=BLACK,
@@ -592,72 +598,99 @@ class LoopController:
             )
             hintTextRect = hintText.get_rect()
             hintTextRect.topright = (WIDTH, 1)
-            drawBoard(g, window)
 
-            # Iterate through all the moves
+            def previousMove():
+                nonlocal g, moveListIndex, selectedMove, path
+                g.playerNum = g.turnCount % playerCount + 1
+                g.turnCount -= 1
+                moveListIndex -= 1
+                start_coor = move_list[moveListIndex + 1][1]
+                end_coor = move_list[moveListIndex + 1][0]
+                path = g.getMovePath(g.playerNum, start_coor, end_coor)
+                g.movePiece(start_coor, end_coor)
+                selectedMove = (
+                    move_list[moveListIndex] if moveListIndex >= 0 else []
+                )
+
+            def nextMove():
+                nonlocal g, moveListIndex, selectedMove, path
+                g.playerNum = g.turnCount % playerCount + 1
+                g.turnCount += 1
+                moveListIndex += 1
+                start_coor = move_list[moveListIndex][0]
+                end_coor = move_list[moveListIndex][1]
+                path = g.getMovePath(g.playerNum, start_coor, end_coor)
+                g.movePiece(start_coor, end_coor)
+                selectedMove = move_list[moveListIndex]
+
+            # Initialise replay variables
             moveListIndex = -1
+            selectedMove = []
             left = False
             right = False
-            selectedMove = []
+            mouse_left_click = False
+            autoPlay = False
+            autoPlayButton.enabled = True
+
+            # Iterate through all the moves
             while True:
+                # Register mouse left click event
+                mouse_pos = pygame.mouse.get_pos()
+
+                # Wait for user to press a key
+                if not autoPlay:
+                    ev = pygame.event.wait()
+                    # Register mouse click and key press events
+                    mouse_left_click = ev.type == MOUSEBUTTONDOWN
+                    left = (
+                        ev.type == KEYDOWN
+                        and ev.key == K_LEFT
+                        and prevButton.enabled
+                    )
+                    right = (
+                        ev.type == KEYDOWN
+                        and ev.key == K_RIGHT
+                        and nextButton.enabled
+                    )
+                    autoPlay = autoPlayButton.isClicked(
+                        mouse_pos,
+                        mouse_left_click,
+                    )
+                    if autoPlay:
+                        print("[gui.loops] Automatically replaying...")
+                # Replay automatically after waiting
+                if autoPlay:
+                    duration = 500  # milliseconds
+                    ev = pygame.event.wait(duration)
+                    mouse_left_click = ev.type == MOUSEBUTTONDOWN
+                    right = True
+
                 # Register close button event
-                ev = pygame.event.wait()
                 if ev.type == QUIT:
                     pygame.quit()
                     sys.exit()
 
-                # Update button states
+                # Enable/disable buttons at beginning/end of replay
                 if moveListIndex == -1:
                     prevButton.enabled = False
                 else:
                     prevButton.enabled = True
                 if moveListIndex == len(move_list) - 1:
                     nextButton.enabled = False
+                    print("[gui.loops] End of replay")
                 else:
                     nextButton.enabled = True
-
-                # Register mouse click and key press events
-                mouse_pos = pygame.mouse.get_pos()
-                mouse_left_click = ev.type == MOUSEBUTTONDOWN
-                left = (
-                    ev.type == KEYDOWN
-                    and ev.key == K_LEFT
-                    and prevButton.enabled
-                )
-                right = (
-                    ev.type == KEYDOWN
-                    and ev.key == K_RIGHT
-                    and nextButton.enabled
-                )
 
                 # Exit replay mode
                 if backButton.isClicked(mouse_pos, mouse_left_click):
                     self.loopNum = 0
                     break
-
                 # Reverse move
                 if prevButton.isClicked(mouse_pos, mouse_left_click) or left:
-                    g.playerNum = g.turnCount % playerCount + 1
-                    g.turnCount -= 1
-                    moveListIndex -= 1
-                    start_coor = move_list[moveListIndex + 1][1]
-                    end_coor = move_list[moveListIndex + 1][0]
-                    path = g.getMovePath(g.playerNum, start_coor, end_coor)
-                    g.movePiece(start_coor, end_coor)
-                    selectedMove = (
-                        move_list[moveListIndex] if moveListIndex >= 0 else []
-                    )
-
+                    previousMove()
                 # Move to next move
                 if nextButton.isClicked(mouse_pos, mouse_left_click) or right:
-                    g.playerNum = g.turnCount % playerCount + 1
-                    g.turnCount += 1
-                    moveListIndex += 1
-                    start_coor = move_list[moveListIndex][0]
-                    end_coor = move_list[moveListIndex][1]
-                    path = g.getMovePath(g.playerNum, start_coor, end_coor)
-                    g.movePiece(start_coor, end_coor)
-                    selectedMove = move_list[moveListIndex]
+                    nextMove()
 
                 # Draw buttons and board
                 window.fill(GRAY)
@@ -668,6 +701,7 @@ class LoopController:
                 prevButton.draw(window, mouse_pos)
                 nextButton.draw(window, mouse_pos)
                 backButton.draw(window, mouse_pos)
+                autoPlayButton.draw(window, mouse_pos)
                 pygame.display.update()
 
     def loadReplayLoop(self):
@@ -687,7 +721,6 @@ class LoopController:
             filter="*.txt",
         )[0]
         if filePath:
-            # print(filePath)
             self.loopNum = 4
             return filePath
         else:  # User cancelled
