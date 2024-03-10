@@ -1,4 +1,5 @@
 import logging
+import numpy as np
 from game_logic.player import Player
 from game_logic.game import Game
 from game_logic.layout import END_COOR, START_COOR
@@ -10,7 +11,34 @@ logging.basicConfig(level=logging.INFO)
 # Weights for scoring
 END_PENALTY = 1
 START_PENALTY = 5
+SEP_PENALTY = 1
+CENTER_PENALTY = 1
 # 1/(Player_Start_pieces) ~1/x
+
+
+class AdversarialBot(Player):
+    """
+    Moves pieces based on the minimax algorithm with alpha-beta pruning.
+    """
+
+    def __init__(self):
+        super().__init__()
+
+    def pickMove(self, g: Game):
+        """
+        Returns:
+            [start_coor, end_coor] : in objective coordinates
+        """
+        print(f"[AdversarialBot] is player {self.playerNum}")
+        print("[AdversarialBot] Computing...")
+        bestMove = alphaBetaSearch(g, 3)
+        bestMove = [
+            subj_to_obj_coor(bestMove[0], self.playerNum),
+            subj_to_obj_coor(bestMove[1], self.playerNum),
+        ]
+        print(f"[AdversarialBot] bestMove: {bestMove}\n")
+
+        return bestMove
 
 
 def alphaBetaSearch(game: Game, depth: int):
@@ -23,13 +51,14 @@ def alphaBetaSearch(game: Game, depth: int):
         Returns the minimum value of the possible game state among the children
         up to the given depth.
         """
-        opponentNum = 2
+        oppoNum = 2
         nonlocal nodeCount
         if game.isOver() or depth == 0:
             nodeCount += 1
-            return utility(game)
+            # return utility(game)
+            return utility_cluster(game)
         v = float("inf")
-        for startCoor, endCoors in game.allMovesDict(opponentNum).items():
+        for startCoor, endCoors in game.allMovesDict(oppoNum).items():
             logging.debug(f"startCoor: {startCoor}")
             for endCoor in endCoors:
                 if endCoor[1] < startCoor[1]:  # do not go backwards
@@ -38,8 +67,8 @@ def alphaBetaSearch(game: Game, depth: int):
                 # Create a new game state and make the move
                 new_game = deepcopy(game)
                 new_game.movePiece(
-                    subj_to_obj_coor(startCoor, opponentNum),
-                    subj_to_obj_coor(endCoor, opponentNum),
+                    subj_to_obj_coor(startCoor, oppoNum),
+                    subj_to_obj_coor(endCoor, oppoNum),
                 )
                 v = min(v, maxValue(new_game, depth - 1, alpha, beta))
                 nodeCount += 1
@@ -56,7 +85,8 @@ def alphaBetaSearch(game: Game, depth: int):
         nonlocal nodeCount
         if game.isOver() or depth == 0:
             nodeCount += 1
-            return utility(game)
+            # return utility(game)
+            return utility_cluster(game)
         v = float("-inf")
         for startCoor, endCoors in game.allMovesDict(game.playerNum).items():
             logging.debug(f"startCoor: {startCoor}")
@@ -94,8 +124,10 @@ def alphaBetaSearch(game: Game, depth: int):
 
 def furthestEndCell(game: Game, playerNum: int) -> tuple:
     """
-    Compares the furthest cell based on subjective subjective,
-    returns the furthest cell in objective coordinates.
+    Return the furthest empty cell in the end zone.
+
+    Note:
+        Comparison is based on the subjective coordinates.
     """
     furthestCell = (0, 0)
     for coord in END_COOR[playerNum]:
@@ -112,6 +144,51 @@ def furthestEndCell(game: Game, playerNum: int) -> tuple:
     return furthestCell
 
 
+def computeSeparation(game: Game, playerNum: int) -> int:
+    """
+    Compute the y-separation between the furthest and closest pieces.
+    """
+    furthestPiece = (4, -8)
+    closestPiece = (4, 8)
+    for piece in game.pieces[playerNum]:
+        subCoor = obj_to_subj_coor(piece.getCoor(), playerNum)
+        if subCoor[1] > furthestPiece[1]:
+            furthestPiece = piece.getCoor()
+        if subCoor[1] < closestPiece[1]:
+            closestPiece = piece.getCoor()
+    return furthestPiece[1] - closestPiece[1]
+
+
+def distanceToLine(line: np.ndarray, p: list[tuple]):
+    """
+    Compute shortest distance d between line l and 2D homogenous point p.
+
+    Args:
+        line : (3,1) equation of line in homogenous form (l.T @ p = 0)
+        p : list of tuple coordinates
+
+    Returns:
+        d : np.array of distances (15,)
+    """
+    p = np.array(p).T  # (2,15)
+    ph = np.vstack((p, np.ones(p.shape[1])))  # (3,15)
+    d = abs(line.T @ ph) / (abs(ph[2]) * np.sqrt(line[0] ** 2 + line[1] ** 2))
+    d = d.reshape(-1)
+    return d
+
+
+def distanceToCenterline(game: Game, playerNum: int) -> int:
+    """
+    Return the cumulative distance of the player's pieces to the centerline.
+    """
+    cumDistance = 0
+    centerline = np.array([[2, 1, 0]]).T  # vertical centerline: y=-2x, 0=2x+y
+    for piece in game.pieces[playerNum]:
+        subCoor = obj_to_subj_coor(piece.getCoor(), playerNum)
+        cumDistance += distanceToLine(centerline, [subCoor])
+    return cumDistance
+
+
 def countStartPieces(game: Game, playerNum: int) -> int:
     """
     Count how many of the player's pieces are in its start zone.
@@ -123,15 +200,6 @@ def countStartPieces(game: Game, playerNum: int) -> int:
         if game.board[coor].getPlayerNum() == playerNum:
             count += 1
     return count
-
-
-# def startDistances(game: Game, playerNum: int):
-#     ''' '''
-#     cumDistance = 0
-#     for coor in START_COOR[playerNum]:
-#         subjCoor = obj_to_subj_coor(coor, playerNum)
-#         if game.board[coor] is not None:
-#             pass
 
 
 def distanceToFurthestCell(game: Game, playerNum: int):
@@ -154,16 +222,15 @@ def utility(game: Game):
     if game.checkWin(game.playerNum):
         return 300
 
-    # Find the furthest empty cell in end zone
-    cumEndDist = distanceToFurthestCell(game, game.playerNum)
+    oppoNum = 2
 
-    # Find the furthest empty cell in opponent's end zone
-    opponentNum = 2
-    oppoCumEndDist = distanceToFurthestCell(game, opponentNum)
+    # Find the cumulative distance to the furthest empty cell in the end zone
+    cumEndDist = distanceToFurthestCell(game, game.playerNum)
+    oppoCumEndDist = distanceToFurthestCell(game, oppoNum)
 
     # Count start pieces
     playerStartPieces = countStartPieces(game, game.playerNum)
-    oppoStartPieces = countStartPieces(game, opponentNum)
+    oppoStartPieces = countStartPieces(game, oppoNum)
 
     # Compute scores
     oppoPenalty = END_PENALTY * oppoCumEndDist + START_PENALTY * oppoStartPieces
@@ -173,33 +240,37 @@ def utility(game: Game):
 
 
 def utility_cluster(game: Game):
-    # TODO: convert ladderbot into a heuristic for adversarial eval function
-    # goal: cluster in a vertical rectangle along the centerline
-    # steps: maximise number of skips --> travelling the greatest distance
-    pass
-
-
-class AdversarialBot(Player):
     """
-    Moves pieces based on the minimax algorithm with alpha-beta pruning.
+    Penalises based on y-separation of pieces, distance to centerline, and
+    distance to end zone.
     """
+    if game.checkWin(game.playerNum):
+        return 300
 
-    def __init__(self):
-        super().__init__()
+    oppoNum = 2
 
-    def pickMove(self, g: Game):
-        """
-        Returns:
-            [start_coor, end_coor] : in objective coordinates
-        """
-        print(f"[AdversarialBot] is player {self.playerNum}")
-        print("[AdversarialBot] Computing...")
-        bestMove = alphaBetaSearch(g, 3)
-        print(f"[AdversarialBot] bestMove: {bestMove}\n")
+    # Find the cumulative distance to the furthest empty cell in the end zone
+    cumEndDist = distanceToFurthestCell(game, game.playerNum)
+    oppoCumEndDist = distanceToFurthestCell(game, oppoNum)
 
-        bestMove = [
-            subj_to_obj_coor(bestMove[0], self.playerNum),
-            subj_to_obj_coor(bestMove[1], self.playerNum),
-        ]
+    # Find y-distance between furthest and closet piece
+    playerSep = computeSeparation(game, game.playerNum)
+    oppoSep = computeSeparation(game, oppoNum)
 
-        return bestMove
+    # Find cumulative distance from centerline
+    centerDistance = distanceToCenterline(game, game.playerNum)
+    oppoCenterDistance = distanceToCenterline(game, oppoNum)
+
+    # Compute scores
+    playerScore = (
+        SEP_PENALTY * playerSep
+        + CENTER_PENALTY * centerDistance
+        + END_PENALTY * cumEndDist
+    )
+    oppoScore = (
+        SEP_PENALTY * oppoSep
+        + CENTER_PENALTY * oppoCenterDistance
+        + END_PENALTY * oppoCumEndDist
+    )
+    score = oppoScore - playerScore
+    return score

@@ -474,7 +474,7 @@ class LoopController:
                 drawBoard(g, window)
                 currentPlayer.has_won = True
                 result.append(currentPlayer.getPlayerNum())
-                replayRecord.append(str(currentPlayer.getPlayerNum()))
+                # replayRecord.append(str(currentPlayer.getPlayerNum()))
 
                 # Go to the game over loop
                 self.loopNum = 3
