@@ -384,9 +384,15 @@ class LoopController:
 
             if waitBot:  # wait for user to press a key
                 ev = pygame.event.wait()
+<<<<<<< HEAD
             else:  # bot moves after waiting
                 duration = 50  # milliseconds
                 ev = pygame.event.wait(duration)
+=======
+            else:  # bot moves after waiting 500ms
+                ev = pygame.event.wait(200)
+            # ev = pygame.event.wait(500)
+>>>>>>> 9b2ed0e0cc907f32ee5b1b6e195f6dfee492783b
 
             # Quit the game if the window is closed
             if ev.type == QUIT:
