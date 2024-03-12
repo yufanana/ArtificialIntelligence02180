@@ -4,8 +4,10 @@ from game_logic.player import Player
 from game_logic.game import Game
 from game_logic.helpers import subj_to_obj_coor
 
+MAX_GAP = 7
 
-def distance_to_line(line: np.ndarray, p: list[tuple]):
+
+def distanceToLine(line: np.ndarray, p: list[tuple]):
     """
     Compute shortest distance d between line l and 2D homogenous point p.
 
@@ -41,7 +43,7 @@ def side_of_line(line: np.ndarray, p: list[tuple]):
     return side
 
 
-def check_forward_moves(moves: dict, piece: tuple):
+def checkForwardMoves(moves: dict, piece: tuple):
     """
     Check if there are any forward moves for the piece.
 
@@ -88,23 +90,22 @@ class LadderBot(Player):
         centerline = np.array(
             [[2, 1, 0]],
         ).T  # vertical centerline: y=-2x, 0=2x+y
-        d = distance_to_line(centerline, pieces)
+        d = distanceToLine(centerline, pieces)
         max_hor_idx = np.argmax(d)
         far_piece = pieces[max_hor_idx]
 
         # Enforce max y-distance between pieces
-        max_gap = 10.0
         min_y_piece = min(pieces, key=lambda x: x[1])
         max_y_piece = max(pieces, key=lambda x: x[1])
-        if max_y_piece[1] - min_y_piece[1] > max_gap:
-            print("[LadderBot] Max gap exceeded")
+        if max_y_piece[1] - min_y_piece[1] > MAX_GAP:
+            print("LadderBot: Max gap exceeded")
             # Move the further back piece
             sorted_pieces = sorted(pieces, key=lambda x: x[1])
             for piece in sorted_pieces:
                 # Find the bottom-most piece that has moves
                 if piece in moves:
                     far_piece = piece
-                    forward_moves = check_forward_moves(moves, far_piece)
+                    forward_moves = checkForwardMoves(moves, far_piece)
                     if forward_moves == []:  # No forward moves
                         continue
                     # print(f"[LadderBot] moving last piece, {far_piece}")
@@ -114,13 +115,13 @@ class LadderBot(Player):
 
         ################ STAGE 2: Selecting a move ################
         # Check for forward moves
-        forward_moves = check_forward_moves(moves, far_piece)
+        forward_moves = checkForwardMoves(moves, far_piece)
 
         # If there are no forward moves, find another piece with forward move.\
         if forward_moves == []:
             for piece in pieces:
                 if piece in moves:
-                    forward_moves = check_forward_moves(moves, piece)
+                    forward_moves = checkForwardMoves(moves, piece)
                     if forward_moves != []:
                         start_coor = piece
                         break
@@ -142,7 +143,7 @@ class LadderBot(Player):
             end_coor = forward_moves[max_d_idx]
         else:
             # Choose dest closest to the centerline
-            d = distance_to_line(centerline, forward_moves)
+            d = distanceToLine(centerline, forward_moves)
             min_d_idx = np.argmin(d)
             end_coor = forward_moves[min_d_idx]
 
