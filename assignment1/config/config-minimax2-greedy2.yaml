@@ -1,6 +1,6 @@
 no_of_players: 2
 player_list:
-  - 'MiniMax2'
+  - 'MiniMaxBot2'
   - 'GreedyBot2'
 layout: opposite
 waitBott: True

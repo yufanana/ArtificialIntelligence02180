@@ -30,6 +30,7 @@ from pygame import (
 from PySide6 import QtWidgets
 from time import strftime
 
+# The following is necessary for playerObject = eval(playerClass)() to work
 _ = [
     GreedyBot0,
     GreedyBot1,
@@ -361,12 +362,8 @@ class LoopController:
         result = []
         replayRecord = []
 
-        # Remove player objects that are not selected
+        # Set player numbers
         players: list[Player] = deepcopy(self.playerList)
-        # if len(players) > 3:
-        #     players = players[:3]
-        # while None in players:
-        #     players.remove(None)
         for i in range(len(players)):
             players[i].setPlayerNum(i + 1)
         # players: list of player objects selected
