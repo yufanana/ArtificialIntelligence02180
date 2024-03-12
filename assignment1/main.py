@@ -21,7 +21,7 @@ def read_config(file_name="config0.yaml"):
 def main():
     # Set config file
     # config_name = "config_adv.yaml"
-    config_name = "config3.yaml"
+    config_name = "config-minimax-greedy2.yaml"
     cfg = read_config(config_name)
     waitBot = False
 

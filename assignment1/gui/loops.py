@@ -9,6 +9,7 @@ from bots.GreedyBot1 import GreedyBot1
 from bots.GreedyBot2 import GreedyBot2
 from bots.RandomBot import RandomBot
 from bots.LadderBot import LadderBot
+from bots.MiniMaxBot import MiniMaxBot
 from bots.AdversarialBot import AdversarialBot
 from copy import deepcopy
 from game_logic.layout import ALL_COOR
@@ -29,7 +30,7 @@ from pygame import (
 from PySide6 import QtWidgets
 from time import strftime
 
-_ = [GreedyBot0, GreedyBot1, GreedyBot2, RandomBot, AdversarialBot, LadderBot]
+_ = [GreedyBot0, GreedyBot1, GreedyBot2, RandomBot, AdversarialBot, LadderBot, MiniMaxBot]
 
 
 class LoopController:
