@@ -16,7 +16,7 @@ CENTER_PENALTY = 1
 # 1/(Player_Start_pieces) ~1/x
 
 
-class AdversarialBot(Player):
+class MiniMaxBot2(Player):
     """
     Moves pieces based on the minimax algorithm with alpha-beta pruning.
     """

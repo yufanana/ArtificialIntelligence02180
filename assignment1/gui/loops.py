@@ -10,7 +10,7 @@ from bots.GreedyBot2 import GreedyBot2
 from bots.RandomBot import RandomBot
 from bots.LadderBot import LadderBot
 from bots.MiniMaxBot import MiniMaxBot
-from bots.AdversarialBot import AdversarialBot
+from bots.MiniMaxBot2 import MiniMaxBot2
 from copy import deepcopy
 from game_logic.layout import ALL_COOR
 from game_logic.game import Game
@@ -36,8 +36,8 @@ _ = [
     GreedyBot2,
     RandomBot,
     LadderBot,
-    AdversarialBot,
     MiniMaxBot,
+    MiniMaxBot2,
 ]
 
 
