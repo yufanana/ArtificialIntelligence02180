@@ -11,6 +11,8 @@ from game_logic.layout import (
     ALL_COOR,
 )
 from game_logic.piece import Piece
+
+# from game_logic.player import Player
 from gui.constants import HEIGHT, WIDTH
 from typing import List
 
@@ -168,6 +170,10 @@ class Game:
         """
         Find the path for the move using breadth-first search.
 
+        Note:
+            This function should be called before moving the piece,
+            otherwise the end cell will be occupied.
+
         Args:
             playerNum (int): the player number.
             start (tuple): objective coordinates of the starting cell.
@@ -305,7 +311,7 @@ class Game:
 
     def movePiece(self, start: tuple, end: tuple):
         """
-        Moves a piece from start coord to end coord.
+        Moves a piece from start coord to end coord. in objective coordinates.
         """
         assert self.board[start] is not None, "startCoord is empty"
         assert self.board[end] is None, "endCoord is occupied"
@@ -316,30 +322,3 @@ class Game:
         # Change piece's location in g.board
         self.board[end] = self.board[start]
         self.board[start] = None
-
-    def eval(self):
-        """
-        Returns the evaluation of the game state for the player.
-        """
-        if self.checkWin(self.playerNum):
-            return 100
-
-        # Find the furthest empty cell in end zone
-        furthestCell = (0, 0)
-        for coord in END_COOR[self.playerNum]:
-            # Check if the piece is occupied by the current player
-            if (
-                self.board[coord] is None
-                or self.board[coord].getPlayerNum() != self.playerNum
-            ):
-                if coord[1] > furthestCell[1]:
-                    furthestCell = coord
-
-        # Compute cumulative y-distance of all pieces to furthest cell
-        cumDist = 0
-        for piece in self.pieces[self.playerNum]:
-            cumDist += furthestCell[1] - piece.getCoor()[1]
-
-        # TODO: replace 100 with cumDist(?) for opponent
-        score = 100 - cumDist
-        return score
