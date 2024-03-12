@@ -5,15 +5,15 @@ from game_logic.game import Game
 from game_logic.layout import END_COOR
 from game_logic.helpers import subj_to_obj_coor, obj_to_subj_coor
 
-MAX_DEPTH = 4
+MAX_DEPTH = 3
 POS_DEV_WEIGHT = 2
-STD_DEV_WEIGHT = [0.2, 0.2]
-X_WEIGHT = 0.8
-Y_WEIGHT = 1.4
-X_STD_DEV_WEIGHT = [0.5, 0.5]
-Y_STD_DEV_WEIGHT = [1.1, 1.1]
-OPT_X = [2.666, -2.73]
-OPT_Y = [-5.133, -2.467]
+STD_DEV_WEIGHT = [0.2, 0.2, 0.2, 0.2, 0.2, 0.2]
+X_WEIGHT = 1
+Y_WEIGHT = 1.6
+X_STD_DEV_WEIGHT = [0.2, 0.2, 0.5, 0.5, 0.5, 0.5]
+Y_STD_DEV_WEIGHT = [1.4, 1.4, 1.1, 1.1, 1.1, 1.1]
+OPT_X = [2.666, -2.73,  2.666, -2.73, 2.666, -2.73]
+OPT_Y = [-5.133, -2.467, 0.2, 2.867, 5.533, 8.2]
 OPPONENT_UTIL_WEIGHT = 0.2
 y_rotations = 1
 x_rotations = 0.5
@@ -22,7 +22,6 @@ x_rotations = 0.5
 
 
 class MiniMaxBot(Player):
-    GOOD_MOVES = 0
     def __init__(self):
         super().__init__()
         
@@ -32,7 +31,7 @@ class MiniMaxBot(Player):
         Returns:
             A number between -1 and 1 that represents the utility of the game state for the current player.
         """
-        if depth > 1:
+        if depth >= len(g.playerList):
             return 0
         # Update the optimal x and y coordinates excuding the positions where pieces are already placed
         x_avg = 0
@@ -50,8 +49,8 @@ class MiniMaxBot(Player):
             return 1000
         x_avg /= pieces
         y_avg /= pieces
-        OPT_X[depth] = x_avg + 1 
-        OPT_Y[depth] = y_avg - 2
+        OPT_X[depth] = x_avg +1
+        OPT_Y[depth] = y_avg +2
         #if playerNum == 2:
             #print(f"OPT_X[{depth}]: {OPT_X[depth]}, OPT_Y[{depth}]: {OPT_Y[depth]}")
         
@@ -80,10 +79,12 @@ class MiniMaxBot(Player):
             #print(f"x_avg: {x_avg}, y_avg: {y_avg}")
 
         #Calulate utility part for opponent
-        opponent_util = OPPONENT_UTIL_WEIGHT * self.eval(g, depth + 1, self.changePlayer(playerNum))
-        position_util = - (X_WEIGHT*abs(x_avg - OPT_X[depth]) + Y_WEIGHT*abs(y_avg - OPT_Y[depth]))
+        opponent_util = self.eval(g, depth + 1, self.nextPlayer(playerNum, len(g.playerList)))
+        position_util = - np.sqrt( X_WEIGHT * pow(x_avg - OPT_X[depth], 2) + Y_WEIGHT * pow(y_avg - OPT_Y[depth], 2))
         std_util = STD_DEV_WEIGHT[depth]*(X_STD_DEV_WEIGHT[depth]*std_dev_x + Y_STD_DEV_WEIGHT[depth]*std_dev_y)
         current_util = position_util - std_util
+        if depth == 0: # If we are at the MiniMaxBot level, we scale the opponent_util by 1/number_of_players
+            opponent_util += 1/(len(g.playerList))*OPPONENT_UTIL_WEIGHT
         return opponent_util + current_util
 
     def min_value(self, g: Game, depth, alpha, beta, playerNum):
@@ -94,16 +95,16 @@ class MiniMaxBot(Player):
             if g.checkWin(player.playerNum):
                 return self.eval(g, 0, self.playerNum), None
         depth += 1
-        v = 1000
+        v = 10000
         move = None
-        # For each possible move, get the maximum value
-        moves = g.allMovesDict(playerNum)
+        moves = g.allMovesDict(playerNum) # For each possible move, get the maximum value
         for c in moves:
             for m in moves[c]:
                 if m[1] < c[1]:
                     continue                
                 g.movePiece(subj_to_obj_coor(c, playerNum), subj_to_obj_coor(m, playerNum)) # We move the piece
-                v2, a2 = self.max_value(g, depth, alpha, beta, self.changePlayer(playerNum))
+                # If the next player is us (MiniMaxBot), we call max_value, otherwise we call min_value
+                v2, a2 = self.max_value(g, depth, alpha, beta, self.nextPlayer(playerNum, len(g.playerList)))
                 if v2 < v:
                     v = v2
                     move = (c, m)
@@ -120,9 +121,7 @@ class MiniMaxBot(Player):
             if g.checkWin(player.playerNum):
                 return self.eval(g, 0, self.playerNum), None
         depth += 1
-        v = -1000
-        move = None
-
+        v = -10000
         # For each possible move, get the minimum value
         moves = g.allMovesDict(playerNum)
         for c in moves:
@@ -134,8 +133,8 @@ class MiniMaxBot(Player):
                     return 100, (c, m)
                 
                 g.movePiece(subj_to_obj_coor(c, playerNum), subj_to_obj_coor(m, playerNum)) # We move the piece
-                v2, a2 = self.min_value(g, depth, alpha, beta, self.changePlayer(playerNum)) # We move the piece and call min_value
                 # If we get a higher value, we update the value and the "best move"
+                v2, a2 = self.min_value(g, depth, alpha, beta, self.nextPlayer(playerNum, len(g.playerList)))
                 if v2 > v:
                     v = v2
                     move = (c, m)
@@ -150,8 +149,8 @@ class MiniMaxBot(Player):
         Find the best move for the current player based on the minimax algrithm.
         Returns:
             [start_coor, end_coor] : in subjective coordinates"""
-        AllPlayersNum = len(g.playerList)
-        v, move = self.max_value(g, 0, -1000, 1000, self.playerNum)#, AllPlayersNum)
+        allPlayersNum = len(g.playerList)
+        v, move = self.max_value(g, 0, -1000, 1000, self.playerNum)
         return move
 
 
@@ -197,11 +196,20 @@ class MiniMaxBot(Player):
             subj_to_obj_coor(end_coord, self.playerNum),
         ]
     
-    def changePlayer(self, playerNum: int):
-        """
-        Changes the player's turn.
-        """
+    """def changePlayer(self, playerNum: int):
+        
+        #Changes the player's turn.
+        
         if playerNum == self.playerNum:
             return 1
         else:
             return self.playerNum
+       """ 
+    def nextPlayer(self, playerNum: int, allPlayersNum):
+        """
+        Changes the player's turn.
+        """
+        if playerNum == allPlayersNum :
+            return 1
+        else:
+            return playerNum + 1
