@@ -30,14 +30,14 @@ class MMLadder(Player):
         Returns:
             [start_coor, end_coor] : in objective coordinates
         """
-        print(f"[AdversarialBot] is player {self.playerNum}")
-        print("[AdversarialBot] Computing...")
+        print(f"[MMLadder] is player {self.playerNum}")
+        print("[MMLadder] Computing...")
         bestMove = alphaBetaSearch(g, 3)
         bestMove = [
             subj_to_obj_coor(bestMove[0], self.playerNum),
             subj_to_obj_coor(bestMove[1], self.playerNum),
         ]
-        print(f"[AdversarialBot] bestMove: {bestMove}\n")
+        print(f"[MMLadder] bestMove: {bestMove}\n")
 
         return bestMove
 
@@ -56,10 +56,6 @@ def alphaBetaSearch(game: Game, depth: int):
         nonlocal nodeCount
         if game.isOver() or depth == 0:
             nodeCount += 1
-            # mm1_util = mmb1.eval(game, depth=0, playerNum=2)
-            # mm2_util = utility_cluster(game)
-            # print(f"mm1_util: {mm1_util}, mm2_util: {mm2_util}")
-            # return utility(game)
             return utility_cluster(game)
         v = float("inf")
         for startCoor, endCoors in game.allMovesDict(oppoNum).items():
@@ -68,6 +64,8 @@ def alphaBetaSearch(game: Game, depth: int):
                 if endCoor[1] < startCoor[1]:  # do not go backwards
                     # logging.debug(f"\tskipping move: {startCoor} -> {endCoor}")
                     continue
+                # if endCoor[1] == startCoor[1]:  # do not go sideways
+                #     continue
                 # Create a new game state and make the move
                 new_game = deepcopy(game)
                 new_game.movePiece(
@@ -89,9 +87,6 @@ def alphaBetaSearch(game: Game, depth: int):
         nonlocal nodeCount
         if game.isOver() or depth == 0:
             nodeCount += 1
-            # mm1_util = mmb1.eval(game, depth=0, playerNum=1)
-            # mm2_util = utility_cluster(game)
-            # print(f"mm1_util: {mm1_util}, mm2_util: {mm2_util}")
             return utility_cluster(game)
             # return utility(game)
         v = float("-inf")
@@ -101,6 +96,8 @@ def alphaBetaSearch(game: Game, depth: int):
                 if endCoor[1] < startCoor[1]:  # do not go backwards
                     # logging.debug(f"\tskipping move: {startCoor} -> {endCoor}")
                     continue
+                # if endCoor[1] == startCoor[1]:  # do not go sideways
+                #     continue
                 # Create a new game state and make the move
                 new_game = deepcopy(game)
                 new_game.movePiece(startCoor, endCoor)
@@ -125,7 +122,7 @@ def alphaBetaSearch(game: Game, depth: int):
             if v > alpha:
                 alpha = v
                 bestMove = (startCoor, endCoor)
-    print(f"[AdversarialBot] final nodeCount: {nodeCount}")
+    print(f"[MMLadder] final nodeCount: {nodeCount}")
     return bestMove
 
 

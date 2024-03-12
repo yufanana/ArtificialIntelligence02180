@@ -205,7 +205,9 @@ class MMCluster(Player):
         Returns:
             [start_coor, end_coor] : in objective coordinates
         """
-        print(f"playerNum: {self.playerNum}")
+
+        print(f"[MMCluster] is player {self.playerNum}")
+        print("[MMCluster] computing...")
         moves = g.allMovesDict(self.playerNum)
         # print(f"moves: {[subj_to_obj_coor(move, self.playerNum) for move in moves]}")
 
@@ -239,11 +241,13 @@ class MMCluster(Player):
 
         # Choose a start_coor
         start_coord, end_coord = self.minimax_search(g)
-
-        return [
+        move = [
             subj_to_obj_coor(start_coord, self.playerNum),
             subj_to_obj_coor(end_coord, self.playerNum),
         ]
+        print(f"[MMCluster] Move: {move}\n")
+
+        return move
 
     def changePlayer(self, playerNum: int):
         """

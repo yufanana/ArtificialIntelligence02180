@@ -1,4 +1,4 @@
 no_of_players: 2
 player_list:
-  - 'MiniMaxBot2'
+  - 'MMLadder'
   - 'GreedyBot2'

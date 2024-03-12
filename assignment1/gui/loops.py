@@ -673,7 +673,10 @@ class LoopController:
                 else:
                     prevButton.enabled = True
                 if moveListIndex == len(move_list) - 1:
+                    # Stop automatic replay
+                    autoPlay = False
                     nextButton.enabled = False
+                    right = False
                     print("[gui.loops] End of replay")
                 else:
                     nextButton.enabled = True
