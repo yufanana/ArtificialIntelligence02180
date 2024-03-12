@@ -18,11 +18,12 @@ y_rotations = 1
 x_rotations = 0.5
 
 
-class MiniMaxBot(Player):
+class MMCluster(Player):
     GOOD_MOVES = 0
 
     def __init__(self):
         super().__init__()
+        self.playerNum = 1
 
     def eval(self, g: Game, depth: int, playerNum: int):
         """
@@ -43,9 +44,9 @@ class MiniMaxBot(Player):
                 x_avg += coor[0]
                 y_avg += coor[1]
                 pieces += 1
-        if (
-            pieces == 0
-        ):  # If all the pieces are placed, we return 1000, that will be "bad" if we are considering the opponent, good otherwise
+        # If all the pieces are placed, we return 1000, that will be "bad"
+        # if we are considering the opponent, good otherwise
+        if pieces == 0:
             return 1000
         x_avg /= pieces
         y_avg /= pieces
@@ -74,7 +75,7 @@ class MiniMaxBot(Player):
         std_dev_x = np.std(x)
         std_dev_y = np.std(
             ([num * y_rotations for num in y])
-            + ([num * x_rotations for num in x])
+            + ([num * x_rotations for num in x]),
         )
         x_avg /= pieces
         y_avg /= pieces
@@ -83,7 +84,9 @@ class MiniMaxBot(Player):
 
         # Calulate utility part for opponent
         opponent_util = OPPONENT_UTIL_WEIGHT * self.eval(
-            g, depth + 1, self.changePlayer(playerNum)
+            g,
+            depth + 1,
+            self.changePlayer(playerNum),
         )
         position_util = -(
             X_WEIGHT * abs(x_avg - OPT_X[depth])
@@ -117,7 +120,11 @@ class MiniMaxBot(Player):
                     subj_to_obj_coor(m, playerNum),
                 )  # We move the piece
                 v2, a2 = self.max_value(
-                    g, depth, alpha, beta, self.changePlayer(playerNum)
+                    g,
+                    depth,
+                    alpha,
+                    beta,
+                    self.changePlayer(playerNum),
                 )
                 if v2 < v:
                     v = v2
@@ -159,7 +166,11 @@ class MiniMaxBot(Player):
                     subj_to_obj_coor(m, playerNum),
                 )  # We move the piece
                 v2, a2 = self.min_value(
-                    g, depth, alpha, beta, self.changePlayer(playerNum)
+                    g,
+                    depth,
+                    alpha,
+                    beta,
+                    self.changePlayer(playerNum),
                 )  # We move the piece and call min_value
                 # If we get a higher value, we update the value and the "best move"
                 if v2 > v:
@@ -181,7 +192,11 @@ class MiniMaxBot(Player):
             [start_coor, end_coor] : in subjective coordinates"""
         AllPlayersNum = len(g.playerList)
         v, move = self.max_value(
-            g, 0, -1000, 1000, self.playerNum
+            g,
+            0,
+            -1000,
+            1000,
+            self.playerNum,
         )  # , AllPlayersNum)
         return move
 
@@ -235,6 +250,6 @@ class MiniMaxBot(Player):
         Changes the player's turn.
         """
         if playerNum == self.playerNum:
-            return 1
+            return 2
         else:
             return self.playerNum

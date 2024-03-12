@@ -4,14 +4,14 @@ LoopController class is used to control the game windows displayed.
 import os.path
 import pygame
 import sys
+from copy import deepcopy
 from bots.GreedyBot0 import GreedyBot0
 from bots.GreedyBot1 import GreedyBot1
 from bots.GreedyBot2 import GreedyBot2
 from bots.RandomBot import RandomBot
 from bots.LadderBot import LadderBot
-from bots.MiniMaxBot import MiniMaxBot
-from bots.MiniMaxBot2 import MiniMaxBot2
-from copy import deepcopy
+from bots.MMCluster import MMCluster
+from bots.MMLadder import MMLadder
 from game_logic.layout import ALL_COOR
 from game_logic.game import Game
 from game_logic.helpers import obj_to_subj_coor
@@ -37,8 +37,8 @@ _ = [
     GreedyBot2,
     RandomBot,
     LadderBot,
-    MiniMaxBot,
-    MiniMaxBot2,
+    MMCluster,
+    MMLadder,
 ]
 
 

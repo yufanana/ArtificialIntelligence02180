@@ -6,6 +6,7 @@ from game_logic.layout import END_COOR, START_COOR
 from game_logic.helpers import subj_to_obj_coor, obj_to_subj_coor
 from copy import deepcopy
 
+# Change the logging level here to see debug messages in console if needed
 logging.basicConfig(level=logging.INFO)
 
 # Weights for scoring
@@ -16,7 +17,7 @@ CENTER_PENALTY = 1
 # 1/(Player_Start_pieces) ~1/x
 
 
-class MiniMaxBot2(Player):
+class MMLadder(Player):
     """
     Moves pieces based on the minimax algorithm with alpha-beta pruning.
     """
@@ -55,14 +56,17 @@ def alphaBetaSearch(game: Game, depth: int):
         nonlocal nodeCount
         if game.isOver() or depth == 0:
             nodeCount += 1
+            # mm1_util = mmb1.eval(game, depth=0, playerNum=2)
+            # mm2_util = utility_cluster(game)
+            # print(f"mm1_util: {mm1_util}, mm2_util: {mm2_util}")
             # return utility(game)
             return utility_cluster(game)
         v = float("inf")
         for startCoor, endCoors in game.allMovesDict(oppoNum).items():
-            logging.debug(f"startCoor: {startCoor}")
+            # logging.debug(f"startCoor: {startCoor}")
             for endCoor in endCoors:
                 if endCoor[1] < startCoor[1]:  # do not go backwards
-                    logging.debug(f"\tskipping move: {startCoor} -> {endCoor}")
+                    # logging.debug(f"\tskipping move: {startCoor} -> {endCoor}")
                     continue
                 # Create a new game state and make the move
                 new_game = deepcopy(game)
@@ -85,14 +89,17 @@ def alphaBetaSearch(game: Game, depth: int):
         nonlocal nodeCount
         if game.isOver() or depth == 0:
             nodeCount += 1
-            # return utility(game)
+            # mm1_util = mmb1.eval(game, depth=0, playerNum=1)
+            # mm2_util = utility_cluster(game)
+            # print(f"mm1_util: {mm1_util}, mm2_util: {mm2_util}")
             return utility_cluster(game)
+            # return utility(game)
         v = float("-inf")
         for startCoor, endCoors in game.allMovesDict(game.playerNum).items():
-            logging.debug(f"startCoor: {startCoor}")
+            # logging.debug(f"startCoor: {startCoor}")
             for endCoor in endCoors:
                 if endCoor[1] < startCoor[1]:  # do not go backwards
-                    logging.debug(f"\tskipping move: {startCoor} -> {endCoor}")
+                    # logging.debug(f"\tskipping move: {startCoor} -> {endCoor}")
                     continue
                 # Create a new game state and make the move
                 new_game = deepcopy(game)
@@ -113,7 +120,7 @@ def alphaBetaSearch(game: Game, depth: int):
         for endCoor in endCoors:
             new_game = deepcopy(game)
             new_game.movePiece(startCoor, endCoor)
-            logging.debug(f"\nEvaluating move: {startCoor} -> {endCoor}")
+            # logging.debug(f"\nEvaluating move: {startCoor} -> {endCoor}")
             v = max(v, minValue(new_game, depth - 1, alpha, beta))
             if v > alpha:
                 alpha = v
@@ -244,10 +251,12 @@ def utility_cluster(game: Game):
     Penalises based on y-separation of pieces, distance to centerline, and
     distance to end zone.
     """
+    oppoNum = 2
+
     if game.checkWin(game.playerNum):
         return 300
-
-    oppoNum = 2
+    if game.checkWin(2):
+        return -300
 
     # Find the cumulative distance to the furthest empty cell in the end zone
     cumEndDist = distanceToFurthestCell(game, game.playerNum)

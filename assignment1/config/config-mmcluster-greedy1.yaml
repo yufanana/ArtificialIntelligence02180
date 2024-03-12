@@ -1,5 +1,4 @@
 no_of_players: 2
 player_list:
-  - 'MiniMaxBot'
+  - 'MMCluster'
   - 'GreedyBot1'
-layout: opposite
