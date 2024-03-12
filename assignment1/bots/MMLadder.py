@@ -266,17 +266,23 @@ def utility_cluster(game: Game):
     # Find cumulative distance from centerline
     centerDistance = distanceToCenterline(game, game.playerNum)
     oppoCenterDistance = distanceToCenterline(game, oppoNum)
+    
+    # Count start pieces
+    playerStartPieces = countStartPieces(game, game.playerNum)
+    oppoStartPieces = countStartPieces(game, oppoNum)
 
     # Compute scores
     playerScore = (
         SEP_PENALTY * playerSep
         + CENTER_PENALTY * centerDistance
         + END_PENALTY * cumEndDist
+        + START_PENALTY * playerStartPieces
     )
     oppoScore = (
         SEP_PENALTY * oppoSep
         + CENTER_PENALTY * oppoCenterDistance
         + END_PENALTY * oppoCumEndDist
+        + START_PENALTY * oppoStartPieces
     )
     score = oppoScore - playerScore
     return score
