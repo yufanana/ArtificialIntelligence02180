@@ -2,4 +2,5 @@ no_of_players: 2
 player_list:
   - 'MiniMaxBot'
   - 'GreedyBot2'
+  
 layout: opposite
