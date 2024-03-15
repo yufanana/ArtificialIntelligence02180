@@ -5,7 +5,7 @@ Our group has chosen **Chinese Checkers** as our game.
 <img src="assets/MMLadder_opening.png" width="400"/>
 
 
-The GUI is adapted from [henrychess's repository](https://github.com/henrychess/pygame-chinese-checkers/). The group's work has been explained in a [Contribution](#contribution) section below.
+The GUI is adapted from [henrychess's repository](https://github.com/henrychess/pygame-chinese-checkers/). The group's work is explained in the [Contribution](#contribution) section below.
 
 ## Table of Contents
 
@@ -34,8 +34,10 @@ assignment1
 │   ├── MMLadder.py
 │   └── RandomBot.py
 ├── config
+│   ├── config-ladder-greedy2.yaml
 │   ├── config-mmcluster-greedy1.yaml
 │   ├── config-mmcluster-greedy2.yaml
+│   ├── config-mmcluster-mmladder.yaml
 │   └── config-mmladder-greedy2.yaml
 ├── game_logic
 │   ├── __init__.py
@@ -67,7 +69,7 @@ assignment1
 
 ## Cloning the Repository
 
-For external viewers/examiners,
+For external viewers/examiners, if you do not have the zipped folder, you can clone the repository.
 
 ```bash
 git clone https://github.com/yufanana/ArtificialIntelligence02180.git
@@ -75,9 +77,13 @@ git clone https://github.com/yufanana/ArtificialIntelligence02180.git
 
 ## Installing Python Environment
 
-Change directory into the `assignment1` folder
+Change directory into the `group7_assignment1` folder.
 
-### With Anaconda
+```bash
+cd group7_assignment1
+```
+
+### With Anaconda (recommended)
 
 To create a new environment, with Python version 3.12, run:
 
@@ -100,7 +106,6 @@ python -m pip install -r requirements.txt
 ### With venv
 
 ```bash
-cd ArtificialIntelligence02180/assignment1
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
@@ -109,8 +114,6 @@ pip install -r requirements.txt
 ### With virtualenv
 
 ```bash
-cd ArtificialIntelligence02180/assignment1
-
 pip install virtualenv
 virtualenv .venv
 source .venv/bin/activate
@@ -120,8 +123,6 @@ pip install -r requirements.txt
 On Windows,
 
 ```bash
-cd ArtificialIntelligence02180/assignment1
-
 pip install virtualenv
 virtualenv .venv
 .venv/Scripts activate
@@ -130,28 +131,34 @@ pip install -r requirements.txt
 
 ## Running the program
 
-First, open a terminal and change to the directory containing `assignment1`.
-
-The command on Linux/Mac should look like this:
+First, open a terminal and change directory to the root folder of assignment 1.
 
 ```bash
-# Linux/Mac
-cd ~/ArtificialIntelligence02180/assignment1
-
-# Windows
-cd \ArtificialIntelligence02180\assignment1
+cd group7_assignment1
 ```
 
-To start the game, run:
+Activate the virtual environment and start the game.
 
 ```bash
 conda activate g7_ai1
 python main.py
 ```
 
-The game will then prompt you to select players after clicking `Play`.
+If you want to close the window, you can quit the game by clicking the X button on the top of the window or pressing `Ctrl + C` or `cmd + C` in the terminal.
 
-If you want to close the window, you can quit the game by clicking the X button on the top of the window or go to the terminal and press `Ctrl + C` or `cmd + C`.
+### Game Play
+
+The group has developed 2 main minimax bots `MMCluster` and `MMLadder`. To watch the bots play against `GreedyBot2`, the configuration file can be selected by commenting out the relevant lines in [`main.py`](main.py) line 23-26. A full round with one of the minimax bots takes about 10 minutes on our computers.
+
+### Replay
+
+The group has recorded a few complete game plays to avoid the long computation time for actual game play. The replay mode can be selected at the main menu of the GUI. To toggle autoplay, you may have to click the `Autoplay` button a few times.
+
+In addition, a video recording of the replays can be found in the YouTube links below.
+
+- [MMLadder vs Greedy2](https://youtu.be/ChkEJpHClPY)
+- [MMLadder vs MMCluster](https://youtu.be/dTW4lY1AmtY)
+- [MMCluster vs Greedy2](https://youtu.be/pVf_NswFP8Q)
 
 ## Development
 
@@ -217,5 +224,18 @@ e.g. `Human` and not `human`, `GreedyBot0` and not `Greedybot`.
 
 The code has been reorganised to have 3 main packages: `bots`,`game_logic`,`gui`.
 
-Our group has placed most of work as new scripts and bots in the `bots` package.
+Our group has placed most of work as new scripts and bots in the `bots` package,
+- `MMLadder.py`
+- `MMCluster.py`
+- `LadderBot.py`
+- `GroupBot.py`
 
+There were improvements in the GUI, with the following new functions implemented.
+- `game_logic` package
+    - `game.py`: `getMovePath()`, `checkValidStepDest()`
+    - `layout.py`: new mirror layout, reduced pieces to 10
+- `gui` package
+    - `gui_helpers.py`: `drawPath()`, `drawCoordinates()`, `drawPlayerTypes()`, `drawTurnCount()`
+    - `loops.py`: modified to work for more than 3 players
+- `config` folder
+    - Introduced a new way to load player types using yaml files instead of GUI.

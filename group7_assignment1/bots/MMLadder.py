@@ -266,7 +266,7 @@ def utility_cluster(game: Game):
     # Find cumulative distance from centerline
     centerDistance = distanceToCenterline(game, game.playerNum)
     oppoCenterDistance = distanceToCenterline(game, oppoNum)
-    
+
     # Count start pieces
     playerStartPieces = countStartPieces(game, game.playerNum)
     oppoStartPieces = countStartPieces(game, oppoNum)
