@@ -7,7 +7,7 @@ from game_logic.helpers import subj_to_obj_coor, obj_to_subj_coor
 
 MAX_DEPTH = 3
 POS_WEIGHT = 3
-STD_DEV_WEIGHT = [0.2, 0.2, 0.2, 0.2, 0.2, 0.2]
+STD_DEV_WEIGHT = [0.3, 0.3, 0.3, 0.3, 0.3, 0.3]
 X_WEIGHT = 1
 Y_WEIGHT = 1.6
 X_STD_DEV_WEIGHT = [0.5, 0.5, 0.5, 0.5, 0.5, 0.5]
@@ -41,6 +41,8 @@ class MiniMaxBot(Player):
                 pieces += 1
         #if playerNum == self.playerNum and pieces == 0: # If all the pieces are placed, we return 1000, that will be "bad" if we are considering the opponent, good otherwise 
          #   return 1000
+        if pieces == 0:
+                pieces += 1
         x_avg /= pieces
         y_avg /= pieces
         OPT_X[depth] = x_avg
@@ -71,8 +73,9 @@ class MiniMaxBot(Player):
             std_dev_x = np.std(x)
             std_dev_y = np.std(([num * y_rotations for num in y])+ ([num * x_rotations for num in x]))
             if pieces == 0:
-                x_avg /= pieces
-                y_avg /= pieces
+                pieces += 1
+            x_avg /= pieces
+            y_avg /= pieces
             return x_avg, y_avg, std_dev_x, std_dev_y
             #if playerNum == 2:
                 #print(f"x_avg: {x_avg}, y_avg: {y_avg}")
@@ -96,6 +99,8 @@ class MiniMaxBot(Player):
         current_player_util =  - (std_util + position_util)
         #Calulate utility part for opponent
         opponent_util = self.eval(g, self.nextPlayer(playerNum, len(g.playerList)), util_depth + 1)
+        if util_depth == 0:
+            return current_player_util + OPPONENT_UTIL_WEIGHT * opponent_util
         return current_player_util - OPPONENT_UTIL_WEIGHT * opponent_util
 
     def min_value(self, g: Game, depth, alpha, beta, playerNum):
@@ -107,8 +112,8 @@ class MiniMaxBot(Player):
             if g.checkWin(player.playerNum):
                 return self.eval(g, self.playerNum), None
         depth += 1
-        v = 999999
-        move = None
+        v = float('inf')
+        #move = None
         moves = g.allMovesDict(playerNum) # For each possible move, get the maximum value
         for c in moves:
             for m in moves[c]:
@@ -135,20 +140,18 @@ class MiniMaxBot(Player):
             if g.checkWin(player.playerNum):
                 return self.eval(g, self.playerNum), None
         depth += 1
-        v = -999999
+        v = -float('inf')
         # For each possible move, get the minimum value
         moves = g.allMovesDict(playerNum)
         for c in moves:
-            #print(f"PIECE: {subj_to_obj_coor(c, playerNum)}")
             for m in moves[c]:
                 if m[1] < c[1]:
                     continue
-                # if the move move a piece form a non-end postion to an end position we choose it and return 1000
+                # if the move moves a piece form a non-end postion to an end position we choose it and return a very high value
                 if self.playerNum == playerNum and subj_to_obj_coor(c, playerNum) not in END_COOR[playerNum] and subj_to_obj_coor(m, playerNum) in END_COOR[playerNum]:
                     return 1000, (c, m)
                 
                 g.movePiece(subj_to_obj_coor(c, playerNum), subj_to_obj_coor(m, playerNum)) # We move the piece
-                # If we get a higher value, we update the value and the "best move"
                 v2, a2 = self.min_value(g, depth, alpha, beta, self.nextPlayer(playerNum, len(g.playerList)))
                 if v2 > v:
                     v = v2

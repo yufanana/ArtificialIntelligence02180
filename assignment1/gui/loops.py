@@ -10,6 +10,7 @@ from bots.GreedyBot2 import GreedyBot2
 from bots.RandomBot import RandomBot
 from bots.LadderBot import LadderBot
 from bots.MiniMaxBot import MiniMaxBot
+from bots.MonteCarloBot import MonteCarloBot
 from bots.AdversarialBot import AdversarialBot
 from copy import deepcopy
 from game_logic.layout import ALL_COOR
@@ -471,7 +472,7 @@ class LoopController:
             # Check if the playing player has won
             winning = g.checkWin(currentPlayer.getPlayerNum())
 
-            if winning and len(players) == 2:
+            if winning:# and len(players) == 2:
                 drawBoard(g, window)
                 currentPlayer.has_won = True
                 result.append(currentPlayer.getPlayerNum())
@@ -481,7 +482,7 @@ class LoopController:
                 self.loopNum = 3
                 return [result, replayRecord]
 
-            elif winning and len(players) == 3:
+            elif winning and len(players) >= 3:
                 currentPlayer.has_won = True
                 result.append(currentPlayer.getPlayerNum())
                 players.remove(currentPlayer)
