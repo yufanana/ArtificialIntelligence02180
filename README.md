@@ -8,6 +8,8 @@ The chosen game is Chinese Checkers.
 
 The GUI is adapted from [henrychess's repository](https://github.com/henrychess/pygame-chinese-checkers/).
 
+Please see the full [README.md](group7_assignment1/README.md) for assignment 1.
+
 ## Contributors
 
 Contributor test.
