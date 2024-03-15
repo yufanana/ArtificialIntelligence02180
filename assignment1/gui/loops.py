@@ -9,7 +9,7 @@ from bots.GreedyBot1 import GreedyBot1
 from bots.GreedyBot2 import GreedyBot2
 from bots.RandomBot import RandomBot
 from bots.LadderBot import LadderBot
-from bots.MiniMaxBot import MiniMaxBot
+from bots.MMCluster import MMCluster
 from bots.MonteCarloBot import MonteCarloBot
 from bots.AdversarialBot import AdversarialBot
 from copy import deepcopy
@@ -38,7 +38,7 @@ _ = [
     RandomBot,
     LadderBot,
     AdversarialBot,
-    MiniMaxBot,
+    MMCluster,
 ]
 
 

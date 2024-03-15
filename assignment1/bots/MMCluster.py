@@ -7,7 +7,7 @@ from game_logic.helpers import subj_to_obj_coor, obj_to_subj_coor
 
 MAX_DEPTH = 3
 POS_WEIGHT = 3
-STD_DEV_WEIGHT = [0.3, 0.3, 0.3, 0.3, 0.3, 0.3]
+STD_DEV_WEIGHT = [0.5, 0.5, 0.5, 0.5, 0.5, 0.5]
 X_WEIGHT = 1
 Y_WEIGHT = 1.6
 X_STD_DEV_WEIGHT = [0.5, 0.5, 0.5, 0.5, 0.5, 0.5]
@@ -21,7 +21,7 @@ x_rotations = 0.5
 
 
 
-class MiniMaxBot(Player):
+class MMCluster(Player):
     def __init__(self):
         super().__init__()
         self.nodesCount = 0
@@ -95,7 +95,7 @@ class MiniMaxBot(Player):
         OPT_X[util_depth], OPT_Y[util_depth] = self.getOptimalCoor(g, util_depth, playerNum)
         position_util = POS_WEIGHT * np.sqrt( X_WEIGHT * (x_avg - OPT_X[util_depth])**2 + Y_WEIGHT * (y_avg - OPT_Y[util_depth])**2)
         # We want the importance of the std dev to be less when the pieces are closer to the optimal position
-        std_util = STD_DEV_WEIGHT[util_depth] * 1/(position_util) * ( ((X_STD_DEV_WEIGHT[util_depth] * std_dev_x) + (Y_STD_DEV_WEIGHT[util_depth] * std_dev_y)))        
+        std_util = STD_DEV_WEIGHT[util_depth] * ( ((X_STD_DEV_WEIGHT[util_depth] * std_dev_x) + (Y_STD_DEV_WEIGHT[util_depth] * std_dev_y)))        #* 4/(position_util)
         current_player_util =  - (std_util + position_util)
         #Calulate utility part for opponent
         opponent_util = self.eval(g, self.nextPlayer(playerNum, len(g.playerList)), util_depth + 1)
@@ -170,7 +170,7 @@ class MiniMaxBot(Player):
             [start_coor, end_coor] : in subjective coordinates"""
         self.nodesCount = 0
         v, move = self.max_value(g, 0, -10000000, 10000000, self.playerNum)
-        print(f"[MiniMaxBot] Final node count: {self.nodesCount}\n")
+        print(f"[MMClusterBot] Final node count: {self.nodesCount}\n")
         return move
 
 
@@ -179,7 +179,7 @@ class MiniMaxBot(Player):
         Returns:
             [start_coor, end_coor] : in objective coordinates
         """
-        print(f"[MiniMaxBot] is player {self.playerNum}")
+        print(f"[MMClusterBot] is player {self.playerNum}")
         moves = g.allMovesDict(self.playerNum)
         # print(f"moves: {[subj_to_obj_coor(move, self.playerNum) for move in moves]}")
 
