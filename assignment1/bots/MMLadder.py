@@ -6,6 +6,7 @@ from game_logic.layout import END_COOR, START_COOR
 from game_logic.helpers import subj_to_obj_coor, obj_to_subj_coor
 from copy import deepcopy
 
+# Change the logging level here to see debug messages in console if needed
 logging.basicConfig(level=logging.INFO)
 
 # Weights for scoring
@@ -16,7 +17,7 @@ CENTER_PENALTY = 1
 # 1/(Player_Start_pieces) ~1/x
 
 
-class AdversarialBot(Player):
+class MMLadder(Player):
     """
     Moves pieces based on the minimax algorithm with alpha-beta pruning.
     """
@@ -29,14 +30,14 @@ class AdversarialBot(Player):
         Returns:
             [start_coor, end_coor] : in objective coordinates
         """
-        print(f"[AdversarialBot] is player {self.playerNum}")
-        print("[AdversarialBot] Computing...")
+        print(f"[MMLadder] is player {self.playerNum}")
+        print("[MMLadder] Computing...")
         bestMove = alphaBetaSearch(g, 3)
         bestMove = [
             subj_to_obj_coor(bestMove[0], self.playerNum),
             subj_to_obj_coor(bestMove[1], self.playerNum),
         ]
-        print(f"[AdversarialBot] bestMove: {bestMove}\n")
+        print(f"[MMLadder] bestMove: {bestMove}\n")
 
         return bestMove
 
@@ -55,15 +56,16 @@ def alphaBetaSearch(game: Game, depth: int):
         nonlocal nodeCount
         if game.isOver() or depth == 0:
             nodeCount += 1
-            # return utility(game)
             return utility_cluster(game)
         v = float("inf")
         for startCoor, endCoors in game.allMovesDict(oppoNum).items():
-            logging.debug(f"startCoor: {startCoor}")
+            # logging.debug(f"startCoor: {startCoor}")
             for endCoor in endCoors:
                 if endCoor[1] < startCoor[1]:  # do not go backwards
-                    logging.debug(f"\tskipping move: {startCoor} -> {endCoor}")
+                    # logging.debug(f"\tskipping move: {startCoor} -> {endCoor}")
                     continue
+                # if endCoor[1] == startCoor[1]:  # do not go sideways
+                #     continue
                 # Create a new game state and make the move
                 new_game = deepcopy(game)
                 new_game.movePiece(
@@ -85,15 +87,17 @@ def alphaBetaSearch(game: Game, depth: int):
         nonlocal nodeCount
         if game.isOver() or depth == 0:
             nodeCount += 1
-            # return utility(game)
             return utility_cluster(game)
+            # return utility(game)
         v = float("-inf")
         for startCoor, endCoors in game.allMovesDict(game.playerNum).items():
-            logging.debug(f"startCoor: {startCoor}")
+            # logging.debug(f"startCoor: {startCoor}")
             for endCoor in endCoors:
                 if endCoor[1] < startCoor[1]:  # do not go backwards
-                    logging.debug(f"\tskipping move: {startCoor} -> {endCoor}")
+                    # logging.debug(f"\tskipping move: {startCoor} -> {endCoor}")
                     continue
+                # if endCoor[1] == startCoor[1]:  # do not go sideways
+                #     continue
                 # Create a new game state and make the move
                 new_game = deepcopy(game)
                 new_game.movePiece(startCoor, endCoor)
@@ -113,12 +117,12 @@ def alphaBetaSearch(game: Game, depth: int):
         for endCoor in endCoors:
             new_game = deepcopy(game)
             new_game.movePiece(startCoor, endCoor)
-            logging.debug(f"\nEvaluating move: {startCoor} -> {endCoor}")
+            # logging.debug(f"\nEvaluating move: {startCoor} -> {endCoor}")
             v = max(v, minValue(new_game, depth - 1, alpha, beta))
             if v > alpha:
                 alpha = v
                 bestMove = (startCoor, endCoor)
-    print(f"[AdversarialBot] final nodeCount: {nodeCount}")
+    print(f"[MMLadder] final nodeCount: {nodeCount}")
     return bestMove
 
 
@@ -244,10 +248,12 @@ def utility_cluster(game: Game):
     Penalises based on y-separation of pieces, distance to centerline, and
     distance to end zone.
     """
+    oppoNum = 2
+
     if game.checkWin(game.playerNum):
         return 300
-
-    oppoNum = 2
+    if game.checkWin(2):
+        return -300
 
     # Find the cumulative distance to the furthest empty cell in the end zone
     cumEndDist = distanceToFurthestCell(game, game.playerNum)
@@ -260,17 +266,23 @@ def utility_cluster(game: Game):
     # Find cumulative distance from centerline
     centerDistance = distanceToCenterline(game, game.playerNum)
     oppoCenterDistance = distanceToCenterline(game, oppoNum)
+    
+    # Count start pieces
+    playerStartPieces = countStartPieces(game, game.playerNum)
+    oppoStartPieces = countStartPieces(game, oppoNum)
 
     # Compute scores
     playerScore = (
         SEP_PENALTY * playerSep
         + CENTER_PENALTY * centerDistance
         + END_PENALTY * cumEndDist
+        + START_PENALTY * playerStartPieces
     )
     oppoScore = (
         SEP_PENALTY * oppoSep
         + CENTER_PENALTY * oppoCenterDistance
         + END_PENALTY * oppoCumEndDist
+        + START_PENALTY * oppoStartPieces
     )
     score = oppoScore - playerScore
     return score

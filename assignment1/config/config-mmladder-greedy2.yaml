@@ -1,5 +1,4 @@
 no_of_players: 2
 player_list:
+  - 'MMLadder'
   - 'GreedyBot2'
-  - 'GreedyBot1'
-layout: opposite

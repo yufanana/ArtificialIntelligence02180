@@ -4,15 +4,14 @@ LoopController class is used to control the game windows displayed.
 import os.path
 import pygame
 import sys
+from copy import deepcopy
 from bots.GreedyBot0 import GreedyBot0
 from bots.GreedyBot1 import GreedyBot1
 from bots.GreedyBot2 import GreedyBot2
 from bots.RandomBot import RandomBot
 from bots.LadderBot import LadderBot
 from bots.MMCluster import MMCluster
-from bots.MonteCarloBot import MonteCarloBot
-from bots.AdversarialBot import AdversarialBot
-from copy import deepcopy
+from bots.MMLadder import MMLadder
 from game_logic.layout import ALL_COOR
 from game_logic.game import Game
 from game_logic.helpers import obj_to_subj_coor
@@ -31,14 +30,15 @@ from pygame import (
 from PySide6 import QtWidgets
 from time import strftime
 
+# The following is necessary for playerObject = eval(playerClass)() to work
 _ = [
     GreedyBot0,
     GreedyBot1,
     GreedyBot2,
     RandomBot,
     LadderBot,
-    AdversarialBot,
     MMCluster,
+    MMLadder,
 ]
 
 
@@ -362,12 +362,8 @@ class LoopController:
         result = []
         replayRecord = []
 
-        # Remove player objects that are not selected
+        # Set player numbers
         players: list[Player] = deepcopy(self.playerList)
-        # if len(players) > 3:
-        #     players = players[:3]
-        # while None in players:
-        #     players.remove(None)
         for i in range(len(players)):
             players[i].setPlayerNum(i + 1)
         # players: list of player objects selected
@@ -472,7 +468,7 @@ class LoopController:
             # Check if the playing player has won
             winning = g.checkWin(currentPlayer.getPlayerNum())
 
-            if winning:# and len(players) == 2:
+            if winning:  # and len(players) == 2:
                 drawBoard(g, window)
                 currentPlayer.has_won = True
                 result.append(currentPlayer.getPlayerNum())
@@ -677,7 +673,10 @@ class LoopController:
                 else:
                     prevButton.enabled = True
                 if moveListIndex == len(move_list) - 1:
+                    # Stop automatic replay
+                    autoPlay = False
                     nextButton.enabled = False
+                    right = False
                     print("[gui.loops] End of replay")
                 else:
                     nextButton.enabled = True
