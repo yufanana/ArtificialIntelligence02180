@@ -1,21 +1,21 @@
-# Assignment 1
+# Group 7 Assignment 1
 
 Our group has chosen **Chinese Checkers** as our game.
 
-The GUI is adapted from [henrychess's repository](https://github.com/henrychess/pygame-chinese-checkers/). The code has been reorganised to have 3 main packages: `bots`,`game_logic`,`gui`.
+<img src="assets/MMLadder_opening.png" width="400"/>
 
-Our group has placed most of work as new scripts and bots in the `bots` package.
+
+The GUI is adapted from [henrychess's repository](https://github.com/henrychess/pygame-chinese-checkers/). The group's work has been explained in a [Contribution](#contribution) section below.
 
 ## Table of Contents
 
 <!-- toc -->
-
 - [Folder Directory](#folder-directory)
 - [Cloning the Repository](#cloning-the-repository)
 - [Installing Python Environment](#installing-python-environment)
 - [Running the program](#running-the-program)
 - [Development](#development)
-
+- [Contribution](#contribution)
 <!-- tocstop -->
 
 ## Folder Directory
@@ -28,13 +28,21 @@ assignment1
 │   ├── GreedyBot0.py
 │   ├── GreedyBot1.py
 │   ├── GreedyBot2.py
+│   ├── GroupBot.py
+│   ├── LadderBot.py
+│   ├── MMCluster.py
+│   ├── MMLadder.py
 │   └── RandomBot.py
+├── config
+│   ├── config-mmcluster-greedy1.yaml
+│   ├── config-mmcluster-greedy2.yaml
+│   └── config-mmladder-greedy2.yaml
 ├── game_logic
 │   ├── __init__.py
-│   ├── constants.py
 │   ├── game.py
 │   ├── helpers.py
 │   ├── human.py
+│   ├── layout.py
 │   ├── piece.py
 │   └── player.py
 ├── gui
@@ -46,15 +54,15 @@ assignment1
 │   ├── bots_development.md
 │   └── game_selection.md
 ├── replays
-│   ├── 2player_replay.txt
-│   └── 3player_replay.txt
-├── LICENSE
-├── pyproject.toml
+│   ├── MMCluster_Greedy2.txt
+│   ├── MMCluster_MMLadder.txt
+│   └── MMLadder_Greedy2.txt
 ├── README.md
 ├── main.py
 ├── requirements.txt
+├── LICENSE
+├── pyproject.toml
 └── display_coordinates.py
-
 ```
 
 ## Cloning the Repository
@@ -66,6 +74,8 @@ git clone https://github.com/yufanana/ArtificialIntelligence02180.git
 ```
 
 ## Installing Python Environment
+
+Change directory into the `assignment1` folder
 
 ### With Anaconda
 
@@ -202,3 +212,10 @@ git rebase --continue
 - To use a different config for a game, modify the `config_name` parameter inside `main()` in [`main.py`](main.py)
 - The string to represent the player type should be exactly the class name. </br>
 e.g. `Human` and not `human`, `GreedyBot0` and not `Greedybot`.
+
+## Contribution
+
+The code has been reorganised to have 3 main packages: `bots`,`game_logic`,`gui`.
+
+Our group has placed most of work as new scripts and bots in the `bots` package.
+

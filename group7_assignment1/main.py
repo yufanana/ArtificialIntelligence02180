@@ -20,11 +20,11 @@ def read_config(file_name="config0.yaml"):
 
 def main():
     # Set config file
-    # config_name = "config-mmcluster-greedy1.yaml"
-    # config_name = "config-mmcluster-greedy2.yaml"
-    config_name = "config-mmladder-greedy2.yaml"
+    config_name = "config-mmcluster-greedy2.yaml"
+    # config_name = "config-mmladder-greedy2.yaml"
     cfg = read_config(config_name)
-    waitBot = False
+    
+    waitBot = False # True: bot waits for a key press before making a move
 
     # Initialize pygame window
     pygame.init()
