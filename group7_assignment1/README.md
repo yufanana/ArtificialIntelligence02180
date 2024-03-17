@@ -5,7 +5,7 @@ Our group has chosen **Chinese Checkers** as our game.
 <img src="assets/MMLadder_opening.png" width="400"/>
 
 
-The GUI is adapted from [henrychess's repository](https://github.com/henrychess/pygame-chinese-checkers/). The group's work is explained in the [Contribution](#contribution) section below.
+The GUI is adapted from [henrychess's repository](https://github.com/henrychess/pygame-chinese-checkers/). The group's work is explained in the [Contribution](#contribution) section. Links to the YouTube videos of the game play are available in the [Running the program](#running-the-program) section.
 
 ## Table of Contents
 
@@ -69,7 +69,7 @@ assignment1
 
 ## Cloning the Repository
 
-For external viewers/examiners, if you do not have the zipped folder, you can clone the repository.
+If you do not have the zipped folder, you can clone the repository.
 
 ```bash
 git clone https://github.com/yufanana/ArtificialIntelligence02180.git
@@ -131,34 +131,36 @@ pip install -r requirements.txt
 
 ## Running the program
 
-First, open a terminal and change directory to the root folder of assignment 1.
+### Replay
 
-```bash
-cd group7_assignment1
-```
+The group has recorded a few complete game plays to avoid the long computation time for actual game play (~10mins for a full game). The replay mode can be selected at the main menu of the GUI. To toggle autoplay, you may have to double-click on the `Autoplay` button a few times.
 
-Activate the virtual environment and start the game.
+If you prefer to watch the recorded game play, the replays can be found in the YouTube links below.
 
-```bash
-conda activate g7_ai1
-python main.py
-```
+- [MMLadder vs Greedy2](https://youtu.be/ChkEJpHClPY)
+- [MMLadder vs MMCluster](https://youtu.be/dTW4lY1AmtY)
+- [MMCluster vs Greedy2](https://youtu.be/pVf_NswFP8Q)
 
-If you want to close the window, you can quit the game by clicking the X button on the top of the window or pressing `Ctrl + C` or `cmd + C` in the terminal.
 
 ### Game Play
 
 The group has developed 2 main minimax bots `MMCluster` and `MMLadder`. To watch the bots play against `GreedyBot2`, the configuration file can be selected by commenting out the relevant lines in [`main.py`](main.py) line 23-26. A full round with one of the minimax bots takes about 10 minutes on our computers.
 
-### Replay
+First, open a terminal and change directory to the root folder of assignment 1 and activate the virtual environment.
 
-The group has recorded a few complete game plays to avoid the long computation time for actual game play. The replay mode can be selected at the main menu of the GUI. To toggle autoplay, you may have to click the `Autoplay` button a few times.
+```bash
+cd group7_assignment1
+conda activate g7_ai1
+```
 
-In addition, a video recording of the replays can be found in the YouTube links below.
+Start the game.
 
-- [MMLadder vs Greedy2](https://youtu.be/ChkEJpHClPY)
-- [MMLadder vs MMCluster](https://youtu.be/dTW4lY1AmtY)
-- [MMCluster vs Greedy2](https://youtu.be/pVf_NswFP8Q)
+```bash
+python main.py
+```
+
+If you want to close the window, you can quit the game by clicking the X button on the top of the window or pressing `Ctrl + C` or `cmd + C` in the terminal.
+
 
 ## Development
 
