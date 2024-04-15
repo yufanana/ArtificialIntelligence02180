@@ -1,0 +1,2 @@
+ipykernel == 6.29.4
+sympy == 1.12
