@@ -11,8 +11,6 @@ from game_logic.layout import (
     ALL_COOR,
 )
 from game_logic.piece import Piece
-
-# from game_logic.player import Player
 from gui.constants import HEIGHT, WIDTH
 from typing import List
 
