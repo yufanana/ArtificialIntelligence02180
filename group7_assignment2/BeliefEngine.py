@@ -89,7 +89,6 @@ def make_clause(args):
 
 class BeliefBase:
     def __init__(self) -> None:
-        self.beliefs = []
         self.belief_base = []
         self.operations = set([Not, And, Or, Implies, Equivalent])
 
@@ -100,8 +99,6 @@ class BeliefBase:
         """
         Expand the belief base by adding new beliefs as CNF formulas.
         """
-        self.beliefs.append(belief)
-
         # Eliminate bi-implications, assume one bi-imp per belief
         ## Find the bi-imp operator
         imp_op = None
@@ -189,77 +186,6 @@ class BeliefBase:
                     resolvents.add(make_clause(res))
         return resolvents
 
-    def contraction_success(self, KB_new, alpha):
-        """
-        Implements the success postulate for partial_meet_contraction.
-
-        Args:
-            alpha (sympy.Expr): The belief to be removed from the belief base.
-        """
-        return not self.pl_resolution(KB_new, alpha)
-
-    def contraction_inclusion(self, KB_original, KB_new):
-        """
-        Implements the inclusion postulate for contraction.
-
-        Args:
-            KB_original (list): The original belief base.
-            alpha (sympy.Expr): The belief to be removed from the belief base.
-        """
-        return KB_new.issubset(set(KB_original))
-
-    def contraction_vacuity(self, KB_original, KB_new, alpha):
-        """
-        Implements the vacuity postulate for contraction.
-
-        Args:
-            KB_original (list): The original belief base.
-            alpha (sympy.Expr): The belief to be removed from the belief base.
-        """
-        if not self.pl_resolution(KB_original, alpha):
-            return KB_new == KB_original
-        return True
-
-    def contraction_extensionality(self, KB_original, alpha, beta):
-        """
-        Implements the extensionality postulate for contraction.
-
-        Args:
-            KB_original (list): The original belief base.
-            alpha (sympy.Expr): The belief to be removed from the belief base.
-            beta (sympy.Expr): The equivalent belief to be removed from the belief base.
-        """
-        KB_new_alpha = self.partial_meet_contraction(KB_original, alpha)
-        KB_new_beta = self.partial_meet_contraction(KB_original, beta)
-        return KB_new_alpha == KB_new_beta
-
-    def agm_contraction_postulates(self, KB_original, KB_new, alpha):
-        """
-        Implements the AGM postulates for contraction: success,
-        inclusion, vacuity, extensionality.
-
-        Args:
-            KB_original (list): The original belief base.
-            KB_new (list): The new belief base after contraction.
-            alpha (sympy.Expr): The belief to be removed from the belief base.
-        """
-        KB_original = set(KB_original)
-        KB_new = set(KB_new)
-        success = self.contraction_success(KB_new, alpha)
-        inclusion = self.contraction_inclusion(KB_original, KB_new)
-        vacuity = self.contraction_vacuity(KB_original, KB_new, alpha)
-        extensionality = self.contraction_extensionality(KB_original, alpha, alpha)
-
-        print(
-            f"Success: {success}, Inclusion: {inclusion}, Vacuity: {vacuity}, Extensionality: {extensionality}",
-        )
-
-        if success and inclusion and vacuity and extensionality:
-            print("Contraction satisfies AGM postulates.")
-            return True
-        print("Contraction does not satisfy AGM postulates.")
-        return False
-
     def generate_combinations(self, lst):
         """
         Generate all possible combinations of elements from a list.
@@ -339,3 +265,76 @@ class BeliefBase:
         self.agm_contraction_postulates(KB_old, self.belief_base, Not(belief))
         self.expand(belief)
         print(f"KB after revision: {self.belief_base} \n")
+
+    ### AGM Contraction Postulates ###
+
+    def contraction_success(self, KB_new, alpha):
+        """
+        Implements the success postulate for partial_meet_contraction.
+
+        Args:
+            alpha (sympy.Expr): The belief to be removed from the belief base.
+        """
+        return not self.pl_resolution(KB_new, alpha)
+
+    def contraction_inclusion(self, KB_original, KB_new):
+        """
+        Implements the inclusion postulate for contraction.
+
+        Args:
+            KB_original (list): The original belief base.
+            alpha (sympy.Expr): The belief to be removed from the belief base.
+        """
+        return KB_new.issubset(set(KB_original))
+
+    def contraction_vacuity(self, KB_original, KB_new, alpha):
+        """
+        Implements the vacuity postulate for contraction.
+
+        Args:
+            KB_original (list): The original belief base.
+            alpha (sympy.Expr): The belief to be removed from the belief base.
+        """
+        if not self.pl_resolution(KB_original, alpha):
+            return KB_new == KB_original
+        return True
+
+    def contraction_extensionality(self, KB_original, alpha, beta):
+        """
+        Implements the extensionality postulate for contraction.
+
+        Args:
+            KB_original (list): The original belief base.
+            alpha (sympy.Expr): The belief to be removed from the belief base.
+            beta (sympy.Expr): The equivalent belief to be removed from the belief base.
+        """
+        KB_new_alpha = self.partial_meet_contraction(KB_original, alpha)
+        KB_new_beta = self.partial_meet_contraction(KB_original, beta)
+        return KB_new_alpha == KB_new_beta
+
+    def agm_contraction_postulates(self, KB_original, KB_new, alpha):
+        """
+        Implements the AGM postulates for contraction: success,
+        inclusion, vacuity, extensionality.
+
+        Args:
+            KB_original (list): The original belief base.
+            KB_new (list): The new belief base after contraction.
+            alpha (sympy.Expr): The belief to be removed from the belief base.
+        """
+        KB_original = set(KB_original)
+        KB_new = set(KB_new)
+        success = self.contraction_success(KB_new, alpha)
+        inclusion = self.contraction_inclusion(KB_original, KB_new)
+        vacuity = self.contraction_vacuity(KB_original, KB_new, alpha)
+        extensionality = self.contraction_extensionality(KB_original, alpha, alpha)
+
+        print(
+            f"Success: {success}, Inclusion: {inclusion}, Vacuity: {vacuity}, Extensionality: {extensionality}",
+        )
+
+        if success and inclusion and vacuity and extensionality:
+            print("Contraction satisfies AGM postulates.")
+            return True
+        print("Contraction does not satisfy AGM postulates.")
+        return False
