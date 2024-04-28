@@ -10,33 +10,8 @@ The GUI is adapted from [henrychess's repository](https://github.com/henrychess/
 
 Please see the full [README.md](group7_assignment1/README.md) for assignment 1.
 
-## Contributors
+## Assignment 2
 
-Contributor test.
+Belief Revision Agent.
 
-<!-- readme: contributors -start -->
-<table>
-<tr>
-    <td align="center">
-        <a href="https://github.com/yufanana">
-            <img src="https://avatars.githubusercontent.com/u/58071981?v=4" width="100;" alt="yufanana"/>
-            <br />
-            <sub><b>Yu Fan</b></sub>
-        </a>
-    </td>
-    <td align="center">
-        <a href="https://github.com/lydiaha11">
-            <img src="https://avatars.githubusercontent.com/u/161224954?v=4" width="100;" alt="lydiaha11"/>
-            <br />
-            <sub><b>Lydia</b></sub>
-        </a>
-    </td>
-    <td align="center">
-        <a href="https://github.com/matita77">
-            <img src="https://avatars.githubusercontent.com/u/156772018?v=4" width="100;" alt="matita77"/>
-            <br />
-            <sub><b>Matteo</b></sub>
-        </a>
-    </td></tr>
-</table>
-<!-- readme: contributors -end -->
+Please see the full [README.md](group7_assignment2/README.md) for assignment 2.
