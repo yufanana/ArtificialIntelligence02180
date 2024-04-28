@@ -7,18 +7,14 @@
 - [Cloning the Repository](#cloning-the-repository)
 - [Installing Python Environment](#installing-python-environment)
 - [Running the program](#running-the-program)
-- [Development](#development)
-- [Contribution](#contribution)
 <!-- tocstop -->
 
 ## Folder Directory
 
 ```bash
-assignment2
-├── TO BE FILLED
-│   ├── TO BE FILLED.py
-│   └── TO BE FILLED.py
-└── TO BE FILLED.py
+group7_assignment2
+├── belief_engine.ipynb
+└── BeliefEngine.py
 ```
 
 ## Cloning the Repository
@@ -57,59 +53,6 @@ python -m pip install -r requirements.txt
 
 ## Running the program
 
-## Development
+The script [`BeliefEngine.py`](BeliefEngine.py) contains the class definition and implementations for the belief revision agent.
 
-For developers, follow [this tutorial](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent) to add SSH keys to your GitHub.
-
-Run this command to clone.
-
-```bash
-git clone git@github.com:yufanana/ArtificialIntelligence02180.git
-```
-
-To create new custom bots, refer to [bots_development](assets/bots_development.md) for instructions on how to create your own custom bots.
-
-### Updating your Branch
-
-1. Commit whatever changes you have on your branch.
-
-```bash
-git add .
-git commit -m "describe your changes"
-```
-
-2. Change to the main branch
-
-```bash
-git checkout main
-```
-
-3. Get the latest updates
-
-```bash
-git pull
-```
-
-4. Change back to your branch
-
-```bash
-git checkout my-branch
-```
-
-5. Rebase your branch onto the main branch
-
-```bash
-git rebase main
-```
-
-6. If there are any conflicts, resolve them in VS Code. Find the files that have been highlighted red with an exclamation mark in the `Folder Explorer`. After you have resolved the conflicts, run
-
-```bash
-git rebase --continue
-```
-
-7. Done! :)
-
-### Configurations
-
-## Contribution
+The notebook [`belief_engine.ipynb`](belief_engine.ipynb) is the interface to run commands for expansion, contraction and revision. A few sample commands have been included for reference.
