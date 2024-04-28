@@ -208,8 +208,41 @@ class BeliefBase:
             kb (list): The knowledge base.
             p (sympy.Expr): The belief to be removed from kb.
         """
+        # Generate all subsets of kb
         subsets = self.generate_combinations(kb)
+        # Filter out subsets that contain p
+        subsets = self.fliter_subsets(subsets, p)
 
+        # Select the best subsets
+        best_subsets = self.subset_selection(subsets)
+        updated_kb = list(set(best_subsets[0]).intersection(*best_subsets[1:]))
+        return updated_kb
+
+    def subset_selection(self, subsets):
+        """
+        Returns at most 2 of the largest sets contained in "subsets".
+
+        Args:
+            subsets (list): The list of subsets.
+        """
+        max = len(subsets[0])
+        best_subsets = []
+        for subset in subsets:
+            if len(subset) > max:
+                max = len(subset)
+                best_subsets = [subset]
+            elif len(subset) == max and len(best_subsets) < 2:
+                best_subsets.append(subset)
+        return best_subsets
+    
+    def fliter_subsets(self, subsets, p):
+        """
+        Filters the subsets that contain the belief to be removed.
+
+        Args:
+            subsets (list): The list of subsets.
+            p (sympy.Expr): The belief to be removed.
+        """
         # Remove subsets that entails p
         subset_copy = subsets.copy()
         for subset in subset_copy:
@@ -225,28 +258,7 @@ class BeliefBase:
                 if subset.issubset(subset2) and subset != subset2:
                     subsets_tmp.remove(subset)
                     break
-
-        # Select the best subsets
-        best_subsets = self.subset_selection(subsets_tmp)
-        updated_kb = list(set(best_subsets[0]).intersection(*best_subsets[1:]))
-        return updated_kb
-
-    def subset_selection(self, subsets):
-        """
-        Returns at most 2 of the largest sets contained in "subsets".
-
-        Args:
-            subsets (list): The list of subsets.
-        """
-        max = len(subsets[0])
-        best_subsets = []
-        for subset in subsets:
-            if len(subset) > max and len(subset) < 2:
-                max = len(subset)
-                best_subsets = [subset]
-            elif len(subset) == max:
-                best_subsets.append(subset)
-        return best_subsets
+        return subsets_tmp
 
     def revise(self, belief):
         """
