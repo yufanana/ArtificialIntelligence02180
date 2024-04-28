@@ -131,7 +131,8 @@ class BeliefBase:
             alpha (sympy.Expr): A SymPy sentence representing the query.
 
         Returns:
-            bool: True if the query is entailed by the knowledge base, False otherwise.
+            bool: True if the query is entailed by the knowledge base,
+                False otherwise.
         """
         # Split each clause in the base by the "And" symbol
         KB_clauses = []  # KB as list of disjunctions (CNF form)
@@ -189,7 +190,7 @@ class BeliefBase:
 
     def contraction_success(self, KB_new, alpha):
         """
-        Implements the success postulate for partial_meet_contractionion.
+        Implements the success postulate for partial_meet_contraction.
 
         Args:
             alpha (sympy.Expr): The belief to be removed from the belief base.
@@ -238,6 +239,7 @@ class BeliefBase:
 
         Args:
             KB_original (list): The original belief base.
+            KB_new (list): The new belief base after contraction.
             alpha (sympy.Expr): The belief to be removed from the belief base.
         """
         KB_original = set(KB_original)
@@ -277,7 +279,7 @@ class BeliefBase:
 
         Args:
             kb (list): The knowledge base.
-            p (sympy.Expr): The belief to be removed from the knowledge base.
+            p (sympy.Expr): The belief to be removed from kb.
         """
         subsets = self.generate_combinations(kb)
 
