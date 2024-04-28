@@ -155,11 +155,12 @@ class BeliefBase:
                         resolvents |= self.pl_resolve(ci, cj)
                 if any(clause is False for clause in resolvents):  # Empty clause found
                     return True
+
+            new_clauses |= resolvents
             if resolvents.issubset(KB_clauses):  # No new clauses derived
                 return False
 
             # Add new clauses to KB
-            new_clauses |= resolvents
             KB_clauses.extend(new_clauses)
 
     def pl_resolve(self, clause1, clause2) -> set:
