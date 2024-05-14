@@ -2,18 +2,33 @@
 
 ## Topics Covered
 
-|Week               | Topics     |
-|:------------------|:----------|
-| [Week 1](#week-1-introduction) | Introduction |
-| [Week 2](#week-2-uninformed-search) | Uninformed Search |
-| [Week 3](#week-3-informed-search) | Informed Search |
-| [Week 4](#week-4-non-determinism-partial-observability) | Non-determinism <br> Partial Observability |
-| [Week 5](#week-5-adversarial-search) | Adversarial Search|
-| [Week 6](#week-6-monte-carlo-tree-search) | Monte Carlo Tree Search|
-| [Week 8](#week-8-logical-agents) | Logical Agents|
-| [Week 9](#week-9-belief-revision-i) | Belief Revision I|
-| [Week 10](#week-10-logical-inference) | Logical Inference|
-| [Week 11](#week-11-belief-revision-ii) | Belief Revision II|
+|Week               | Title     | Topics |
+|:------------------|:----------| :----- |
+| [Week 1](#week-1-introduction) | Introduction | Turing test <br> Symbolic <br> Sub-symbolic|
+| [Week 2](#week-2-uninformed-search) | Uninformed Search | Search problem <br>  Tree search <br> Graph search <br> BFS DFS|
+| [Week 3](#week-3-informed-search) | Informed Search | Uniform-cost search <br> Best-first search <br> Greedy BFS <br> A*star|
+| [Week 4](#week-4-non-determinism-partial-observability) | Non-determinism <br> Partial Observability | And-Or trees <br> Conditional plans <br> Belief states <br> Percept, update, results |
+| [Week 5](#week-5-adversarial-search) | Adversarial Search| MiniMax <br> Alpha-beta pruning <br> Evaluation function |
+| [Week 6](#week-6-monte-carlo-tree-search) | Monte Carlo Tree Search| |
+| [Week 8](#week-8-logical-agents) | Logical Agents| Entailment <br> Model checking <br> Propositional logic |
+| [Week 9](#week-9-belief-revision-i) | Belief Revision I| AGM belief revision model <br> Revision, contraction, expansion <br> Plausibility orders |
+| [Week 10](#week-10-logical-inference) | Logical Inference| Propositional theorem proving <br> Inference rules <br> Resolution <br> Conjunctive normal form <br> Definite & Horn clauses |
+| [Week 11](#week-11-belief-revision-ii) | Belief Revision II| AGM Postulates <br> Remainders $A \bot \varphi$ <br> Partial meet contraction <br> Belief bases & sets <br> Entrenchment |
+
+## Miscellaneous
+
+| $p$ | $q$ | $p \vee q$ | $p \wedge q$ | $p \rarr q$ | $p \larr q$ | $ p \lrarr q$ |
+|---|---|---|---|---|---|---|
+| 0 | 0 | 0 | 0 | 1 | 1 | 1 |
+| 0 | 1 | 1 | 0 | 1 | 0 | 0 |
+| 1 | 0 | 1 | 0 | 0 | 1 | 0 |
+| 1 | 1 | 1 | 1 | 1 | 1 | 1 |
+
+Standard logical equivalences
+
+$A \rarr B \equiv \neg A \vee B$
+
+<img src="assets/logical_equivalences.png" width="500">
 
 ## Week 1 Introduction
 
@@ -29,7 +44,7 @@
 
 - John McCarthy: *Artificial intelligence is the science and engineering of making intelligent machines, especially intelligent computer programs.*
 
-### Symbolic VS sub-symbolic
+### Symbolic VS Sub-symbolic
 
 - symbolic: simulates human symolic, conscious reasoning.
   - e.g. search, planning, logical reasoning
@@ -181,7 +196,7 @@ Search problem
 - Goal-Test(s): are all squares clean?
 - Step-Cost(s; a): each step costs 1.
 
-And-Or Trees
+### And-Or Trees
 
 - Deterministic actions
   - represented using $OR$ nodes
@@ -276,7 +291,7 @@ Games
   - Numerical value for player $p$ in terminal state $s$.
   - e.g. +1 for win and -1 for loose (zero-sum)
 
-MiniMax
+### MiniMax
 
 - 2 players: max, min
   - max: chooses the move the maximises the minimax value
@@ -287,11 +302,11 @@ MiniMax
 
 <img src="assets/minimax.png" width="400">
 
-Example 
+Example
 
 <img src="assets/minimax2.png" width="400">
 
-Alpha-beta pruning
+### Alpha-beta Pruning
 
 - makes the game tree smaller, computationally efficient
 - $\alpha$: lower bound on what MAX can achieve playing up till the current node
@@ -379,7 +394,7 @@ Model checking
 - enumerate all models of KB, check if the conclusion holds
 - $KB \vdash \varphi$: sentence $\varphi$ derived from KB
 
-Language of Propositional Logic
+### Language of Propositional Logic
 
 | Symbol | Meaning |
 | -- | :-- |
@@ -432,7 +447,7 @@ $A \rarr B \equiv \neg A \vee B$
 
 Updating a knowledge base in light of new information, especially when there is conflict with pre-existing knowledge
 
-AGM Belief Revision Model
+### AGM Belief Revision Model
 
 - beliefs are changeable, can be false
 - expressed using propositional logic
@@ -443,12 +458,14 @@ Logical consequence
 
 - $Cn(B)$ is the set of logical consequences of $B$
 - $\varphi \in Cn(B)$: $\varphi$ can be derived from $B$
-- e.g. $B = \{ p,q,p \rarr \neg q \}$
-  - $B \subset Cn(B)$
-  - $p \wedge q \in Cn(B)$
-  - $\neg q \in Cn(B)$
 
-Belief revision on belief sets
+> e.g. $B = \{ p,q,p \rarr \neg q \}$
+>
+> - $B \subset Cn(B)$
+> - $p \wedge q \in Cn(B)$
+> - $\neg q \in Cn(B)$
+
+### Belief revision on belief sets
 
 1. Revision, $B * \varphi$
     - remove beliefs inconsistent with $\varphi$
@@ -462,17 +479,24 @@ Belief revision on belief sets
 3. Expansion, $B + \varphi$
     - add $\varphi$ to $B$
 
-Belief revision on plausibility orders
+### Belief revision on plausibility orders
 
 <img src="assets/plausibility_order.png" width="400">
 
 The lower the state, the more plausible it is.
 
-1. After revising with $\neg q$, look for prior minimal states that do not satisfy q.
+1. After **revising** with $\neg q$, look for prior minimal states that do not satisfy q.
 
-2. After contracting with $q$, the new beliefs are specified by the union
-    - prior most plausible world
-    - prior most plausible world not-entailing q
+> Result of left table: state y <br>
+> Result of right table: state w
+
+2. After **contracting** with $q$, the new beliefs are specified by the union of
+
+  - prior most plausible world
+  - prior most plausible world not-entailing q
+
+> Result of left table: state x and y <br>
+> Result of right table: state x and w
 
 Plausibility order: total preoder $\le$ possible truth asssignments W on P
 
@@ -480,7 +504,7 @@ Plausibility order: total preoder $\le$ possible truth asssignments W on P
 
 [Back to top](#topics-covered)
 
-Propositional theorem proving
+### Propositional Theorem Proving
 
 - check validity using brute-force truth tables
 - Semantic model checking: enumerate models, show it holds in all models
@@ -498,7 +522,7 @@ Key terms
   - $\varphi \rarr \psi$ is valid
   - $(\varphi \wedge \neg \psi)$ is False (proof by contradition)
 
-Inference rules
+### Inference rules
 
 - Modus Ponens: $\frac{\varphi \rarr \psi, \varphi}{\psi}$
   - i.e. if the 1st term is known, then 2nd term can be inferred.
@@ -508,22 +532,25 @@ Monotonicity: set of entailed sentences can only increase as information is adde
 
 - If $KB \models \varphi$, then $KB \cup \psi \models \varphi$ (previous knowledge is still entailed)
 
-Resolution
+### Resolution
 
 <img src="assets/resolution.png" width="500">
 
 e.g.
 $$
 Unit:\frac{P \vee \neg Q \vee R, Q}{P \vee R} \\
+$$
+
+$$
 Full: \frac{P \vee \neg Q \vee R \vee S, \neg P \vee Q \vee T}{R \vee S \vee T}
 $$
 
-Conjunctive Normal Form (CNF)
+### Conjunctive Normal Form (CNF)
 
 - conjunction $\wedge$ of disjunction $\vee$ clauses
 - ${clause}_1 \wedge {clause}_2 \wedge {clause}_3$, where ${clause}_1$ is $(\neg r \vee p \vee s)$
 
-Resolution Algorithm
+### Resolution Algorithm
 
 - to show $KB \models \varphi$, show $KB \wedge \neg \varphi$ is unsatisfiable
 - always terminates
@@ -538,13 +565,15 @@ Resolution Algorithm
 
 <img src="assets/pl_resolution.png" width="500">
 
-Definite clauses
+### Definite clauses
 
 - clauses of literas with exactly one positive
-- e.g. $(\neg p \vee \neg s \vee r)$
-- $(\neg p \vee \neg s \vee r) \equiv (p \wedge s) \rarr r$
 
-Horn clauses
+> e.g. $(\neg p \vee \neg s \vee r)$
+>
+> $(\neg p \vee \neg s \vee r) \equiv (p \wedge s) \rarr r$
+
+### Horn clauses
 
 - disjunction of clauses of which at most one is positive
 - all definite clauses are horn clauses
@@ -555,7 +584,9 @@ Horn clauses
 
 [Back to top](#topics-covered)
 
-AGM Rationality Postulates of Contraction
+### AGM Rationality Postulates
+
+Contraction
 
 1. Closure: the outcome is logically closed
     - $B \div \varphi = Cn(B \div \varphi)$
@@ -571,7 +602,7 @@ AGM Rationality Postulates of Contraction
 
 Similar postulates for revision
 
-Remainders $A \bot \varphi$
+### Remainders $A \bot \varphi$
 
 - goal: limit removals from the original set
 - inclusion maximal sets of A that do not imply $\varphi$
@@ -581,14 +612,21 @@ Remainders $A \bot \varphi$
 - C does not imply $\varphi$
 - there is no set $C'$ s.t. $C'$ does not imply $\varphi$ and $C \subset C' \subseteq A$
 
-Partial Meet Contraction
+>e.g. $A = \{p, q p \rarr q, \neg p \rarr q \}$
+>
+>There are 2 elements in $ A \bot q$. Each element is a maximal subset that does not imply $q$.
+>
+> - $\{p, \neg p \rarr q\}$
+> - $\{p \rarr q \}$
+
+### Partial Meet Contraction
 
 - intersection of the selected elements of $A \bot \varphi$
 - selection function $\gamma$
   - $\gamma (B \bot \varphi)$ is a non-empty subet of $B \bot \varphi$
 - applicable to belief bases
 
-Belief base
+### Belief base
 
 - set of sentences that is not necessarily deductively closed
 - beliefs that are held independently
@@ -600,7 +638,7 @@ Statically equivalent: belief sets are the same upon inspection only
 
 Dynamically equivalent: belief sets are different after operations of change
 
-Entrenchment
+### Entrenchment
 
 - assigning beliefs with epistemic value
 - such that beliefs with little explanatory power and informational value are given up first

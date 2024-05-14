@@ -202,7 +202,7 @@ class BeliefBase:
 
     def partial_meet_contraction(self, kb, p):
         """
-        Implements the partial meet contraction for knowlegde bases.
+        Implements the partial meet contraction for knowledge bases.
 
         Args:
             kb (list): The knowledge base.
@@ -210,12 +210,16 @@ class BeliefBase:
         """
         # Generate all subsets of kb
         subsets = self.generate_combinations(kb)
+        # print(f"all combi: {subsets}")
         # Filter out subsets that contain p
-        subsets = self.fliter_subsets(subsets, p)
+        subsets = self.filter_subsets(subsets, p)
+        # print(f"filtered combi: {subsets}")
 
         # Select the best subsets
         best_subsets = self.subset_selection(subsets)
+        # print(f"best combi: {best_subsets}")
         updated_kb = list(set(best_subsets[0]).intersection(*best_subsets[1:]))
+        # print(f"updated kb: {updated_kb}")
         return updated_kb
 
     def subset_selection(self, subsets):
@@ -235,7 +239,7 @@ class BeliefBase:
                 best_subsets.append(subset)
         return best_subsets
     
-    def fliter_subsets(self, subsets, p):
+    def filter_subsets(self, subsets, p):
         """
         Filters the subsets that contain the belief to be removed.
 
@@ -274,7 +278,7 @@ class BeliefBase:
         KB_old = self.belief_base.copy()
         self.belief_base = self.partial_meet_contraction(self.belief_base, Not(belief))
         # Check AGM postulates
-        self.agm_contraction_postulates(KB_old, self.belief_base, Not(belief))
+        # self.agm_contraction_postulates(KB_old, self.belief_base, Not(belief))
         self.expand(belief)
         print(f"KB after revision: {self.belief_base} \n")
 
