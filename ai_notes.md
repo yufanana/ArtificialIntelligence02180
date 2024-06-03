@@ -86,7 +86,7 @@ Vacuum World
 
 <img src="assets/vacuum_world.png" width="400">
 
-- State space: 2\cdot2^2$ possible states
+- State space: $2\cdot2^2$ possible states
 - s0: Initial state
 - Actions(s): for each state three possible actions: L, R, S.
 - Results(s; a): actions have their expected results.
